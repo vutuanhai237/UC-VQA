@@ -6,7 +6,7 @@ import qiskit.quantum_info as qi
 from qiskit.visualization import plot_bloch_multivector
 # Theta, phi, lambdaz is the params of u3 gate
 theta = np.random.uniform(0, np.pi)
-phi = np.random.uniform(0, np.pi)
+phi = np.random.uniform(0, 2*np.pi)
 lambdaz = 0
 # Thetas is the param of rz, rx, rz gates
 thetas = np.zeros([3,])
@@ -33,6 +33,14 @@ def get_psi_hat(thetas):
     b = np.exp(1j/2*(thetas[0]-thetas[2]))*1j*np.sin(thetas[1]/2)
     return np.array([a, b])
     
+def u_thetas_hat(thetas):
+    qc = QuantumCircuit(1,1)
+    qc.rz(thetas[2], 0).inverse()
+    qc.rx(thetas[1], 0).inverse()
+    qc.rz(thetas[0], 0).inverse()
+    psi_hat = qi.Statevector.from_instruction(qc)
+    return psi_hat
+
 def construct_circuit(thetas):
     """Return one-qubit quantum circuit as instructions
 
@@ -79,15 +87,16 @@ def grad_l(thetas):
 # Calculate loss function in 100 steps
 # I confused in this point, is below code right?
 ls = []
-for i in range(0, 200):
+for i in range(0, 100):
     thetas = thetas - learning_rate*grad_l(thetas)
     qc, psi = construct_circuit(thetas)
-    psi_hat = get_psi_hat(thetas)
+    psi_hat = u_thetas_hat(thetas)
     l = 1 - measure(qc)
     ls.append(l)
 
-
-# print(psi_hat)
+rho_psi = qi.DensityMatrix.from_instruction(psi)
+print(psi)
+print(psi_hat)
 # plot_bloch_multivector(psi, title="Psi")
 # plot_bloch_multivector(psi_hat, title="Psi_hat")
 
