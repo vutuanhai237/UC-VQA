@@ -12,7 +12,7 @@ lambdaz = 0
 thetas = np.zeros([3,])
 sim = Aer.get_backend('qasm_simulator')
 number_of_shot = 10000
-learning_rate = 0.01
+learning_rate = 0.1
 
 def u_thetas(thetas, qc):
     """Create U_thetas sub circuit
@@ -28,20 +28,11 @@ def u_thetas(thetas, qc):
     qc.rx(thetas[1], 0)
     qc.rz(thetas[2], 0)
     return qc
-def reserved_u_thetas(thetas, qc):
-    """Create U_thetas sub circuit
-
-    Args:
-        thetas (numpy array): Param for Rz, Rx, Rz
-        qc (QuantumCircuit): current circuit
-
-    Returns:
-        QuantumCircuit: added circuit
-    """
-    qc.rz(thetas[2], 0).inverse()
-    qc.rx(thetas[1], 0).inverse()
-    qc.rz(thetas[0], 0).inverse()
-    return qc
+def get_psi_hat(thetas):
+    a = np.exp(1j/2*(thetas[0]+thetas[2]))*np.cos(thetas[1]/2)
+    b = np.exp(1j/2*(thetas[0]-thetas[2]))*1j*np.sin(thetas[1]/2)
+    return np.array([a, b])
+    
 def construct_circuit(thetas):
     """Return one-qubit quantum circuit as instructions
 
@@ -88,23 +79,22 @@ def grad_l(thetas):
 # Calculate loss function in 100 steps
 # I confused in this point, is below code right?
 ls = []
-for i in range(0, 100):
+for i in range(0, 200):
     thetas = thetas - learning_rate*grad_l(thetas)
-    qcthetas = reserved_u_thetas(thetas, QuantumCircuit(1, 1))
-    psi_hat = qi.Statevector.from_instruction(qcthetas)
-
     qc, psi = construct_circuit(thetas)
-
+    psi_hat = get_psi_hat(thetas)
     l = 1 - measure(qc)
     ls.append(l)
-print(psi)
-print(psi_hat)
-(plot_bloch_multivector(psi))
-(plot_bloch_multivector(psi_hat))
+
+
+# print(psi_hat)
+# plot_bloch_multivector(psi, title="Psi")
+# plot_bloch_multivector(psi_hat, title="Psi_hat")
+
 plt.show()
-# plt.plot(ls)
-# plt.xlabel("Step")
-# plt.ylabel("Loss value")
-# plt.show()
+plt.plot(ls)
+plt.xlabel("Step")
+plt.ylabel("Loss value")
+plt.show()
     
 
