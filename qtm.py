@@ -14,9 +14,6 @@ def u_thetas(qc, thetas, index = 0):
     return qc
     
 def get_psi_hat(thetas):
-    # a = np.exp(1j/2*(thetas[0]+thetas[2]))*np.cos(thetas[1]/2)
-    # b = 1j*np.exp(1j/2*(thetas[0]-thetas[2]))*np.sin(thetas[1]/2)
-    # return np.array([a, b])
     qc = QuantumCircuit(1, 1)
     qc = u_thetas(qc, thetas).inverse()
     return qi.Statevector.from_instruction(qc)
@@ -29,7 +26,7 @@ def construct_circuit(qc, thetas, index = 0):
     qc = u_thetas(thetas, qc)
     return qc
 
-def measure(qc, i):
+def measure(qc):
     """Get P0 values by measurement
     Args:
         qc (QuantumCircuit)
@@ -41,6 +38,17 @@ def measure(qc, i):
     return counts['0'] / constant.shots
 
 def grad_l(qc, thetas):
+    """Parameter shift rule
+
+    \partial L = \frac{1}{2}*(L(\theta + \frac{\pi}{2})-L(\theta - \frac{\pi}{2}))
+
+    Args:
+        qc (QuantumCircuit): [description]
+        thetas (numpy array): current params
+
+    Returns:
+        float: gradient
+    """
     gradient_l = np.zeros(len(thetas))
     for i in range(0, len(thetas)):
         thetas1, thetas2 = thetas.copy(), thetas.copy()
@@ -53,9 +61,17 @@ def grad_l(qc, thetas):
         qc2 = u_thetas(qc.copy(), thetas2, 0)
         qc2.measure(0, 0)
 
-        gradient_l[i] = -1/2*(measure(qc1, 1) - measure(qc2, 1))
+        gradient_l[i] = -1/2*(measure(qc1) - measure(qc2))
 
     return gradient_l
+
+def grad_l_x_basis(qc, thetas):
+
+
+    return 
+
+
+
 
 def trace_distance(rho_psi, rho_psi_hat):
     """Since density matrices are Hermitian,
@@ -74,6 +90,14 @@ def trace_fidelity(rho_psi, rho_psi_hat):
     rho_psi_hat = rho_psi_hat.data
     return np.trace(sqrtm((sqrtm(rho_psi)).dot(rho_psi_hat)).dot(sqrtm(rho_psi)))
 
-def inner_product(psi, psi_hat):
+def inner_product(psi_hat, psi):
     return ((psi_hat.conjugate()).transpose()).dot(psi)
 
+def z_measurement(qc, qubit, cbit):
+    qc.measure(0, 0)
+    return qc
+
+def x_measurement(qc, qubit, cbit):
+    qc.h(qubit)
+    qc.measure(qubit, cbit)
+    return qc
