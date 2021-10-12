@@ -12,11 +12,25 @@ def u_thetas(qc, thetas, index = 0):
     qc.rx(thetas[1], 0)
     qc.rz(thetas[2], 0)
     return qc
+
+def u_thetas_h(qc, thetas, index = 0):
+    qc.rz(thetas[0], 0)
+    qc.rx(thetas[1], 0)
+    qc.rz(thetas[2], 0)
+    qc.h(0)
+    return qc
+
     
 def get_psi_hat(thetas):
     qc = QuantumCircuit(1, 1)
     qc = u_thetas(qc, thetas).inverse()
     return qi.Statevector.from_instruction(qc)
+
+def get_psi_hat_x_basis(thetas):
+    qc = QuantumCircuit(1, 1)
+    qc = u_thetas_h(qc, thetas).inverse()
+    return qi.Statevector.from_instruction(qc)
+
 
 def u_3(qc, theta, phi, lambdaz, index):
     qc.u3(theta, phi, lambdaz, index)
