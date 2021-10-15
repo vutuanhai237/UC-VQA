@@ -19,16 +19,19 @@ def u_thetas_h(qc, thetas, qubit = 0):
     qc.rz(thetas[2], qubit)
     qc.h(qubit)
     return qc
-    
+
+
+
 def get_psi_hat(thetas):
     qc = QuantumCircuit(1, 1)
     qc = u_thetas(qc, thetas).inverse()
     return qi.Statevector.from_instruction(qc)
 
 def get_psi_hat_x_basis(thetas):
-    qc = QuantumCircuit(1, 1)
+    qc = QuantumCircuit(1,1)
     qc = u_thetas_h(qc, thetas).inverse()
     return qi.Statevector.from_instruction(qc)
+
 
 def u_3(qc, theta, phi, lambdaz, index):
     qc.u3(theta, phi, lambdaz, index)
