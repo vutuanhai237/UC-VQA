@@ -37,11 +37,14 @@ def u_3(qc, theta, phi, lambdaz, index):
     qc.u3(theta, phi, lambdaz, index)
     return qc
 
-def measure(qc, qubit = 0, cbit = 0):
-    qc.measure(qubit, cbit)
+def measure(qc, qubits, cbits, counter):
+    for i in range(0, len(qubits)):
+        qc.measure(qubits[i], cbits[i])
     qobj = assemble(qc, shots = constant.shots)  
     counts = (Aer.get_backend('qasm_simulator')).run(qobj).result().get_counts()
-    return counts['0'] / constant.shots
+    return counts[counter] / constant.shots
+
+
 
 def grad_l(qc, thetas, r, s, measurement_basis = 'z'):
     gradient_l = np.zeros(len(thetas))
