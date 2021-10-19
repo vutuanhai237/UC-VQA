@@ -5,8 +5,8 @@ from matplotlib import pyplot as plt
 
 
 
-def create_ghz_state(qc):
-    qc.h(0)
+def create_ghz_state(qc, theta):
+    qc.ry(theta, 0)
     for i in range(0, qc.num_qubits - 1):
         qc.cnot(0, i + 1)
     return qc
