@@ -58,7 +58,7 @@ def grad_l(qc, thetas, r, s, measurement_basis = 'z'):
         if measurement_basis == 'x':
             qc1 = u_thetas_h(qc.copy(), thetas1, 0)
             qc2 = u_thetas_h(qc.copy(), thetas2, 0)
-        gradient_l[i] = -r*(measure(qc1) - measure(qc2))
+        gradient_l[i] = -r*(measure(qc1, [0], [0], "0") - measure(qc2, [0], [0], "0"))
     return gradient_l
 
 
