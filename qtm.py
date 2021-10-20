@@ -42,7 +42,7 @@ def measure(qc, qubits, cbits, counter):
         qc.measure(qubits[i], cbits[i])
     qobj = assemble(qc, shots = constant.shots)  
     counts = (Aer.get_backend('qasm_simulator')).run(qobj).result().get_counts()
-    return counts[counter] / constant.shots
+    return counts.get(counter, 0) / constant.shots
 
 
 
