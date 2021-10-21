@@ -84,3 +84,8 @@ def get_psi_hat_4qubit(thetas):
     qc = QuantumCircuit(4, 4)
     qc = u_cluster_4qubit(qc, thetas).inverse()
     return qi.Statevector.from_instruction(qc)
+
+def get_psi_hat_multiqubit(n_layer, thetas):
+    qc = QuantumCircuit(4, 4)
+    qc = u_cluster(qc, n_layer, thetas).inverse()
+    return qi.Statevector.from_instruction(qc)
