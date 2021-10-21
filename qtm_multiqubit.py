@@ -36,6 +36,27 @@ def u_cluster_4qubit(qc, thetas):
     qc = u_thetas_multiqubit(qc, thetas[0])
     return qc
 
+def u_cluster(qc, n_layer, thetas):
+    for i in range(0, n_layer):
+        qc = entanglement_multiqubit(qc)
+        qc = u_thetas_multiqubit(qc, thetas[i])
+    return qc
+
+def grad_u_cluster_multiqubit(qc, n_layer, thetas, r, s, counter="0"):
+    gradient_l = np.zeros((thetas).shape)
+    for i in range(0, thetas.shape[0]):
+        for j in range(0, thetas.shape[1]):
+            for k in range(0, thetas.shape[2]):
+                thetas1, thetas2 = thetas.copy(), thetas.copy()
+                thetas1[i, j, k] += s
+                thetas2[i, j, k] -= s
+                qc1 = u_cluster(qc.copy(), n_layer, thetas1)
+                qc2 = u_cluster(qc.copy(), n_layer, thetas2)
+                gradient_l[i, j, k] = -r*(
+                    measure(qc1, range(qc1.num_qubits), range(qc1.num_qubits), counter) - 
+                    measure(qc2, range(qc2.num_qubits), range(qc2.num_qubits), counter))
+    return gradient_l
+
 
 
 
