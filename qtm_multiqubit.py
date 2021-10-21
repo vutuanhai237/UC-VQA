@@ -31,11 +31,6 @@ def u_cluster_3qubit(qc, thetas):
     qc = u_thetas_multiqubit(qc, thetas[1])
     return qc
 
-def u_cluster_4qubit(qc, thetas):
-    qc = entanglement_multiqubit(qc)
-    qc = u_thetas_multiqubit(qc, thetas[0])
-    return qc
-
 def u_cluster(qc, n_layer, thetas):
     for i in range(0, n_layer):
         qc = entanglement_multiqubit(qc)
@@ -80,12 +75,8 @@ def get_psi_hat_3qubit(thetas):
     qc = u_cluster_3qubit(qc, thetas).inverse()
     return qi.Statevector.from_instruction(qc)
 
-def get_psi_hat_4qubit(thetas):
-    qc = QuantumCircuit(4, 4)
-    qc = u_cluster_4qubit(qc, thetas).inverse()
-    return qi.Statevector.from_instruction(qc)
 
-def get_psi_hat_multiqubit(n_layer, thetas):
-    qc = QuantumCircuit(4, 4)
+def get_psi_hat_multiqubit(n_qubit, n_layer, thetas):
+    qc = QuantumCircuit(n_qubit, n_qubit)
     qc = u_cluster(qc, n_layer, thetas).inverse()
     return qi.Statevector.from_instruction(qc)
