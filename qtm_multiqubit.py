@@ -39,7 +39,7 @@ def u_cluster_4qubit(qc, thetas):
 
 
 
-def grad_l_multiqubit(qc, create_qc_func, thetas, r, s):
+def grad_l_multiqubit(qc, create_qc_func, thetas, r, s, counter="0"):
     gradient_l = np.zeros((thetas).shape)
     for i in range(0, thetas.shape[0]):
         for j in range(0, thetas.shape[1]):
@@ -49,13 +49,17 @@ def grad_l_multiqubit(qc, create_qc_func, thetas, r, s):
                 thetas2[i, j, k] -= s
                 qc1 = create_qc_func(qc.copy(), thetas1)
                 qc2 = create_qc_func(qc.copy(), thetas2)
-
                 gradient_l[i, j, k] = -r*(
-                    measure(qc1, range(qc.num_qubits), range(qc.num_qubits), "000") - 
-                    measure(qc2, range(qc.num_qubits), range(qc.num_qubits), "000"))
+                    measure(qc1, range(qc1.num_qubits), range(qc1.num_qubits), counter) - 
+                    measure(qc2, range(qc2.num_qubits), range(qc2.num_qubits), counter))
     return gradient_l
 
 def get_psi_hat_3qubit(thetas):
     qc = QuantumCircuit(3, 3)
     qc = u_cluster_3qubit(qc, thetas).inverse()
+    return qi.Statevector.from_instruction(qc)
+
+def get_psi_hat_4qubit(thetas):
+    qc = QuantumCircuit(4, 4)
+    qc = u_cluster_4qubit(qc, thetas).inverse()
     return qi.Statevector.from_instruction(qc)
