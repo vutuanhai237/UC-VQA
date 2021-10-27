@@ -7,4 +7,6 @@ File: qtm_1qubit
 
 Week 3, 4: example with 3 qubits
 
-File: qtm_3qubit
+File: qtm_nqubit
+
+Week 5: refactor and make this project as an library
