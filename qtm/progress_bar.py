@@ -1,15 +1,14 @@
-from tqdm import tqdm
-import time
+import tqdm
 
-
-class ProgressBar(object):  # Python3+ '(object)' can be omitted
+# Copy on stackoverfollow
+class ProgressBar(object): 
     def __init__(self, max_value, disable=True):
         self.max_value = max_value
         self.disable = disable
         self.p = self.pbar()
 
     def pbar(self):
-        return tqdm(
+        return tqdm.tqdm(
             total=self.max_value,
             desc='Step: ',
             disable=self.disable
