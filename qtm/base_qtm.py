@@ -15,9 +15,8 @@ def measure(qc: qiskit.QuantumCircuit, qubits):
     """
     for i in range(0, len(qubits)):
         qc.measure(qubits[i], qubits[i])
-    qobj = qiskit.assemble(qc, shots = qtm.constant.shots)  
-    counts = (qiskit.Aer.get_backend('qasm_simulator')).run(qobj).result().get_counts()
-    return counts.get("0" * qc.num_qubits, 0) / qtm.constant.shots
+    counts = qiskit.execute(qc, backend = qiskit.Aer.get_backend('qasm_simulator'), shots = qtm.constant.num_shots).result().get_counts()
+    return counts.get("0" * qc.num_qubits, 0) / qtm.constant.num_shots
 
 def trace_distance(rho, sigma):
     """Since density matrices are Hermitian, so trace distance is 1/2 (Sigma(|lambdas|)) with lambdas are the eigenvalues of (rho_psi - rho_psi_hat) matrix
