@@ -37,31 +37,3 @@ def u_1qubit_h(qc: qiskit.QuantumCircuit, thetas, wire: int):
     qc.h(wire)
     return qc
 
-def get_u_1qubit_hat(thetas, num_qubits: int, wire: int):
-    """Return inverse of u_1q gate
-
-    Args:
-        - thetas (Numpy array): Parameters
-        - num_qubits (Int): number of qubit
-
-    Returns:
-        - Statevector: The state vector of when applying u_1q gate
-    """
-    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc = u_1qubit(qc, thetas, wire).inverse()
-    return qiskit.quantum_info.Statevector.from_instruction(qc)
-
-def get_u_1qubit_h_hat(thetas, num_qubits: int, wire: int):
-    """Return inverse of u_1q_h gate
-
-    Args:
-        - thetas (Numpy array): Parameters
-        - num_qubits (Int): number of qubit
-
-    Returns:
-        - Statevector: The state vector of when applying u_1q_h gate
-    """
-    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc = u_1qubit_h(qc, thetas, wire).inverse()
-    return qiskit.quantum_info.Statevector.from_instruction(qc)
-

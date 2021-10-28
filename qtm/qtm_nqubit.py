@@ -28,7 +28,7 @@ def u_nqubit(qc: qiskit.QuantumCircuit, thetas):
     """
     j = 0
     for i in range(0, qc.num_qubits):
-        qc = qtm.qtm_1qubit.u_1q(qc, thetas[j:j + 3], i)
+        qc = qtm.qtm_1qubit.u_1qubit(qc, thetas[j:j + 3], i)
         j = j + 3
     return qc
 
@@ -80,32 +80,3 @@ def u_cluster_nlayer_nqubit(qc: qiskit.QuantumCircuit, thetas, num_layers):
         qc = entangle_nqubit(qc)
         qc = u_nqubit(qc, thetas[i * params_per_layer:(i + 1) * params_per_layer])
     return qc
-
-def get_u_cluster_nqubit_hat(thetas, num_qubits: int = 1):
-    """Get psi_hat of u_nqubit
-
-    Args:
-        - thetas (Numpy array): Parameters
-        - num_qubits (int, optional): Number of qubits. Defaults to 1.
-
-    Returns:
-        - Statevector: State vectpr of u_nqubit_dagger
-    """
-    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc = u_cluster_nqubit(qc, thetas).inverse()
-    return qiskit.quantum_info.Statevector.from_instruction(qc)
-
-
-def get_u_cluster_nlayer_nqubit_hat(thetas, num_qubits: int = 1, num_layers: int = 1):
-    """Get psi_hat of u_nlayer_nqubit
-
-    Args:
-        - thetas (Numpy array): Parameters
-        - num_qubits (int, optional): Number of qubits. Defaults to 1.
-
-    Returns:
-        - Statevector: State vectpr of u_nqubit_dagger
-    """
-    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc = u_cluster_nlayer_nqubit(qc, thetas, num_layers).inverse()
-    return qiskit.quantum_info.Statevector.from_instruction(qc)

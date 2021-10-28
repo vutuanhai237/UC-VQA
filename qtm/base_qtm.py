@@ -60,6 +60,23 @@ def get_metrics(psi, psi_hat):
     sigma = qiskit.quantum_info.DensityMatrix(psi_hat)
     return qtm.base_qtm.trace_distance(rho, sigma), qtm.base_qtm.trace_fidelity(rho, sigma)
 
+def get_u_hat(thetas, create_circuit_func: FunctionType, num_qubits: int, **kwargs):
+    """Return inverse of reconstructed gate
+
+    Args:
+        - thetas (Numpy array): Parameters
+        - num_qubits (Int): number of qubit
+
+    Returns:
+        - Statevector: The state vector of when applying u_1q gate
+    """
+    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
+    if not kwargs:
+        qc = create_circuit_func(qc, thetas).inverse()
+    else:
+        qc = create_circuit_func(qc, thetas, kwargs).inverse()
+    return qiskit.quantum_info.Statevector.from_instruction(qc)
+
 def grad_l(
     qc: qiskit.QuantumCircuit, 
     create_circuit_func: FunctionType, 
