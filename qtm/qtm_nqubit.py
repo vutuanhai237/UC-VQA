@@ -165,7 +165,7 @@ def create_arbitrary_nqubit(qc: qiskit.QuantumCircuit, thetas, num_layers: int =
         qc = create_rz_nqubit(qc, phis[n*4:n*5])
     return qc
 
-def u_arbitrary_nqubit(qc, thetas):
+def create_arbitrary_nqubit2(qc, thetas):
     qc.rx(thetas[0], 0)
     qc.ry(thetas[1], 0)
     qc.rx(thetas[2], 1)
