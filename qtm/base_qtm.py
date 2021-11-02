@@ -73,7 +73,7 @@ def get_u_hat(thetas, create_circuit_func: FunctionType, num_qubits: int, **kwar
     if not kwargs:
         qc = create_circuit_func(qc, thetas).inverse()
     else:
-        qc = create_circuit_func(qc, thetas, kwargs).inverse()
+        qc = create_circuit_func(qc, thetas, **kwargs).inverse()
     return qiskit.quantum_info.Statevector.from_instruction(qc)
 
 def grad_l(
@@ -106,8 +106,8 @@ def grad_l(
             qc1 = create_circuit_func(qc.copy(), thetas1)
             qc2 = create_circuit_func(qc.copy(), thetas2)
         else:
-            qc1 = create_circuit_func(qc.copy(), thetas1, kwargs)
-            qc2 = create_circuit_func(qc.copy(), thetas2, kwargs)
+            qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
+            qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
         gradient_l[i] = -r*(
             qtm.base_qtm.measure(qc1, range(qc1.num_qubits)) - 
             qtm.base_qtm.measure(qc2, range(qc2.num_qubits))

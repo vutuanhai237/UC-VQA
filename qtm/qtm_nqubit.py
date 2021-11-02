@@ -1,7 +1,8 @@
 import qiskit
 import qtm.base_qtm, qtm.qtm_1qubit
+import numpy as np
 
-def create_ghz_state(qc: qiskit.QuantumCircuit, theta: float):
+def create_ghz_state(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
     """Create GHZ state with a parameter
 
     Args:
@@ -11,9 +12,28 @@ def create_ghz_state(qc: qiskit.QuantumCircuit, theta: float):
     Returns:
         - QuantumCircuit: the added circuit
     """
+    if isinstance(theta, float) != True:
+        theta = (theta['theta'])
     qc.ry(theta, 0)
     for i in range(0, qc.num_qubits - 1):
         qc.cnot(0, i + 1)
+    return qc
+
+def create_ghz_state_inverse(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
+    """Create GHZ state with a parameter
+
+    Args:
+        - qc (QuantumCircuit): Init circuit
+        - theta (Float): Parameter
+    
+    Returns:
+        - QuantumCircuit: the added circuit
+    """
+    if isinstance(theta, float) != True:
+        theta = (theta['theta'])
+    for i in range(0, qc.num_qubits - 1):
+        qc.cnot(0, qc.num_qubits - i - 1)
+    qc.ry(-theta, 0)
     return qc
 
 def u_nqubit(qc: qiskit.QuantumCircuit, thetas):
@@ -154,6 +174,8 @@ def create_arbitrary_nqubit(qc: qiskit.QuantumCircuit, thetas, num_layers: int =
         qiskit.QuantumCircuit
     """
     n = qc.num_qubits
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
     if len(thetas) != num_layers * n * 5:
         raise Exception('Number of parameters must be equal n_layers * num_qubits * 5')
     for i in range(0, num_layers):
@@ -180,4 +202,16 @@ def create_arbitrary_nqubit2(qc, thetas):
     qc.rzx(thetas[11], 1, 2)
     qc.rxx(thetas[12], 0, 1)
     qc.rzx(thetas[13], 0, 1)
+    return qc
+
+def create_check_arbitrary_state(qc, thetas, num_layers, theta):
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    if isinstance(theta, float) != True:
+        theta = theta['theta']
+    # |psi_gen> = U_gen|000...> 
+    qc = qtm.qtm_nqubit.create_arbitrary_nqubit(qc, thetas, num_layers = num_layers)
+    qc.barrier()
+    # U_target^t|psi_gen> with U_target is GHZ state
+    qc = qtm.qtm_nqubit.create_ghz_state_inverse(qc, theta)
     return qc
