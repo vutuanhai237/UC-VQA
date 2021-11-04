@@ -2,6 +2,9 @@ import qiskit
 import qtm.base_qtm, qtm.qtm_1qubit
 import numpy as np
 
+
+
+
 def create_ghz_state(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
     """Create GHZ state with a parameter
 
@@ -215,3 +218,5 @@ def create_check_arbitrary_state(qc, thetas, num_layers, theta):
     # U_target^t|psi_gen> with U_target is GHZ state
     qc = qtm.qtm_nqubit.create_ghz_state_inverse(qc, theta)
     return qc
+
+    
