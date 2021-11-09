@@ -1,21 +1,14 @@
-# Quantum Tomography Project
-For research project
+# Quantum Tomography
 
-Week 1, 2: example with one qubit
+- [x] Week 1, 2: Example with one qubit
 
-File: qtm_1qubit
+- [x] Week 3, 4: Example with n qubits
 
-Week 3, 4: example with 3 qubits
+- [x] Week 5: 
 
-File: qtm_nqubit
+- Refactor and make this project as an library
+- Create an arbitrary state and reconstruct it
 
-Week 5: 
+- [x] Week 6: Create a checker to make sure that the initial state is generated randomly
 
-- refactor and make this project as an library
-- create an arbitrary state and reconstruct it
-
-Folder: qtm
-
-Week 6: create a checker to make sure that the initial state is generated randomly
-
-Week 7: create general W state
+- [x] Week 7: Create general W state
