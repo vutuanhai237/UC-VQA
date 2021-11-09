@@ -17,3 +17,5 @@ Week 5:
 Folder: qtm
 
 Week 6: create a checker to make sure that the initial state is generated randomly
+
+Week 7: create general W state
