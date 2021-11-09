@@ -1,5 +1,6 @@
 import qiskit
 import numpy as np
+
 def cf(qc: qiskit.QuantumCircuit, theta: float, qubit1: int, qubit2: int):
     """Add Controlled-F gate to quantum circuit
 
