@@ -1,6 +1,6 @@
 import qiskit
 
-def u_1qubit(qc: qiskit.QuantumCircuit, thetas, wire: int):
+def u_1qubit(qc: qiskit.QuantumCircuit, thetas, wire: int = 0):
     """Return a simple series of 1 qubit gate
 
     Args:

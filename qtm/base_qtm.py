@@ -102,12 +102,10 @@ def grad_l(
         thetas1, thetas2 = thetas.copy(), thetas.copy()
         thetas1[i] += s
         thetas2[i] -= s
-        if not kwargs:
-            qc1 = create_circuit_func(qc.copy(), thetas1)
-            qc2 = create_circuit_func(qc.copy(), thetas2)
-        else:
-            qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
-            qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
+
+        qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
+        qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
+
         gradient_l[i] = -r*(
             qtm.base_qtm.measure(qc1, range(qc1.num_qubits)) - 
             qtm.base_qtm.measure(qc2, range(qc2.num_qubits))
@@ -125,10 +123,43 @@ def loss_basis(measurement_value: float):
     """
     return 1 - measurement_value
 
+def sgd(thetas: np.ndarray, partial_L):
+    """Standard gradient descent
+
+    Args:
+        thetas (np.ndarray): params
+        partial_L (float): gradient value
+
+    Returns:
+        np.ndarray: New params
+    """
+    thetas -= qtm.constant.learning_rate * partial_L
+    return thetas
+
+def adam(thetas: np.ndarray, m, v, iteration, partial_L):
+    """ADAM Optimizer. Below codes are copied from somewhere :)
+
+    Args:
+        thetas (np.ndarray): params
+        partial_L ([type]): gradient value
+    """
+    # initialize first and second moments
+    num_thetas = thetas.shape[0]
+    beta1, beta2, epsilon = 0.8, 0.999, 10**(-8)
+    
+    for i in range(0, num_thetas):
+        m[i] = beta1 * m[i] + (1 - beta1) * partial_L[i]
+        v[i] = beta2 * v[i] + (1 - beta2) * partial_L[i]**2
+        mhat = m[i] / (1 - beta1**(iteration + 1))
+        vhat = v[i] / (1 - beta2**(iteration + 1))
+        thetas[i] -= qtm.constant.learning_rate * mhat / (np.sqrt(vhat) + epsilon)
+    return thetas
+        
 def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas, 
     create_circuit_func: FunctionType, 
     grad_func: FunctionType, 
     loss_func: FunctionType,
+    optimizer: FunctionType,
     verbose: int = 0,
     **kwargs):
     """Return the new thetas that fit with the circuit from create_circuit_func function
@@ -140,6 +171,7 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
         - create_circuit_func (FunctionType): Added circuit function
         - grad_func (FunctionType): Gradient function
         - loss_func (FunctionType): Loss function
+        - optimizer (FunctionType): Otimizer function
         - verbose (Int): the seeing level of the fitting process (0: nothing, 1: progress bar, 2: one line per step)
         - **kwargs: additional parameters for different create_circuit_func()
     
@@ -147,18 +179,28 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
         - thetas (Numpy array): the optimized parameters
         - loss_values (Numpy array): the list of loss_value
     """
+
     loss_values = []
     if verbose == 1:
         bar = qtm.progress_bar.ProgressBar(max_value = num_steps, disable = False)   
     for i in range(0, num_steps):
-        if not kwargs:
-            thetas -= qtm.constant.learning_rate*grad_func(qc, create_circuit_func, thetas, 1/2, np.pi/2)     
-            qc_copy = create_circuit_func(qc.copy(), thetas)
-        else:
-            thetas -= qtm.constant.learning_rate*grad_func(qc, create_circuit_func, thetas, 1/2, np.pi/2, **kwargs)     
-            qc_copy = create_circuit_func(qc.copy(), thetas, **kwargs)
+        partial_L = grad_func(qc, create_circuit_func, thetas, 1/2, np.pi/2, **kwargs)  
+        otimizer_name = optimizer.__name__
+
+        if otimizer_name == 'sgd':
+            thetas = sgd(thetas, partial_L) 
+
+        elif otimizer_name == 'adam':
+            if i == 0:
+                m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
+            thetas = adam(thetas, m, v, i, partial_L)
+
+        qc_copy = create_circuit_func(qc.copy(), thetas, **kwargs)
         loss = loss_func(qtm.base_qtm.measure(qc_copy, range(qc_copy.num_qubits)))
         loss_values.append(loss)
+
+
+
         if verbose == 1:
             bar.update(1)
         if verbose == 2 and i % 10 == 0:

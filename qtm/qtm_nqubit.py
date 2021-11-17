@@ -259,5 +259,5 @@ def create_arbitrarychecker_arbitrary(qc, thetas, num_layers, encoder):
     qc1 = qtm.qtm_nqubit.create_arbitrary_nqubit(qc1, thetas, num_layers = num_layers)
     qc1.barrier()
     qc1 = qc1.combine(qc.inverse())
-    qc1.add_register(qiskit.ClassicalRegister(int(np.log2(psi.shape[0]))))
+    qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
     return qc1
