@@ -97,7 +97,7 @@ def grad_l(
     Returns:
         - Numpy array: The vector of gradient
     """
-    gradient_l = np.zeros(len(thetas))
+    grad_l = np.zeros(len(thetas))
     for i in range(0, len(thetas)):
         thetas1, thetas2 = thetas.copy(), thetas.copy()
         thetas1[i] += s
@@ -106,11 +106,11 @@ def grad_l(
         qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
         qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
 
-        gradient_l[i] = -r*(
+        grad_l[i] = -r*(
             qtm.base_qtm.measure(qc1, range(qc1.num_qubits)) - 
             qtm.base_qtm.measure(qc2, range(qc2.num_qubits))
         )
-    return gradient_l
+    return grad_l
 def loss_basis(measurement_value: float):
     """Return loss value for loss function L = 1 - P_0
     \n Here P_0 ~ 1 or L ~ 0 will be the best value
@@ -123,38 +123,48 @@ def loss_basis(measurement_value: float):
     """
     return 1 - measurement_value
 
-def sgd(thetas: np.ndarray, partial_L):
+def sgd(thetas: np.ndarray, grad_l):
     """Standard gradient descent
 
     Args:
         thetas (np.ndarray): params
-        partial_L (float): gradient value
+        grad_l (float): gradient value
 
     Returns:
         np.ndarray: New params
     """
-    thetas -= qtm.constant.learning_rate * partial_L
+    thetas -= qtm.constant.learning_rate * grad_l
     return thetas
 
-def adam(thetas: np.ndarray, m, v, iteration, partial_L):
+def adam(thetas: np.ndarray, m, v, iteration, grad_l):
     """ADAM Optimizer. Below codes are copied from somewhere :)
 
     Args:
         thetas (np.ndarray): params
-        partial_L ([type]): gradient value
+        grad_l ([type]): gradient value
     """
     # initialize first and second moments
     num_thetas = thetas.shape[0]
     beta1, beta2, epsilon = 0.8, 0.999, 10**(-8)
     
     for i in range(0, num_thetas):
-        m[i] = beta1 * m[i] + (1 - beta1) * partial_L[i]
-        v[i] = beta2 * v[i] + (1 - beta2) * partial_L[i]**2
+        m[i] = beta1 * m[i] + (1 - beta1) * grad_l[i]
+        v[i] = beta2 * v[i] + (1 - beta2) * grad_l[i]**2
         mhat = m[i] / (1 - beta1**(iteration + 1))
         vhat = v[i] / (1 - beta2**(iteration + 1))
         thetas[i] -= qtm.constant.learning_rate * mhat / (np.sqrt(vhat) + epsilon)
     return thetas
-        
+
+def qng(thetas: np.ndarray):
+    """Quantum natural gradient
+
+    Args:
+        thetas (np.ndarray): [description]
+    """
+
+    return thetas
+
+
 def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas, 
     create_circuit_func: FunctionType, 
     grad_func: FunctionType, 
@@ -184,22 +194,20 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
     if verbose == 1:
         bar = qtm.progress_bar.ProgressBar(max_value = num_steps, disable = False)   
     for i in range(0, num_steps):
-        partial_L = grad_func(qc, create_circuit_func, thetas, 1/2, np.pi/2, **kwargs)  
+        grad_l = grad_func(qc, create_circuit_func, thetas, 1/2, np.pi/2, **kwargs)  
         otimizer_name = optimizer.__name__
 
         if otimizer_name == 'sgd':
-            thetas = sgd(thetas, partial_L) 
+            thetas = sgd(thetas, grad_l) 
 
         elif otimizer_name == 'adam':
             if i == 0:
                 m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
-            thetas = adam(thetas, m, v, i, partial_L)
+            thetas = adam(thetas, m, v, i, grad_l)
 
         qc_copy = create_circuit_func(qc.copy(), thetas, **kwargs)
         loss = loss_func(qtm.base_qtm.measure(qc_copy, range(qc_copy.num_qubits)))
         loss_values.append(loss)
-
-
 
         if verbose == 1:
             bar.update(1)
