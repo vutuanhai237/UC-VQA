@@ -1,7 +1,7 @@
 from types import FunctionType
 import numpy as np
 import qiskit, scipy
-import qtm.progress_bar, qtm.constant
+import qtm.progress_bar, qtm.constant, qtm.quantum_fisher
 
 def measure(qc: qiskit.QuantumCircuit, qubits):
     """Measuring the quantu circuit which fully measurement gates
@@ -76,7 +76,7 @@ def get_u_hat(thetas, create_circuit_func: FunctionType, num_qubits: int, **kwar
         qc = create_circuit_func(qc, thetas, **kwargs).inverse()
     return qiskit.quantum_info.Statevector.from_instruction(qc)
 
-def grad_l(
+def grad_loss(
     qc: qiskit.QuantumCircuit, 
     create_circuit_func: FunctionType, 
     thetas, r: float, s: float, **kwargs):
@@ -97,7 +97,7 @@ def grad_l(
     Returns:
         - Numpy array: The vector of gradient
     """
-    grad_l = np.zeros(len(thetas))
+    grad_loss = np.zeros(len(thetas))
     for i in range(0, len(thetas)):
         thetas1, thetas2 = thetas.copy(), thetas.copy()
         thetas1[i] += s
@@ -106,11 +106,41 @@ def grad_l(
         qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
         qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
 
-        grad_l[i] = -r*(
+        grad_loss[i] = -r*(
             qtm.base_qtm.measure(qc1, range(qc1.num_qubits)) - 
             qtm.base_qtm.measure(qc2, range(qc2.num_qubits))
         )
-    return grad_l
+    return grad_loss
+
+def grad_psi(
+    qc: qiskit.QuantumCircuit, 
+    create_circuit_func: FunctionType, 
+    thetas: np.ndarray, r: float, s: float, **kwargs):
+    """Return the derivatite of the psi base on parameter shift rule
+    \n nabla\psi = frac{1}{2}(\psi(+s) - \psi(-s))
+
+    Args:
+        - qc (qiskit.QuantumCircuit): [description]
+        - create_circuit_func (FunctionType): [description]
+        - thetas (np.ndarray): [description]
+        - r (float): in psr
+        - s (float): in psr
+
+    Returns:
+        - np.ndarray: N x N matrix
+    """
+    gradient_psi = np.zeros([len(thetas), 2**qc.num_qubits], dtype = np.complex128)
+    for i in range(0, len(thetas)):
+        thetas1, thetas2 = thetas.copy(), thetas.copy()
+        thetas1[i] += s
+        thetas2[i] -= s
+        qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
+        qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
+        psi_qc1 = qiskit.quantum_info.Statevector.from_instruction(qc1).data
+        psi_qc2 = qiskit.quantum_info.Statevector.from_instruction(qc2).data
+        gradient_psi[i] = r*(psi_qc1 - psi_qc2)
+    return gradient_psi
+
 def loss_basis(measurement_value: float):
     """Return loss value for loss function L = 1 - P_0
     \n Here P_0 ~ 1 or L ~ 0 will be the best value
@@ -123,47 +153,83 @@ def loss_basis(measurement_value: float):
     """
     return 1 - measurement_value
 
-def sgd(thetas: np.ndarray, grad_l):
+def sgd(thetas: np.ndarray, grad_loss):
     """Standard gradient descent
 
     Args:
-        thetas (np.ndarray): params
-        grad_l (float): gradient value
+        - thetas (np.ndarray): params
+        - grad_loss (float): gradient value
 
     Returns:
-        np.ndarray: New params
+        - np.ndarray: New params
     """
-    thetas -= qtm.constant.learning_rate * grad_l
+    thetas -= qtm.constant.learning_rate * grad_loss
     return thetas
 
-def adam(thetas: np.ndarray, m, v, iteration, grad_l):
-    """ADAM Optimizer. Below codes are copied from somewhere :)
+def adam(thetas: np.ndarray, m: np.ndarray, v: np.ndarray, iteration: int, grad_loss: np.ndarray):
+    """Adam Optimizer. Below codes are copied from somewhere :)
 
     Args:
-        thetas (np.ndarray): params
-        grad_l ([type]): gradient value
+        - thetas (np.ndarray): parameters
+        - m (np.ndarray): params for Adam
+        - v (np.ndarray): params for Adam
+        - i (int): params for Adam
+        - grad_loss (np.ndarray): gradient of loss function, is a N x 1 matrix
+
+    Returns:
+        - np.ndarray: parameters after update
     """
-    # initialize first and second moments
     num_thetas = thetas.shape[0]
     beta1, beta2, epsilon = 0.8, 0.999, 10**(-8)
-    
     for i in range(0, num_thetas):
-        m[i] = beta1 * m[i] + (1 - beta1) * grad_l[i]
-        v[i] = beta2 * v[i] + (1 - beta2) * grad_l[i]**2
+        m[i] = beta1 * m[i] + (1 - beta1) * grad_loss[i]
+        v[i] = beta2 * v[i] + (1 - beta2) * grad_loss[i]**2
         mhat = m[i] / (1 - beta1**(iteration + 1))
         vhat = v[i] / (1 - beta2**(iteration + 1))
         thetas[i] -= qtm.constant.learning_rate * mhat / (np.sqrt(vhat) + epsilon)
     return thetas
 
-def qng(thetas: np.ndarray):
-    """Quantum natural gradient
+def qng(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray, grad_loss: np.ndarray):
+    """Update parameters based on quantum natural gradient algorithm
+    \n thetas^{i + 1} = thetas^{i} - alpha * F^{-1} * nabla L
 
     Args:
-        thetas (np.ndarray): [description]
-    """
+        - thetas (np.ndarray): parameters
+        - psi (np.ndarray): current state 
+        - grad_psi (np.ndarray): all partial derivatives of $\psi$, is a N x N matrix
+        - grad_loss (np.ndarray): gradient of loss function, is a N x 1 matrix
 
+    Returns:
+        - np.ndarray: parameters after update
+    """
+    F = qtm.quantum_fisher.create_QFIM(psi, grad_psi)
+    # Because det(QFIM) can be nearly equal zero
+    inverse_F = np.linalg.pinv(F)
+    thetas -= qtm.constant.learning_rate*np.dot(inverse_F, grad_loss)
     return thetas
 
+def qng_adam(thetas: np.ndarray, 
+    m: np.ndarray, v: np.ndarray, i: int, 
+    psi: np.ndarray, grad_psi: np.ndarray, grad_loss: np.ndarray):
+    """After calculating the QFIM, use it in Adam optimizer
+
+    Args:
+        - thetas (np.ndarray): parameters
+        - m (np.ndarray): params for Adam
+        - v (np.ndarray): params for Adam
+        - i (int): params for Adam
+        - psi (np.ndarray): current state 
+        - grad_psi (np.ndarray): all partial derivatives of $\psi$, is a N x N matrix
+        - grad_loss (np.ndarray): gradient of loss function, is a N x 1 matrix
+
+    Returns:
+        np.ndarray: parameters after update
+    """
+    F = qtm.quantum_fisher.create_QFIM(psi, grad_psi)
+    inverse_F = np.linalg.pinv(F)
+    grad = np.dot(inverse_F, grad_loss)
+    thetas = qtm.base_qtm.adam(thetas, m, v, i, grad)
+    return thetas
 
 def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas, 
     create_circuit_func: FunctionType, 
@@ -194,16 +260,28 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
     if verbose == 1:
         bar = qtm.progress_bar.ProgressBar(max_value = num_steps, disable = False)   
     for i in range(0, num_steps):
-        grad_l = grad_func(qc, create_circuit_func, thetas, 1/2, np.pi/2, **kwargs)  
-        otimizer_name = optimizer.__name__
+        grad_loss = grad_func(qc, create_circuit_func, thetas, 1/2, np.pi/2, **kwargs)  
+        optimizer_name = optimizer.__name__
 
-        if otimizer_name == 'sgd':
-            thetas = sgd(thetas, grad_l) 
+        if optimizer_name == 'sgd':
+            thetas = sgd(thetas, grad_loss) 
 
-        elif otimizer_name == 'adam':
+        elif optimizer_name == 'adam':
             if i == 0:
                 m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
-            thetas = adam(thetas, m, v, i, grad_l)
+            thetas = adam(thetas, m, v, i, grad_loss)
+        elif optimizer_name == 'qng':
+            grad_psi1 = grad_psi(qc, qtm.qtm_1qubit.u_1qubit, thetas, r = 1/2, s = np.pi/2)
+            qc_copy = qtm.qtm_1qubit.u_1qubit(qc.copy(), thetas, wire = 0)
+            psi = qiskit.quantum_info.Statevector.from_instruction(qc_copy).data
+            thetas = qng(thetas, psi, grad_psi1, grad_loss)
+        elif optimizer_name == 'qng_adam':
+            if i == 0:
+                m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
+            grad_psi1 = grad_psi(qc, qtm.qtm_1qubit.u_1qubit, thetas, r = 1/2, s = np.pi/2)
+            qc_copy = qtm.qtm_1qubit.u_1qubit(qc.copy(), thetas, wire = 0)
+            psi = qiskit.quantum_info.Statevector.from_instruction(qc_copy).data
+            thetas = qng_adam(thetas, m, v, i, psi, grad_psi1, grad_loss)
 
         qc_copy = create_circuit_func(qc.copy(), thetas, **kwargs)
         loss = loss_func(qtm.base_qtm.measure(qc_copy, range(qc_copy.num_qubits)))
