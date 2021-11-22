@@ -120,7 +120,6 @@ def grad_psi(
     create_circuit_func: FunctionType, 
     thetas: np.ndarray, r: float, s: float, **kwargs):
     """Return the derivatite of the psi base on parameter shift rule
-    \n nabla\psi = frac{1}{2}(\psi(+s) - \psi(-s))
 
     Args:
         - qc (qiskit.QuantumCircuit): [description]
@@ -134,14 +133,11 @@ def grad_psi(
     """
     gradient_psi = np.zeros([len(thetas), 2**qc.num_qubits], dtype = np.complex128)
     for i in range(0, len(thetas)):
-        thetas1, thetas2 = thetas.copy(), thetas.copy()
-        thetas1[i] += s
-        thetas2[i] -= s
-        qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
-        qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
-        psi_qc1 = qiskit.quantum_info.Statevector.from_instruction(qc1).data
-        psi_qc2 = qiskit.quantum_info.Statevector.from_instruction(qc2).data
-        gradient_psi[i] = r*(psi_qc1 - psi_qc2)
+        thetas_copy = thetas.copy()
+        thetas_copy[i] += s
+        qc1 = create_circuit_func(qc.copy(), thetas_copy, **kwargs)
+        psi_qc = qiskit.quantum_info.Statevector.from_instruction(qc1).data
+        gradient_psi[i] = r*psi_qc
     return gradient_psi
 
 def loss_basis(measurement_value: float):
@@ -262,24 +258,26 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
     loss_values = []
     if verbose == 1:
         bar = qtm.progress_bar.ProgressBar(max_value = num_steps, disable = False)   
-    for i in range(0, num_steps):
-        
-            
+    for i in range(0, num_steps):     
         grad_loss = grad_func(qc, create_circuit_func, thetas, 1/2, np.pi/2, **kwargs)  
         optimizer_name = optimizer.__name__
         
         if optimizer_name == 'sgd': 
             thetas = sgd(thetas, grad_loss) 
+
         elif optimizer_name == 'adam':
             if i == 0:
                 m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
             thetas = adam(thetas, m, v, i, grad_loss)
+
         elif optimizer_name == 'qng' or optimizer_name == 'qng_adam':
-            grad_psi1 = grad_psi(qc, qtm.qtm_1qubit.u_1qubit, thetas, r = 1/2, s = np.pi/2)
-            qc_copy = qtm.qtm_1qubit.u_1qubit(qc.copy(), thetas, wire = 0)
+            grad_psi1 = grad_psi(qc, create_circuit_func, thetas, r = 1/2, s = np.pi, **kwargs)
+            qc_copy = create_circuit_func(qc.copy(), thetas, **kwargs)
             psi = qiskit.quantum_info.Statevector.from_instruction(qc_copy).data
             if optimizer_name == 'qng':
+                
                 thetas = qng(thetas, psi, grad_psi1, grad_loss)
+
             if optimizer_name == 'qng_adam':
                 if i == 0:
                     m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
