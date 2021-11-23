@@ -15,6 +15,8 @@ def create_QFIM(psi: np.ndarray, grad_psi: np.ndarray):
     # Calculate elements \bra\psi|\partial_j \psi\ket
     F_elements = np.zeros(num_params, dtype = np.complex128)
     for i in range(num_params):
+        print(grad_psi[i])
+        print(np.transpose(np.conjugate(grad_psi[i])))
         F_elements[i] = np.transpose(np.conjugate(psi)).dot(grad_psi[i])
     # Calculate F[i, j] = 4*Re*[\bra\partial_i \psi | \partial_j \psi \ket - 
     # \bra\partial_i\psi | \psi\ket * \bra\psi|\partial_j \psi\ket]

@@ -131,13 +131,17 @@ def grad_psi(
     Returns:
         - np.ndarray: N x N matrix
     """
-    gradient_psi = np.zeros([len(thetas), 2**qc.num_qubits], dtype = np.complex128)
+    gradient_psi = []
     for i in range(0, len(thetas)):
         thetas_copy = thetas.copy()
         thetas_copy[i] += s
         qc1 = create_circuit_func(qc.copy(), thetas_copy, **kwargs)
         psi_qc = qiskit.quantum_info.Statevector.from_instruction(qc1).data
-        gradient_psi[i] = r*psi_qc
+        psi_qc = np.expand_dims(psi_qc, 1)
+        
+        gradient_psi.append(r*psi_qc)
+
+    gradient_psi = np.array(gradient_psi)
     return gradient_psi
 
 def loss_basis(measurement_value: float):
@@ -203,8 +207,10 @@ def qng(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray, grad_loss: np
     """
     F = qtm.quantum_fisher.create_QFIM(psi, grad_psi)
     # Because det(QFIM) can be nearly equal zero
-    inverse_F = np.linalg.pinv(F)
+    inverse_F = np.linalg.pinv(F, hermitian = True)
+    
     thetas -= qtm.constant.learning_rate*np.dot(inverse_F, grad_loss)
+
     return thetas
 
 def qng_adam(thetas: np.ndarray, 
@@ -274,6 +280,8 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
             grad_psi1 = grad_psi(qc, create_circuit_func, thetas, r = 1/2, s = np.pi, **kwargs)
             qc_copy = create_circuit_func(qc.copy(), thetas, **kwargs)
             psi = qiskit.quantum_info.Statevector.from_instruction(qc_copy).data
+            psi = np.expand_dims(psi , 1)
+
             if optimizer_name == 'qng':
                 
                 thetas = qng(thetas, psi, grad_psi1, grad_loss)
@@ -286,7 +294,6 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
         qc_copy = create_circuit_func(qc.copy(), thetas, **kwargs)
         loss = loss_func(qtm.base_qtm.measure(qc_copy, range(qc_copy.num_qubits)))
         loss_values.append(loss)
-
         if verbose == 1:
             bar.update(1)
         if verbose == 2 and i % 10 == 0:
