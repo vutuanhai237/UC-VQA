@@ -207,10 +207,14 @@ def qng(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray, grad_loss: np
     """
     F = qtm.quantum_fisher.create_QFIM(psi, grad_psi)
     # Because det(QFIM) can be nearly equal zero
-    inverse_F = np.linalg.pinv(F, hermitian = True)
+    if np.isclose(np.linalg.det(F), 0):
+        inverse_F = np.linalg.pinv(F, hermitian = True)
+    else:
+        inverse_F = np.linalg.inv(F)
+
+    # inverse_F = np.linalg.pinv(F, hermitian = True)
     
     thetas -= qtm.constant.learning_rate*np.dot(inverse_F, grad_loss)
-
     return thetas
 
 def qng_adam(thetas: np.ndarray, 
