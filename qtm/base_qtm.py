@@ -192,6 +192,7 @@ def adam(thetas: np.ndarray, m: np.ndarray, v: np.ndarray, iteration: int, grad_
         thetas[i] -= qtm.constant.learning_rate * mhat / (np.sqrt(vhat) + epsilon)
     return thetas
 
+
 def qng(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray, grad_loss: np.ndarray):
     """Update parameters based on quantum natural gradient algorithm
     \n thetas^{i + 1} = thetas^{i} - alpha * F^{-1} * nabla L
@@ -207,13 +208,11 @@ def qng(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray, grad_loss: np
     """
     F = qtm.quantum_fisher.create_QFIM(psi, grad_psi)
     # Because det(QFIM) can be nearly equal zero
+    
     if np.isclose(np.linalg.det(F), 0):
-        inverse_F = np.linalg.pinv(F, hermitian = True)
+        inverse_F = np.identity(F.shape[0])
     else:
         inverse_F = np.linalg.inv(F)
-
-    # inverse_F = np.linalg.pinv(F, hermitian = True)
-    
     thetas -= qtm.constant.learning_rate*np.dot(inverse_F, grad_loss)
     return thetas
 
@@ -235,7 +234,12 @@ def qng_adam(thetas: np.ndarray,
         np.ndarray: parameters after update
     """
     F = qtm.quantum_fisher.create_QFIM(psi, grad_psi)
-    inverse_F = np.linalg.pinv(F)
+    # Because det(QFIM) can be nearly equal zero
+    if np.isclose(np.linalg.det(F), 0):
+        inverse_F = np.identity(F.shape[0])
+    else:
+        inverse_F = np.linalg.inv(F)
+
     grad = np.dot(inverse_F, grad_loss)
     thetas = qtm.base_qtm.adam(thetas, m, v, i, grad)
     return thetas
