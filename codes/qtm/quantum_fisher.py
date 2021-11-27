@@ -21,8 +21,9 @@ def create_QFIM(psi: np.ndarray, grad_psi: np.ndarray):
     F = np.zeros([num_params, num_params])
     for i in range(0, num_params):
         for j in range(0, num_params):
-            F[i, j] = np.real(
+            F[i, j] = 4*np.real(
                 np.transpose(np.conjugate(grad_psi[i])) @ (grad_psi[j]) - 
                 np.transpose(np.conjugate(F_elements[i]))*(F_elements[j]))
-
+            if F[i, j] < 10**(-15):
+                F[i, j] = 0
     return F

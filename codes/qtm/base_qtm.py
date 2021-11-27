@@ -143,8 +143,8 @@ def grad_loss(
         qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
 
         grad_loss[i] = -r*(
-            qtm.base_qtm.measure(qc1, range(qc1.num_qubits)) - 
-            qtm.base_qtm.measure(qc2, range(qc2.num_qubits))
+            qtm.base_qtm.measure(qc1, list(range(qc1.num_qubits))) - 
+            qtm.base_qtm.measure(qc2, list(range(qc2.num_qubits)))
         )
     return grad_loss
 
@@ -283,6 +283,7 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
     loss_func: FunctionType,
     optimizer: FunctionType,
     verbose: int = 0,
+    is_return_all_thetas: bool = False,
     **kwargs):
     """Return the new thetas that fit with the circuit from create_circuit_func function
 
@@ -301,7 +302,7 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
         - thetas (Numpy array): the optimized parameters
         - loss_values (Numpy array): the list of loss_value
     """
-
+    thetass = []
     loss_values = []
     if verbose == 1:
         bar = qtm.progress_bar.ProgressBar(max_value = num_steps, disable = False)   
@@ -333,12 +334,17 @@ def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas,
                 thetas = qng_adam(thetas, m, v, i, psi, grad_psi1, grad_loss)
 
         qc_copy = create_circuit_func(qc.copy(), thetas, **kwargs)
-        loss = loss_func(qtm.base_qtm.measure(qc_copy, range(qc_copy.num_qubits)))
+        loss = loss_func(qtm.base_qtm.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
+        thetass.append(thetas)
         if verbose == 1:
             bar.update(1)
         if verbose == 2 and i % 10 == 0:
             print("Step " + str(i) + ": " + str(loss))
     if verbose == 1:      
         bar.close()
-    return thetas, loss_values
+    
+    if is_return_all_thetas:
+        return thetass, loss_values
+    else:
+        return thetas, loss_values

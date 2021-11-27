@@ -2,9 +2,6 @@ import qiskit
 import qtm.base_qtm, qtm.qtm_1qubit
 import numpy as np
 
-
-
-
 def create_ghz_state(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
     """Create GHZ state with a parameter
 
@@ -148,6 +145,7 @@ def create_cry_nqubit(qc: qiskit.QuantumCircuit, thetas):
         qc.cry(thetas[i], i, i + 1)
     qc.cry(thetas[qc.num_qubits - 1], qc.num_qubits - 1, 0)        
     return qc
+
 def create_cry_nqubit_inverse(qc: qiskit.QuantumCircuit, thetas):
     """Create control Control-RY state but swap control and target qubit
 
@@ -165,8 +163,8 @@ def create_cry_nqubit_inverse(qc: qiskit.QuantumCircuit, thetas):
     qc.cry(thetas[qc.num_qubits - 1], 0, qc.num_qubits - 1)        
     return qc
 
-def create_arbitrary_nqubit(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
-    """An arbitrary layer for initial quantum state
+def create_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
+    """Create koczor anzsats 
 
     Args:
         qc (qiskit.QuantumCircuit): Init circuit
@@ -191,22 +189,8 @@ def create_arbitrary_nqubit(qc: qiskit.QuantumCircuit, thetas, num_layers: int =
         qc.barrier()
     return qc
 
-def create_arbitrary_nqubit2(qc, thetas):
-    qc.rx(thetas[0], 0)
-    qc.ry(thetas[1], 0)
-    qc.rx(thetas[2], 1)
-    qc.ry(thetas[3], 1)
-    qc.rx(thetas[4], 2)
-    qc.ry(thetas[5], 2)
-    qc.rxx(thetas[6], 1, 2)
-    qc.rzx(thetas[7], 1, 2)
-    qc.rxx(thetas[8], 0, 1)
-    qc.rzx(thetas[9], 0, 1)
-    qc.rxx(thetas[10], 1, 2)
-    qc.rzx(thetas[11], 1, 2)
-    qc.rxx(thetas[12], 0, 1)
-    qc.rzx(thetas[13], 0, 1)
-    return qc
+
+
 
 def create_GHZchecker_arbitrary(qc, thetas, num_layers, theta):
     if isinstance(num_layers, int) != True:
@@ -214,10 +198,10 @@ def create_GHZchecker_arbitrary(qc, thetas, num_layers, theta):
     if isinstance(theta, float) != True:
         theta = theta['theta']
     # |psi_gen> = U_gen|000...> 
-    qc = qtm.qtm_nqubit.create_arbitrary_nqubit(qc, thetas, num_layers = num_layers)
+    qc = create_koczor_state(qc, thetas, num_layers = num_layers)
     qc.barrier()
     # U_target^t|psi_gen> with U_target is GHZ state
-    qc = qtm.qtm_nqubit.create_ghz_state_inverse(qc, theta)
+    qc = create_ghz_state_inverse(qc, theta)
     return qc
 
 def create_w_state_3qubit_inverse(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
@@ -245,7 +229,7 @@ def create_Wchecker_arbitrary(qc, thetas, num_layers, theta):
     if isinstance(theta, float) != True:
         theta = theta['theta']
     # |psi_gen> = U_gen|000...> 
-    qc = qtm.qtm_nqubit.create_arbitrary_nqubit(qc, thetas, num_layers = num_layers)
+    qc = create_koczor_state(qc, thetas, num_layers = num_layers)
     qc.barrier()
     # U_target^t|psi_gen> with U_target is W state
     qc = create_w_state_3qubit_inverse(qc, theta)
@@ -257,7 +241,7 @@ def create_arbitrarychecker_arbitrary(qc, thetas, num_layers, encoder):
     if isinstance(encoder, qtm.encoding.Encoding) != True:
         encoder = encoder['encoder']
     qc1 = qiskit.QuantumCircuit(encoder.quantum_data)
-    qc1 = qtm.qtm_nqubit.create_arbitrary_nqubit(qc1, thetas, num_layers = num_layers)
+    qc1 = create_koczor_state(qc1, thetas, num_layers = num_layers)
     qc1.barrier()
     qc1 = qc1.combine(qc.inverse())
     qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
