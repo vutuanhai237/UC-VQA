@@ -1,11 +1,12 @@
 from types import FunctionType
+from typing import Dict
 import numpy as np
 import qiskit, scipy
 import qtm.progress_bar, qtm.constant, qtm.quantum_fisher
 
 
 
-def measure(qc: qiskit.QuantumCircuit, qubits):
+def measure(qc: qiskit.QuantumCircuit, qubits, cbits = []):
     """Measuring the quantu circuit which fully measurement gates
     
     Args:
@@ -15,10 +16,42 @@ def measure(qc: qiskit.QuantumCircuit, qubits):
     Returns:
         - float: Frequency of 00.. cbit
     """
+    if cbits == []:
+        cbits = qubits.copy()
     for i in range(0, len(qubits)):
-        qc.measure(qubits[i], qubits[i])
+        qc.measure(qubits[i], cbits[i])
     counts = qiskit.execute(qc, backend = qtm.constant.backend, shots = qtm.constant.num_shots).result().get_counts()
     return counts.get("0" * len(qubits), 0) / qtm.constant.num_shots
+
+
+def x_measurement(qc: qiskit.QuantumCircuit, qubits, cbits = []):
+    if cbits == []:
+        cbits = qubits.copy()
+    for i in range(0, len(qubits)):
+        qc.h(qubits[i])
+        qc.measure(qubits[i], cbits[i])
+    return qc
+    
+def y_measurement(qc: qiskit.QuantumCircuit, qubits, cbits = []):
+    if cbits == []:
+        cbits = qubits.copy()
+    for i in range(0, len(qubits)):
+        qc.sdg(qubits[i])
+        qc.h(qubits[i])
+        qc.measure(qubits[i],cbits[i])
+    return qc
+
+def z_measurement(qc: qiskit.QuantumCircuit, qubits, cbits = []):
+    if cbits == []:
+        cbits = qubits.copy()
+    for i in range(0, len(qubits)):
+        qc.measure(qubits[i], cbits[i])
+    return qc
+
+
+
+
+
 
 def trace_distance(rho, sigma):
     """Since density matrices are Hermitian, so trace distance is 1/2 (Sigma(|lambdas|)) with lambdas are the eigenvalues of (rho_psi - rho_psi_hat) matrix
@@ -45,7 +78,7 @@ def trace_fidelity(rho, sigma):
     """
     rho = rho.data
     sigma = sigma.data
-    return np.trace(scipy.linalg.sqrtm((scipy.linalg.sqrtm(rho)).dot(rho)).dot(scipy.linalg.sqrtm(sigma)))
+    return np.trace(scipy.linalg.sqrtm((scipy.linalg.sqrtm(rho)) @ (rho)) @ (scipy.linalg.sqrtm(sigma)))
 
 def get_metrics(psi, psi_hat):
     """Get different metrics between the origin state and the reconstructed state
@@ -144,7 +177,7 @@ def grad_psi(
     gradient_psi = np.array(gradient_psi)
     return gradient_psi
 
-def loss_basis(measurement_value: float):
+def loss_basis(measurement_value: Dict[str, int]):
     """Return loss value for loss function L = 1 - P_0
     \n Here P_0 ~ 1 or L ~ 0 will be the best value
 
@@ -213,7 +246,7 @@ def qng(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray, grad_loss: np
         inverse_F = np.identity(F.shape[0])
     else:
         inverse_F = np.linalg.inv(F)
-    thetas -= qtm.constant.learning_rate*np.dot(inverse_F, grad_loss)
+    thetas -= qtm.constant.learning_rate*(inverse_F @ grad_loss)
     return thetas
 
 def qng_adam(thetas: np.ndarray, 
@@ -240,7 +273,7 @@ def qng_adam(thetas: np.ndarray,
     else:
         inverse_F = np.linalg.inv(F)
 
-    grad = np.dot(inverse_F, grad_loss)
+    grad = inverse_F @ grad_loss
     thetas = qtm.base_qtm.adam(thetas, m, v, i, grad)
     return thetas
 

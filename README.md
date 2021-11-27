@@ -14,3 +14,5 @@
 - [x] Week 7: Create general W state, make W checker and Arbitrary checker.
 
 - [x] Week 8: Create Quantum Natural Gradient optimizer and compare it with SGD and Adam. Developing some hybrid optmizer like QNG-Adam.
+
+- [x] Week 9: Comparing between initial state
