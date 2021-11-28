@@ -186,20 +186,18 @@ def create_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
         qc = create_rz_nqubit(qc, phis[n*2:n*3])
         qc = create_cry_nqubit(qc, phis[n*3:n*4])
         qc = create_rz_nqubit(qc, phis[n*4:n*5])
-        qc.barrier()
     return qc
 
 
 
 
-def create_GHZchecker_arbitrary(qc, thetas, num_layers, theta):
+def create_GHZchecker_koczor(qc, thetas, num_layers, theta):
     if isinstance(num_layers, int) != True:
         num_layers = num_layers['num_layers']
     if isinstance(theta, float) != True:
         theta = theta['theta']
     # |psi_gen> = U_gen|000...> 
     qc = create_koczor_state(qc, thetas, num_layers = num_layers)
-    qc.barrier()
     # U_target^t|psi_gen> with U_target is GHZ state
     qc = create_ghz_state_inverse(qc, theta)
     return qc
@@ -222,27 +220,36 @@ def create_w_state_3qubit_inverse(qc: qiskit.QuantumCircuit, theta: float = np.p
     qc.ch(0, 1)
     qc.ry(-theta, 0) 
     return qc
-    
-def create_Wchecker_arbitrary(qc, thetas, num_layers, theta):
+
+def create_w_3qubit(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
+    if isinstance(theta, float) != True:
+        theta = (theta['theta'])
+    qc.x(0)
+    qc.cnot(0, 1)
+    qc.cnot(1, 2)
+    qc.ch(0, 1)
+    qc.ry(-theta, 0) 
+    return qc
+
+
+def create_Wchecker_koczor(qc, thetas, num_layers, theta):
     if isinstance(num_layers, int) != True:
         num_layers = num_layers['num_layers']
     if isinstance(theta, float) != True:
         theta = theta['theta']
     # |psi_gen> = U_gen|000...> 
     qc = create_koczor_state(qc, thetas, num_layers = num_layers)
-    qc.barrier()
     # U_target^t|psi_gen> with U_target is W state
     qc = create_w_state_3qubit_inverse(qc, theta)
     return qc
 
-def create_arbitrarychecker_arbitrary(qc, thetas, num_layers, encoder):
+def create_arbitrarychecker_koczor(qc, thetas, num_layers, encoder):
     if isinstance(num_layers, int) != True:
         num_layers = num_layers['num_layers']
     if isinstance(encoder, qtm.encoding.Encoding) != True:
         encoder = encoder['encoder']
     qc1 = qiskit.QuantumCircuit(encoder.quantum_data)
     qc1 = create_koczor_state(qc1, thetas, num_layers = num_layers)
-    qc1.barrier()
     qc1 = qc1.combine(qc.inverse())
     qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
     return qc1

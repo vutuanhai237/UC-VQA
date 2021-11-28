@@ -4,20 +4,38 @@ num_shots = 10000
 learning_rate = 0.2
 backend = qiskit.Aer.get_backend('qasm_simulator')
 
+
+
 generator = {
-    'RX': -1/2*np.array([
-        [0, 1],
-        [1, 0]
-    ], dtype=np.complex128),
-    'RY': -1/2*np.array([
+    'cu': -1/2*np.array([
         [0, -1j],
         [1j, 0]
     ], dtype=np.complex128),
-    'RZ': -1/2*np.array([
+    'rx': -1/2*np.array([
+        [0, 1],
+        [1, 0]
+    ], dtype=np.complex128),
+    'crx': -1/2*np.array([
+        [0, 1],
+        [1, 0]
+    ], dtype=np.complex128),
+    'ry': -1/2*np.array([
+        [0, -1j],
+        [1j, 0]
+    ], dtype=np.complex128),
+    'cry': -1/2*np.array([
+        [0, -1j],
+        [1j, 0]
+    ], dtype=np.complex128),
+    'rz': -1/2*np.array([
         [1, 0],
         [0, -1]
     ], dtype=np.complex128),
-    'I': np.array([
+    'crz': -1/2*np.array([
+        [1, 0],
+        [0, -1]
+    ], dtype=np.complex128),
+    'i': np.array([
         [1, 0],
         [0, 1]
     ], dtype=np.complex128)

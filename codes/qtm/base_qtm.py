@@ -277,6 +277,43 @@ def qng_adam(thetas: np.ndarray,
     thetas = qtm.base_qtm.adam(thetas, m, v, i, grad)
     return thetas
 
+
+def create_observers(qc: qiskit.QuantumCircuit, num_layers: int = -1, k: int = 0):
+    """Return dictionary of observers
+
+    Args:
+        - qc (qiskit.QuantumCircuit): Current circuit
+        - num_layer(int, optional): the length of observers. Defaults to -1 means have no limited
+        - k (int, optional): Number of observers each layer. Defaults to qc.num_qubits.
+
+    Returns:
+        - Dict
+    """
+    if k == 0:
+        k = qc.num_qubits
+    observers = dict()
+    i = 0
+    j = 0
+    observer = []
+    for gate in qc.data:
+        gate_name = gate[0].name
+        if gate_name == 'barrier':
+            continue
+        if gate[0].name in ('crx', 'cry','crz', 'cx'):
+            wire = qc.num_qubits - 1 - gate[1][1].index
+        else:
+            wire = qc.num_qubits - 1 - gate[1][0].index
+        observer.append([gate_name, wire])
+        i += 1
+        if i == k:
+            observers[j] = observer
+            observer = []
+            i = 0
+            j += 1
+            if j == num_layers:
+                break
+    return observers
+
 def fit(qc: qiskit.QuantumCircuit, num_steps: int, thetas, 
     create_circuit_func: FunctionType, 
     grad_func: FunctionType, 
