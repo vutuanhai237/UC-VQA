@@ -2,6 +2,12 @@ import qiskit
 import qtm.base_qtm, qtm.qtm_1qubit
 import numpy as np
 
+
+
+###########################
+######## GHZ State ########
+###########################
+
 def create_ghz_state(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
     """Create GHZ state with a parameter
 
@@ -35,6 +41,122 @@ def create_ghz_state_inverse(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
         qc.cnot(0, qc.num_qubits - i - 1)
     qc.ry(-theta, 0)
     return qc
+
+def create_GHZchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, theta: float):
+    """Create circuit includes koczor and GHZ
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int)
+        - theta (float): param for general GHZ
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    if isinstance(theta, float) != True:
+        theta = theta['theta']
+    # |psi_gen> = U_gen|000...> 
+    qc = create_koczor_state(qc, thetas, num_layers = num_layers)
+    # U_target^t|psi_gen> with U_target is GHZ state
+    qc = create_ghz_state_inverse(qc, theta)
+    return qc
+
+def create_GHZchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, theta: float):
+    """Create circuit includes binho and GHZ
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int)
+        - theta (float): param for general GHZ
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    if isinstance(theta, float) != True:
+        theta = theta['theta']
+    # |psi_gen> = U_gen|000...> 
+    qc = create_binho_state(qc, thetas, num_layers = num_layers)
+    # U_target^t|psi_gen> with U_target is GHZ state
+    qc = create_ghz_state_inverse(qc, theta)
+    return qc
+
+###########################
+######### W State #########
+###########################
+
+def create_w_state_3qubit_inverse(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
+    """Create W inverse state with a parameter
+
+    Args:
+        - qc (QuantumCircuit): Init circuit
+        - theta (Float): Parameter
+    
+    Returns:
+        - QuantumCircuit: the added circuit
+    """
+    if isinstance(theta, float) != True:
+        theta = (theta['theta'])
+    qc.x(0)
+    qc.cnot(0, 1)
+    qc.cnot(1, 2)
+    qc.ch(0, 1)
+    qc.ry(-theta, 0) 
+    return qc
+
+def create_Wchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, theta: float):
+    """Create circuit includes koczor and W
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int)
+        - theta (float): param for general W
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    if isinstance(theta, float) != True:
+        theta = theta['theta']
+    # |psi_gen> = U_gen|000...> 
+    qc = create_koczor_state(qc, thetas, num_layers = num_layers)
+    # U_target^t|psi_gen> with U_target is W state
+    qc = create_w_state_3qubit_inverse(qc, theta)
+    return qc
+
+
+def create_Wchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, theta: float):
+    """Create circuit includes binho and W
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int)
+        - theta (float): param for general W
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    if isinstance(theta, float) != True:
+        theta = theta['theta']
+    # |psi_gen> = U_gen|000...> 
+    qc = create_binho_state(qc, thetas, num_layers = num_layers)
+    # U_target^t|psi_gen> with U_target is W state
+    qc = create_w_state_3qubit_inverse(qc, theta)
+    return qc
+
+###########################
+######## Haar State #######
+###########################
 
 def u_nqubit(qc: qiskit.QuantumCircuit, thetas):
     """Create enhanced version of qtm.qtm_1qubit.u_1q
@@ -189,61 +311,18 @@ def create_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
     return qc
 
 
-
-
-def create_GHZchecker_koczor(qc, thetas, num_layers, theta):
-    if isinstance(num_layers, int) != True:
-        num_layers = num_layers['num_layers']
-    if isinstance(theta, float) != True:
-        theta = theta['theta']
-    # |psi_gen> = U_gen|000...> 
-    qc = create_koczor_state(qc, thetas, num_layers = num_layers)
-    # U_target^t|psi_gen> with U_target is GHZ state
-    qc = create_ghz_state_inverse(qc, theta)
-    return qc
-
-def create_w_state_3qubit_inverse(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
-    """Create W inverse state with a parameter
+def create_haarchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, encoder):
+    """Create circuit includes haar and koczor
 
     Args:
-        - qc (QuantumCircuit): Init circuit
-        - theta (Float): Parameter
-    
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int): num_layer for koczor
+        - encoder: encoder for haar
+
     Returns:
-        - QuantumCircuit: the added circuit
+        - qiskit.QuantumCircuit
     """
-    if isinstance(theta, float) != True:
-        theta = (theta['theta'])
-    qc.x(0)
-    qc.cnot(0, 1)
-    qc.cnot(1, 2)
-    qc.ch(0, 1)
-    qc.ry(-theta, 0) 
-    return qc
-
-def create_w_3qubit(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
-    if isinstance(theta, float) != True:
-        theta = (theta['theta'])
-    qc.x(0)
-    qc.cnot(0, 1)
-    qc.cnot(1, 2)
-    qc.ch(0, 1)
-    qc.ry(-theta, 0) 
-    return qc
-
-
-def create_Wchecker_koczor(qc, thetas, num_layers, theta):
-    if isinstance(num_layers, int) != True:
-        num_layers = num_layers['num_layers']
-    if isinstance(theta, float) != True:
-        theta = theta['theta']
-    # |psi_gen> = U_gen|000...> 
-    qc = create_koczor_state(qc, thetas, num_layers = num_layers)
-    # U_target^t|psi_gen> with U_target is W state
-    qc = create_w_state_3qubit_inverse(qc, theta)
-    return qc
-
-def create_arbitrarychecker_koczor(qc, thetas, num_layers, encoder):
     if isinstance(num_layers, int) != True:
         num_layers = num_layers['num_layers']
     if isinstance(encoder, qtm.encoding.Encoding) != True:
@@ -253,3 +332,53 @@ def create_arbitrarychecker_koczor(qc, thetas, num_layers, encoder):
     qc1 = qc1.combine(qc.inverse())
     qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
     return qc1
+
+###########################
+######## Binho State ######
+###########################
+
+def create_wy(qc: qiskit.QuantumCircuit, thetas):
+    """Create WY state
+
+     Args:
+        - qc (qiskit.QuantumCircuit): Init circuit
+        - thetas (Mumpu array): parameters
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    for i in range(0, qc.num_qubits - 1, 2):
+        qc.cry(thetas[i], i + 1, i)
+    for i in range(1, qc.num_qubits - 1, 2): 
+        qc.cry(thetas[i], i + 1, i)
+    qc.cry(thetas[qc.num_qubits - 1], 0, qc.num_qubits - 1)        
+    return qc
+
+def create_binho_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
+    """Create koczor anzsats 
+
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
+
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
+    if len(thetas) != num_layers * n * 5:
+        raise Exception('Number of parameters must be equal n_layers * num_qubits * 5')
+    for i in range(0, num_layers):
+        phis = thetas[i:(i + 1)*n*5]
+        qc = create_rx_nqubit(qc, phis[:n])
+        qc = create_wy(qc, phis[n:n*2])
+        qc = create_rz_nqubit(qc, phis[n*2:n*3])
+        qc = create_wy(qc, phis[n*3:n*4])
+        qc = create_rz_nqubit(qc, phis[n*4:n*5])
+    return qc
+
+
+
+
