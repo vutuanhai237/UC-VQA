@@ -1,5 +1,5 @@
 import qiskit
-import qtm.base_qtm, qtm.qtm_1qubit
+import qtm.base_qtm, qtm.qtm_1qubit, qtm.custom_gate
 import numpy as np
 
 
@@ -90,6 +90,72 @@ def create_GHZchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_l
 ######### W State #########
 ###########################
 
+def w(qc: qiskit.QuantumCircuit, num_qubits: int, shift: int = 0):
+    """The below codes is implemented from [this paper](https://arxiv.org/abs/1606.09290)
+    \n Simplest case: 3 qubits. <img src='../images/general_w.png' width = 500px/>
+    \n General case: more qubits. <img src='../images/general_w2.png' width = 500px/>
+
+    Args:
+        - qc (qiskit.QuantumCircuit): [description]
+        - num_qubits (int): [description]
+        - shift (int, optional): [description]. Defaults to 0.
+
+    Raises:
+        - ValueError: When the number of qubits is not valid
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if num_qubits < 2:
+        raise ValueError('W state must has at least 2-qubit')
+    if num_qubits == 2:
+        # |W> state ~ |+> state
+        qc.h(0)
+        return qc
+    if num_qubits == 3:
+        # Return the base function
+        qc.w3(shift)
+        return qc
+    else:
+        # Theta value of F gate base on the circuit that it acts on
+        theta = np.arccos(1/np.sqrt(qc.num_qubits - shift))
+        qc.cf(theta, shift, shift + 1)
+        # Recursion until the number of qubits equal 3
+        w(qc, num_qubits - 1, qc.num_qubits - (num_qubits - 1))
+        for i in range(1, num_qubits):
+            qc.cnot(i + shift, shift)
+    return qc
+
+def create_w_state(qc: qiskit.QuantumCircuit):
+    """Create n-qubit W state based on the its number of qubits
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    qc.barrier()
+    qc.x(0)
+    
+    qc = w(qc, qc.num_qubits)
+    return qc
+
+def create_w_state_inverse(qc: qiskit.QuantumCircuit):
+    """Create n-qubit W state based on the its number of qubits
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    qc1 = qiskit.QuantumCircuit(qc.num_qubits)
+    qc1.x(0)
+    qc1 = w(qc1, qc.num_qubits)
+    qc = qc.combine(qc1.inverse())
+    return qc
+
 def create_w_state_3qubit_inverse(qc: qiskit.QuantumCircuit, theta: float = np.pi/2):
     """Create W inverse state with a parameter
 
@@ -132,7 +198,7 @@ def create_Wchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_la
     return qc
 
 
-def create_Wchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, theta: float):
+def create_Wchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int):
     """Create circuit includes binho and W
 
     Args:
@@ -146,12 +212,11 @@ def create_Wchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_lay
     """
     if isinstance(num_layers, int) != True:
         num_layers = num_layers['num_layers']
-    if isinstance(theta, float) != True:
-        theta = theta['theta']
+
     # |psi_gen> = U_gen|000...> 
     qc = create_binho_state(qc, thetas, num_layers = num_layers)
     # U_target^t|psi_gen> with U_target is W state
-    qc = create_w_state_3qubit_inverse(qc, theta)
+    qc = create_w_state_inverse(qc)
     return qc
 
 ###########################
@@ -329,6 +394,28 @@ def create_haarchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num
         encoder = encoder['encoder']
     qc1 = qiskit.QuantumCircuit(encoder.quantum_data)
     qc1 = create_koczor_state(qc1, thetas, num_layers = num_layers)
+    qc1 = qc1.combine(qc.inverse())
+    qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
+    return qc1
+
+def create_haarchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, encoder):
+    """Create circuit includes haar and koczor
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int): num_layer for koczor
+        - encoder: encoder for haar
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    if isinstance(encoder, qtm.encoding.Encoding) != True:
+        encoder = encoder['encoder']
+    qc1 = qiskit.QuantumCircuit(encoder.quantum_data)
+    qc1 = create_binho_state(qc1, thetas, num_layers = num_layers)
     qc1 = qc1.combine(qc.inverse())
     qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
     return qc1
