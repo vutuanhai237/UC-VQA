@@ -5,7 +5,7 @@ import sys
 sys.path.insert(1, '../../')
 import qtm.base_qtm, qtm.constant, qtm.qtm_nqubit, qtm.fubini_study, qtm.encoding
 # Init parameters
-num_qubits = 6
+num_qubits = 8
 # For arbitrary initial state
 num_layers = 1
 thetas_origin = np.random.uniform(low = 0, high = 2*np.pi, size = num_qubits*num_layers*5)
