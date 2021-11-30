@@ -18,7 +18,9 @@ qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 
 loss_values_ghz = []
 thetass_ghz = []
+print('GHZ')
 for i in range(0, 100):
+    print(i)
     # fubini_study for binho_state is same for koczor state
     G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
     grad_loss = qtm.base_qtm.grad_loss(
@@ -59,10 +61,11 @@ np.savetxt("./fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 thetas = thetas_origin.copy()
 qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-
+print('W')
 loss_values_w = []
 thetass_w = []
 for i in range(0, 100):
+    print(i)
     G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
     grad_loss = qtm.base_qtm.grad_loss(
         qc, 
@@ -100,7 +103,7 @@ np.savetxt("./fidelities_w.csv", fidelities_w, delimiter=",")
 psi = 2*np.random.rand(2**num_qubits)-1
 
 # Haar
-
+print('Haar')
 thetas = thetas_origin.copy()
 
 psi = psi / np.linalg.norm(psi)
@@ -109,6 +112,7 @@ encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
 loss_values_haar = []
 thetass_haar = []
 for i in range(0, 100):
+    print(i)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
     G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
     qc = encoder.qcircuit
