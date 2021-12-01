@@ -19,7 +19,7 @@ qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 loss_values_ghz = []
 thetass_ghz = []
 print('GHZ')
-for i in range(0, 100):
+for i in range(0, 200):
     print(i)
     # fubini_study for binho_state is same for koczor state
     G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
