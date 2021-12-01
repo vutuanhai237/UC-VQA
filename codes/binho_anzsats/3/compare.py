@@ -169,19 +169,19 @@ if __name__ == "__main__":
     t_haar = []
     for i in qubits:
         t_ghz.append(threading.Thread(target = run_ghz, args=(i, 300)))
-        t_w.append(threading.Thread(target = run_w, args=(i, 300)))
-    for i in qubits_haar:
-        t_haar.append(threading.Thread(target = run_haar, args=(i, 300)))
+        #t_w.append(threading.Thread(target = run_w, args=(i, 300)))
+    # for i in qubits_haar:
+    #     t_haar.append(threading.Thread(target = run_haar, args=(i, 300)))
 
     for i in range(0, len(qubits)):
         t_ghz[i].start()
-        t_w[i].start()
-    for i in range(0, len(qubits_haar)):
-        t_haar[i].start()
+        #t_w[i].start()
+    #for i in range(0, len(qubits_haar)):
+    #    t_haar[i].start()
     for i in range(0, len(qubits)):
         t_ghz[i].join()
-        t_w[i].join()
-    for i in range(0, len(qubits_haar)):
-        t_haar[i].join()
+        #t_w[i].join()
+    #for i in range(0, len(qubits_haar)):
+    #    t_haar[i].join()
 
     print("Done!")
