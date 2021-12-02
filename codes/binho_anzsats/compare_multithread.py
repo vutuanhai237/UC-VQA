@@ -168,7 +168,7 @@ if __name__ == "__main__":
     t_w = []
     t_haar = []
     for i in qubits:
-        t_ghz.append(threading.Thread(target = run_ghz, args=(i, 400)))
+        t_ghz.append(threading.Thread(target = run_ghz, args=(i, 5)))
         #t_w.append(threading.Thread(target = run_w, args=(i, 300)))
     # for i in qubits_haar:
     #     t_haar.append(threading.Thread(target = run_haar, args=(i, 300)))
