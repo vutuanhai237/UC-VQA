@@ -22,7 +22,8 @@ encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
 
 loss_values_haar = []
 thetass_haar = []
-for i in range(0, 100):
+for i in range(0, 200):
+    print(i)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
     G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
     qc = encoder.qcircuit
