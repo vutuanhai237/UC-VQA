@@ -2,7 +2,7 @@ import qiskit
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.insert(1, '../../')
+sys.path.insert(1, '../')
 import qtm.base_qtm, qtm.constant, qtm.qtm_nqubit, qtm.fubini_study, qtm.encoding
 import threading
 # Init parameters
@@ -23,7 +23,7 @@ def run_ghz(num_qubits, iter):
     print('GHZ')
     for i in range(0, iter):
         if i % 20 == 0:
-            print('GHZ', i)
+            print('GHZ (' + str(num_qubits) + '): ', i)
         # fubini_study for binho_state is same for koczor state
         G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base_qtm.grad_loss(
@@ -54,10 +54,10 @@ def run_ghz(num_qubits, iter):
         traces_ghz.append(trace)
         fidelities_ghz.append(fidelity)
 
-    np.savetxt("./loss_values_ghz.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("./thetass_ghz.csv", thetass_ghz, delimiter=",")
-    np.savetxt("./traces_ghz.csv", traces_ghz, delimiter=",")
-    np.savetxt("./fidelities_ghz.csv", fidelities_ghz, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 def run_w(num_qubits, iter):
     num_layers = 1
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     t_w = []
     t_haar = []
     for i in qubits:
-        t_ghz.append(threading.Thread(target = run_ghz, args=(i, 300)))
+        t_ghz.append(threading.Thread(target = run_ghz, args=(i, 400)))
         #t_w.append(threading.Thread(target = run_w, args=(i, 300)))
     # for i in qubits_haar:
     #     t_haar.append(threading.Thread(target = run_haar, args=(i, 300)))
