@@ -20,7 +20,6 @@ def run_ghz(num_qubits, iter):
 
     loss_values_ghz = []
     thetass_ghz = []
-    print('GHZ')
     for i in range(0, iter):
         if i % 20 == 0:
             print('GHZ (' + str(num_qubits) + '): ', i)
@@ -168,7 +167,7 @@ if __name__ == "__main__":
     t_w = []
     t_haar = []
     for i in qubits:
-        t_ghz.append(threading.Thread(target = run_ghz, args=(i, 5)))
+        t_ghz.append(threading.Thread(target = run_ghz, args=(i, 2)))
         #t_w.append(threading.Thread(target = run_w, args=(i, 300)))
     # for i in qubits_haar:
     #     t_haar.append(threading.Thread(target = run_haar, args=(i, 300)))
