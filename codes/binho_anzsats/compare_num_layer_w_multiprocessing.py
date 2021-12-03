@@ -62,7 +62,7 @@ if __name__ == "__main__":
     t_w = []
 
     for i in num_layers:
-        t_w.append(multiprocessing.Thread(target = run_w, args=(i, num_qubits)))
+        t_w.append(multiprocessing.Process(target = run_w, args=(i, num_qubits)))
 
     for i in range(0, len(num_layers)):
         t_w[i].start()
