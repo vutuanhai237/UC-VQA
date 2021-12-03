@@ -19,9 +19,9 @@ def run_haar(num_layers, num_qubits):
 
     loss_values_haar = []
     thetass_haar = []
-    for i in range(0, 2):
+    for i in range(0, 200):
         if i % 20 == 0:
-            print('W (' + str(num_layers) + ' layer): ', i)
+            print('Haar (' + str(num_layers) + ' layer): ', i)
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
         G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
         qc = encoder.qcircuit
@@ -51,7 +51,7 @@ def run_haar(num_layers, num_qubits):
         trace, fidelity = qtm.base_qtm.get_metrics(psi, psi_hat)
         traces_haar.append(trace)
         fidelities_haar.append(fidelity)
-    print('Writting')
+    print('Writting ... ' + str(num_layers))
     np.savetxt("./" + str(num_layers) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
     np.savetxt("./" + str(num_layers) + "/thetass_haar.csv", thetass_haar, delimiter=",")
     np.savetxt("./" + str(num_layers) + "/traces_haar.csv", traces_haar, delimiter=",")
@@ -61,7 +61,7 @@ def run_haar(num_layers, num_qubits):
 if __name__ == "__main__":
     # creating thread
     num_qubits = 5
-    num_layers = [2, 3, 4, 5, 6, 7]
+    num_layers = [2, 3, 4, 5, 6]
    
     t_haar = []
 
