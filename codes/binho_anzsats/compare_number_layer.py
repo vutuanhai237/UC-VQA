@@ -27,7 +27,7 @@ def run_ghz(num_layers, num_qubits):
     for i in range(0, 2):
         # fubini_study for binho_state is same for koczor state
         if i % 20 == 0:
-            print('GHZ (' + str(num_qubits) + '): ', i)
+            print('GHZ (' + str(num_layers) + ' layer): ', i)
         G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base_qtm.grad_loss(
             qc, 
@@ -56,10 +56,10 @@ def run_ghz(num_layers, num_qubits):
         fidelities_ghz.append(fidelity)
         # Plot loss value in 100 steps
     print('Writting ...')
-    np.savetxt("./" + str(num_layers) + "/loss_values_ghz_5qubits.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/thetass_ghz_5qubits.csv", thetass_ghz, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/traces_ghz_5qubits.csv", traces_ghz, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/fidelities_ghz_5qubits.csv", fidelities_ghz, delimiter=",")
+    np.savetxt("./binho_anzsats/" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("./binho_anzsats/" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("./binho_anzsats/" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("./binho_anzsats/" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 
 if __name__ == "__main__":
