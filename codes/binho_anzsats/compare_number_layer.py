@@ -10,10 +10,10 @@ importlib.reload(qtm.constant)
 importlib.reload(qtm.qtm_1qubit)
 importlib.reload(qtm.qtm_nqubit)
 # Init parameters
-num_qubits = 5
+
 # For arbitrary initial state
 
-def run_ghz(num_layers):
+def run_ghz(num_layers, num_qubits):
     # GHZ
     
     thetas_origin = np.random.uniform(low = 0, high = 2*np.pi, size = num_qubits*num_layers*5)
@@ -64,12 +64,13 @@ def run_ghz(num_layers):
 
 if __name__ == "__main__":
     # creating thread
+    num_qubits = 5
     num_layers = [2, 3, 4, 5]
    
     t_ghz = []
 
     for i in num_layers:
-        t_ghz.append(threading.Thread(target = run_ghz, args=(i)))
+        t_ghz.append(threading.Thread(target = run_ghz, args=(i, num_qubits)))
 
     for i in range(0, len(num_layers)):
         t_ghz[i].start()
