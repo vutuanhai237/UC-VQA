@@ -56,8 +56,7 @@ def run_ghz(num_layers, num_qubits):
         fidelities_ghz.append(fidelity)
         # Plot loss value in 100 steps
     print('Writting ...')
-    import os
-    print(os.path.abspath(os.getcwd()))
+
     np.savetxt("./" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
     np.savetxt("./" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
     np.savetxt("./" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
