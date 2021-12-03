@@ -24,7 +24,7 @@ def run_ghz(num_layers, num_qubits):
 
     loss_values_ghz = []
     thetass_ghz = []
-    for i in range(0, 2):
+    for i in range(0, 1):
         # fubini_study for binho_state is same for koczor state
         if i % 20 == 0:
             print('GHZ (' + str(num_layers) + ' layer): ', i)
@@ -56,10 +56,12 @@ def run_ghz(num_layers, num_qubits):
         fidelities_ghz.append(fidelity)
         # Plot loss value in 100 steps
     print('Writting ...')
-    np.savetxt("./binho_anzsats/" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("./binho_anzsats/" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
-    np.savetxt("./binho_anzsats/" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
-    np.savetxt("./binho_anzsats/" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
+    import os
+    print(os.path.abspath(os.getcwd()))
+    np.savetxt("./" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 
 if __name__ == "__main__":
