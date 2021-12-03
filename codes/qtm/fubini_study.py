@@ -63,11 +63,10 @@ def calculate_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 
         num_layers = (num_layers['num_layers'])
     if len(thetas) != num_layers * n * 5:
         raise Exception('Number of parameters must be equal n_layers * num_qubits * 5')
+    gs = []
+    index_layer = 0
     for i in range(0, num_layers):
         phis = thetas[i:(i + 1)*n*5]
-        index_layer = 0
-        gs = []
-
         qc_copy = qtm.qtm_nqubit.create_rx_nqubit(qc.copy(), phis[:n])
         observers = (qtm.base_qtm.create_observers(qc_copy))[index_layer]
         gs.append(calculate_g(qc, observers))
