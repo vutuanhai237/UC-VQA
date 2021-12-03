@@ -24,8 +24,10 @@ def run_ghz(num_layers):
 
     loss_values_ghz = []
     thetass_ghz = []
-    for i in range(0, 200):
+    for i in range(0, 2):
         # fubini_study for binho_state is same for koczor state
+        if i % 20 == 0:
+            print('GHZ (' + str(num_qubits) + '): ', i)
         G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base_qtm.grad_loss(
             qc, 
