@@ -4,11 +4,7 @@ import sys
 import multiprocessing
 sys.path.insert(1, '../')
 import qtm.base_qtm, qtm.constant, qtm.qtm_nqubit, qtm.fubini_study, qtm.encoding
-import importlib
-importlib.reload(qtm.base_qtm)
-importlib.reload(qtm.constant)
-importlib.reload(qtm.qtm_1qubit)
-importlib.reload(qtm.qtm_nqubit)
+
 
 def run_w(num_layers, num_qubits):
     
@@ -31,7 +27,6 @@ def run_w(num_layers, num_qubits):
         loss_values_w.append(loss)
         thetass_w.append(thetas)
 
-    import qtm.custom_gate
     traces_w, fidelities_w = [], []
     for thetas in thetass_w:
         # Get |psi> = U_gen|000...>
