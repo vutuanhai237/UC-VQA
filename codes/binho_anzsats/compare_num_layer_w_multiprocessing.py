@@ -44,10 +44,11 @@ def run_w(num_layers, num_qubits):
         traces_w.append(trace)
         fidelities_w.append(fidelity)
     print('Writting ...')
-    np.savetxt("./loss_values_w.csv", loss_values_w, delimiter=",")
-    np.savetxt("./thetass_w.csv", thetass_w, delimiter=",")
-    np.savetxt("./traces_w.csv", traces_w, delimiter=",")
-    np.savetxt("./fidelities_w.csv", fidelities_w, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/loss_values_w.csv", loss_values_w, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/thetass_w.csv", thetass_w, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/traces_w.csv", traces_w, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/fidelities_w.csv", fidelities_w, delimiter=",")
+
 
 if __name__ == "__main__":
     # creating thread
