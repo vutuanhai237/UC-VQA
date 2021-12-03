@@ -13,7 +13,7 @@ def run_w(num_layers, num_qubits):
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
     loss_values_w = []
     thetass_w = []
-    for i in range(0, 2):
+    for i in range(0, 200):
         if i % 20 == 0:
             print('W (' + str(num_layers) + ' layer): ', i)
         G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
