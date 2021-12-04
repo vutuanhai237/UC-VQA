@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.insert(1, '../')
 import qtm.base_qtm, qtm.constant, qtm.qtm_nqubit, qtm.fubini_study, qtm.encoding
-import threading
+import multiprocessing
 # Init parameters
 
 
@@ -24,7 +24,7 @@ def run_ghz(num_qubits, iter):
         if i % 20 == 0:
             print('GHZ (' + str(num_qubits) + '): ', i)
         # fubini_study for binho_state is same for koczor state
-        G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
+        G = qtm.fubini_study.calculate_binho_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base_qtm.grad_loss(
             qc, 
             qtm.qtm_nqubit.create_GHZchecker_binho,
@@ -53,10 +53,12 @@ def run_ghz(num_qubits, iter):
         traces_ghz.append(trace)
         fidelities_ghz.append(fidelity)
 
-    np.savetxt("./" + str(num_qubits) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("./" + str(num_qubits) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
-    np.savetxt("./" + str(num_qubits) + "/traces_ghz.csv", traces_ghz, delimiter=",")
-    np.savetxt("./" + str(num_qubits) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
+    print('Writting ...')
+
+    np.savetxt("./" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 def run_w(num_qubits, iter):
     num_layers = 1
@@ -68,8 +70,8 @@ def run_w(num_qubits, iter):
     thetass_w = []
     for i in range(0, iter):
         if i % 20 == 0:
-            print('W', i)
-        G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
+            print('W (' + str(num_qubits) + '): ', i)
+        G = qtm.fubini_study.calculate_binho_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base_qtm.grad_loss(
             qc, 
             qtm.qtm_nqubit.create_Wchecker_binho, 
@@ -80,7 +82,6 @@ def run_w(num_qubits, iter):
         loss_values_w.append(loss)
         thetass_w.append(thetas)
 
-    import qtm.custom_gate
     traces_w, fidelities_w = [], []
     for thetas in thetass_w:
         # Get |psi> = U_gen|000...>
@@ -98,10 +99,12 @@ def run_w(num_qubits, iter):
         traces_w.append(trace)
         fidelities_w.append(fidelity)
 
-    np.savetxt("./loss_values_w.csv", loss_values_w, delimiter=",")
-    np.savetxt("./thetass_w.csv", thetass_w, delimiter=",")
-    np.savetxt("./traces_w.csv", traces_w, delimiter=",")
-    np.savetxt("./fidelities_w.csv", fidelities_w, delimiter=",")
+    print('Writting ...')
+    np.savetxt("./" + str(num_layers) + "/loss_values_w.csv", loss_values_w, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/thetass_w.csv", thetass_w, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/traces_w.csv", traces_w, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/fidelities_w.csv", fidelities_w, delimiter=",")
+
 
 def run_haar(num_qubits, iter):
 
@@ -112,7 +115,7 @@ def run_haar(num_qubits, iter):
     psi = 2*np.random.rand(2**num_qubits)-1
 
     # Haar
-    print('Haar')
+
     thetas = thetas_origin.copy()
 
     psi = psi / np.linalg.norm(psi)
@@ -122,9 +125,9 @@ def run_haar(num_qubits, iter):
     thetass_haar = []
     for i in range(0, iter):
         if i % 20 == 0:
-            print('Haar', i)
+            print('Haar (' + str(num_qubits) + '): ', i)
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
+        G = qtm.fubini_study.calculate_binho_state(qc.copy(), thetas, num_layers)
         qc = encoder.qcircuit
         grad_loss = qtm.base_qtm.grad_loss(
             qc, 
@@ -153,10 +156,11 @@ def run_haar(num_qubits, iter):
         traces_haar.append(trace)
         fidelities_haar.append(fidelity)
 
-    np.savetxt("./loss_values_haar.csv", loss_values_haar, delimiter=",")
-    np.savetxt("./thetass_haar.csv", thetass_haar, delimiter=",")
-    np.savetxt("./traces_haar.csv", traces_haar, delimiter=",")
-    np.savetxt("./fidelities_haar.csv", fidelities_haar, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/thetass_haar.csv", thetass_haar, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/traces_haar.csv", traces_haar, delimiter=",")
+    np.savetxt("./" + str(num_layers) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
+
 
 if __name__ == "__main__":
     # creating thread
@@ -167,20 +171,20 @@ if __name__ == "__main__":
     t_w = []
     t_haar = []
     for i in qubits:
-        t_ghz.append(threading.Thread(target = run_ghz, args=(i, 400)))
-        #t_w.append(threading.Thread(target = run_w, args=(i, 300)))
-    # for i in qubits_haar:
-    #     t_haar.append(threading.Thread(target = run_haar, args=(i, 300)))
+        t_ghz.append(multiprocessing.Process(target = run_ghz, args=(i, 200)))
+        t_w.append(multiprocessing.Process(target = run_w, args=(i, 200)))
+    for i in qubits_haar:
+        t_haar.append(multiprocessing.Process(target = run_haar, args=(i, 200)))
 
     for i in range(0, len(qubits)):
         t_ghz[i].start()
-        #t_w[i].start()
-    #for i in range(0, len(qubits_haar)):
-    #    t_haar[i].start()
+        t_w[i].start()
+    for i in range(0, len(qubits_haar)):
+        t_haar[i].start()
     for i in range(0, len(qubits)):
         t_ghz[i].join()
-        #t_w[i].join()
-    #for i in range(0, len(qubits_haar)):
-    #    t_haar[i].join()
+        t_w[i].join()
+    for i in range(0, len(qubits_haar)):
+        t_haar[i].join()
 
     print("Done!")
