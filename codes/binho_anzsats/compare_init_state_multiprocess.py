@@ -15,7 +15,7 @@ def run_ghz(num_qubits, iter):
     theta = np.pi/ 3
     
     # GHZ
-    thetas = thetas_origin.copy()
+    thetas = np.zeros(num_qubits*num_layers*5)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 
     loss_values_ghz = []
@@ -115,8 +115,8 @@ def run_haar(num_qubits, iter):
 
     # Haar
 
-    thetas = thetas_origin.copy()
-
+    # thetas = thetas_origin.copy()
+    thetas = np.zeros(num_qubits*num_layers*5)
     psi = psi / np.linalg.norm(psi)
     encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
 
@@ -155,10 +155,10 @@ def run_haar(num_qubits, iter):
         traces_haar.append(trace)
         fidelities_haar.append(fidelity)
 
-    np.savetxt("./" + str(num_qubits) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
-    np.savetxt("./" + str(num_qubits) + "/thetass_haar.csv", thetass_haar, delimiter=",")
-    np.savetxt("./" + str(num_qubits) + "/traces_haar.csv", traces_haar, delimiter=",")
-    np.savetxt("./" + str(num_qubits) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
+    np.savetxt("../experiments/binho_anzsats_200iter" + str(num_qubits) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
+    np.savetxt("../experiments/binho_anzsats_200iter" + str(num_qubits) + "/thetass_haar.csv", thetass_haar, delimiter=",")
+    np.savetxt("../experiments/binho_anzsats_200iter" + str(num_qubits) + "/traces_haar.csv", traces_haar, delimiter=",")
+    np.savetxt("../experiments/binho_anzsats_200iter" + str(num_qubits) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
 
 
 if __name__ == "__main__":
@@ -170,20 +170,20 @@ if __name__ == "__main__":
     t_w = []
     t_haar = []
     for i in qubits:
-        t_ghz.append(multiprocessing.Process(target = run_ghz, args=(i, 200)))
-        t_w.append(multiprocessing.Process(target = run_w, args=(i, 200)))
-    for i in qubits_haar:
-        t_haar.append(multiprocessing.Process(target = run_haar, args=(i, 200)))
+        t_ghz.append(multiprocessing.Process(target = run_ghz, args=(i, 2)))
+    #     t_w.append(multiprocessing.Process(target = run_w, args=(i, 200)))
+    # for i in qubits_haar:
+    #     t_haar.append(multiprocessing.Process(target = run_haar, args=(i, 200)))
 
     for i in range(0, len(qubits)):
         t_ghz[i].start()
-        t_w[i].start()
-    for i in range(0, len(qubits_haar)):
-        t_haar[i].start()
+    #     t_w[i].start()
+    # for i in range(0, len(qubits_haar)):
+    #     t_haar[i].start()
     for i in range(0, len(qubits)):
         t_ghz[i].join()
-        t_w[i].join()
-    for i in range(0, len(qubits_haar)):
-        t_haar[i].join()
+    #     t_w[i].join()
+    # for i in range(0, len(qubits_haar)):
+    #     t_haar[i].join()
 
     print("Done!")
