@@ -55,10 +55,10 @@ def run_ghz(num_qubits, iter):
 
     print('Writting ...')
 
-    np.savetxt("../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
-    np.savetxt("../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/traces_ghz.csv", traces_ghz, delimiter=",")
-    np.savetxt("../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 def run_w(num_qubits, iter):
     num_layers = 1
