@@ -15,7 +15,7 @@ def run_ghz(num_qubits, iter):
     theta = np.pi/ 3
     
     # GHZ
-    thetas = np.zeros(num_qubits*num_layers*5)
+    thetas = np.ones(num_qubits*num_layers*5)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 
     loss_values_ghz = []
@@ -116,7 +116,7 @@ def run_haar(num_qubits, iter):
     # Haar
 
     # thetas = thetas_origin.copy()
-    thetas = np.zeros(num_qubits*num_layers*5)
+    thetas = np.ones(num_qubits*num_layers*5)
     psi = psi / np.linalg.norm(psi)
     encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
 
