@@ -55,17 +55,16 @@ def run_ghz(num_qubits, iter):
 
     print('Writting ...')
 
-    np.savetxt("./" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 def run_w(num_qubits, iter):
     num_layers = 1
     thetas_origin = np.random.uniform(low = 0, high = 2*np.pi, size = num_qubits*num_layers*5)
     thetas = thetas_origin.copy()
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    print('W')
     loss_values_w = []
     thetass_w = []
     for i in range(0, iter):
@@ -100,10 +99,10 @@ def run_w(num_qubits, iter):
         fidelities_w.append(fidelity)
 
     print('Writting ...')
-    np.savetxt("./" + str(num_layers) + "/loss_values_w.csv", loss_values_w, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/thetass_w.csv", thetass_w, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/traces_w.csv", traces_w, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/fidelities_w.csv", fidelities_w, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/loss_values_w.csv", loss_values_w, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/thetass_w.csv", thetass_w, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/traces_w.csv", traces_w, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/fidelities_w.csv", fidelities_w, delimiter=",")
 
 
 def run_haar(num_qubits, iter):
@@ -156,10 +155,10 @@ def run_haar(num_qubits, iter):
         traces_haar.append(trace)
         fidelities_haar.append(fidelity)
 
-    np.savetxt("./" + str(num_layers) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/thetass_haar.csv", thetass_haar, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/traces_haar.csv", traces_haar, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/thetass_haar.csv", thetass_haar, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/traces_haar.csv", traces_haar, delimiter=",")
+    np.savetxt("./" + str(num_qubits) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
 
 
 if __name__ == "__main__":
@@ -171,10 +170,10 @@ if __name__ == "__main__":
     t_w = []
     t_haar = []
     for i in qubits:
-        t_ghz.append(multiprocessing.Process(target = run_ghz, args=(i, 2)))
-        t_w.append(multiprocessing.Process(target = run_w, args=(i, 2)))
+        t_ghz.append(multiprocessing.Process(target = run_ghz, args=(i, 200)))
+        t_w.append(multiprocessing.Process(target = run_w, args=(i, 200)))
     for i in qubits_haar:
-        t_haar.append(multiprocessing.Process(target = run_haar, args=(i, 2)))
+        t_haar.append(multiprocessing.Process(target = run_haar, args=(i, 200)))
 
     for i in range(0, len(qubits)):
         t_ghz[i].start()
