@@ -171,10 +171,10 @@ if __name__ == "__main__":
     t_w = []
     t_haar = []
     for i in qubits:
-        t_ghz.append(multiprocessing.Process(target = run_ghz, args=(i, 200)))
-        t_w.append(multiprocessing.Process(target = run_w, args=(i, 200)))
+        t_ghz.append(multiprocessing.Process(target = run_ghz, args=(i, 2)))
+        t_w.append(multiprocessing.Process(target = run_w, args=(i, 2)))
     for i in qubits_haar:
-        t_haar.append(multiprocessing.Process(target = run_haar, args=(i, 200)))
+        t_haar.append(multiprocessing.Process(target = run_haar, args=(i, 2)))
 
     for i in range(0, len(qubits)):
         t_ghz[i].start()
