@@ -1,7 +1,7 @@
 import qiskit
 import numpy as np
 import sys
-import threading
+import multiprocessing
 sys.path.insert(1, '../')
 import qtm.base_qtm, qtm.constant, qtm.qtm_nqubit, qtm.fubini_study, qtm.encoding
 import importlib
@@ -15,11 +15,9 @@ importlib.reload(qtm.qtm_nqubit)
 
 def run_ghz(num_layers, num_qubits):
     # GHZ
-    
-    thetas_origin = np.random.uniform(low = 0, high = 2*np.pi, size = num_qubits*num_layers*5)
-    # For determine GHZ state
-    theta = np.random.uniform(0, 2*np.pi)
-    thetas = thetas_origin.copy()
+  
+    theta = np.pi/3
+    thetas = np.ones(num_qubits*num_layers*5)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 
     loss_values_ghz = []
@@ -57,10 +55,10 @@ def run_ghz(num_layers, num_qubits):
         # Plot loss value in 100 steps
     print('Writting ...')
 
-    np.savetxt("./" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 
 if __name__ == "__main__":
@@ -71,7 +69,7 @@ if __name__ == "__main__":
     t_ghz = []
 
     for i in num_layers:
-        t_ghz.append(threading.Thread(target = run_ghz, args=(i, num_qubits)))
+        t_ghz.append(multiprocessing.Process(target = run_ghz, args=(i, num_qubits)))
 
     for i in range(0, len(num_layers)):
         t_ghz[i].start()
