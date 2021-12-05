@@ -7,16 +7,14 @@ import qtm.base_qtm, qtm.constant, qtm.qtm_nqubit, qtm.fubini_study, qtm.encodin
 
 
 def run_w(num_layers, num_qubits):
-    
-    thetas_origin = np.random.uniform(low = 0, high = 2*np.pi, size = num_qubits*num_layers*5)
-    thetas = thetas_origin.copy()
+    thetas = np.ones(num_qubits*num_layers*5)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
     loss_values_w = []
     thetass_w = []
     for i in range(0, 200):
         if i % 20 == 0:
             print('W (' + str(num_layers) + ' layer): ', i)
-        G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
+        G = qtm.fubini_study.calculate_binho_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base_qtm.grad_loss(
             qc, 
             qtm.qtm_nqubit.create_Wchecker_binho, 
@@ -44,10 +42,11 @@ def run_w(num_layers, num_qubits):
         traces_w.append(trace)
         fidelities_w.append(fidelity)
     print('Writting ...')
-    np.savetxt("./" + str(num_layers) + "/loss_values_w.csv", loss_values_w, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/thetass_w.csv", thetass_w, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/traces_w.csv", traces_w, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/fidelities_w.csv", fidelities_w, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/loss_values_w.csv", loss_values_w, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/thetass_w.csv", thetass_w, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/traces_w.csv", traces_w, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/fidelities_w.csv", fidelities_w, delimiter=",")
+
 
 
 if __name__ == "__main__":

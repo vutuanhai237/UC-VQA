@@ -8,11 +8,9 @@ import qtm.base_qtm, qtm.constant, qtm.qtm_nqubit, qtm.fubini_study, qtm.encodin
 
 def run_haar(num_layers, num_qubits):
  
-    thetas_origin = np.random.uniform(low = 0, high = 2*np.pi, size = num_qubits*num_layers*5)
-
     psi = 2*np.random.rand(2**num_qubits)-1
     # Haar
-    thetas = thetas_origin.copy()
+    thetas = np.ones(num_qubits*num_layers*5)
 
     psi = psi / np.linalg.norm(psi)
     encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
@@ -23,7 +21,7 @@ def run_haar(num_layers, num_qubits):
         if i % 20 == 0:
             print('Haar (' + str(num_layers) + ' layer): ', i)
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
+        G = qtm.fubini_study.calculate_binho_state(qc.copy(), thetas, num_layers)
         qc = encoder.qcircuit
         grad_loss = qtm.base_qtm.grad_loss(
             qc, 
@@ -52,10 +50,11 @@ def run_haar(num_layers, num_qubits):
         traces_haar.append(trace)
         fidelities_haar.append(fidelity)
     print('Writting ... ' + str(num_layers))
-    np.savetxt("./" + str(num_layers) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/thetass_haar.csv", thetass_haar, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/traces_haar.csv", traces_haar, delimiter=",")
-    np.savetxt("./" + str(num_layers) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/thetass_haar.csv", thetass_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/traces_haar.csv", traces_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_anzsats_15layer/" + str(num_layers) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
+
 
 
 if __name__ == "__main__":
