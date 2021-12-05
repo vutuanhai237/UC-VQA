@@ -105,14 +105,14 @@ def calculate_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 
         phis = thetas[i:(i + 1)*n*5]
         qc_copy = qtm.qtm_nqubit.create_rx_nqubit(qc.copy(), phis[:n])
         observers = (create_observers(qc_copy))[index_layer]
-        print(observers)
+        
         gs.append(calculate_g(qc, observers))
         qc = qtm.qtm_nqubit.create_rx_nqubit(qc, phis[:n])
         index_layer += 1
 
         qc_copy = qtm.qtm_nqubit.create_cry_nqubit_inverse(qc.copy(), phis[n:n*2])
         observers = (create_observers(qc_copy))[index_layer]
-        print(observers)
+        
         gs.append(calculate_g(qc, observers))
         qc = qtm.qtm_nqubit.create_cry_nqubit_inverse(qc, phis[n:n*2])
         index_layer += 1
@@ -120,7 +120,7 @@ def calculate_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 
 
         qc_copy = qtm.qtm_nqubit.create_rz_nqubit(qc.copy(), phis[n*2:n*3])
         observers = (create_observers(qc_copy))[index_layer]
-        print(observers)
+        
         gs.append(calculate_g(qc, observers))
         qc = qtm.qtm_nqubit.create_rz_nqubit(qc, phis[n*2:n*3])
         index_layer += 1
@@ -128,7 +128,7 @@ def calculate_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 
 
         qc_copy = qtm.qtm_nqubit.create_cry_nqubit(qc.copy(), phis[n*3:n*4])
         observers = (create_observers(qc_copy))[index_layer]
-        print(observers)
+        
         gs.append(calculate_g(qc, observers))
         qc = qtm.qtm_nqubit.create_cry_nqubit(qc, phis[n*3:n*4])
         index_layer += 1
@@ -136,7 +136,7 @@ def calculate_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 
 
         qc_copy = qtm.qtm_nqubit.create_rz_nqubit(qc.copy(), phis[n*4:n*5])
         observers = (create_observers(qc_copy))[index_layer]
-        print(observers)
+        
         gs.append(calculate_g(qc, observers))
         qc = qtm.qtm_nqubit.create_rz_nqubit(qc, phis[n*4:n*5])
         index_layer += 1
