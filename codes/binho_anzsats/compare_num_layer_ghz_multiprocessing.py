@@ -64,7 +64,7 @@ def run_ghz(num_layers, num_qubits):
 if __name__ == "__main__":
     # creating thread
     num_qubits = 5
-    num_layers = [2, 3, 4, 5]
+    num_layers = [5]
    
     t_ghz = []
 

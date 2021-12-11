@@ -466,6 +466,31 @@ def create_binho_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
         qc = create_rz_nqubit(qc, phis[n*4:n*5])
     return qc
 
+###########################
+###### Layered State ######
+###########################
 
+def create_layerd_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
+    """Create koczor anzsats 
 
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
 
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
+    if len(thetas) != num_layers * n * 5:
+        raise Exception('Number of parameters must be equal n_layers * num_qubits * 5')
+    # for i in range(0, num_layers):
+    #     phis = thetas[i:(i + 1)*n*5]
+    #     qc = create_rx_nqubit(qc, phis[:n])
+    #     qc = create_wy(qc, phis[n:n*2])
+    #     qc = create_rz_nqubit(qc, phis[n*2:n*3])
+    #     qc = create_wy(qc, phis[n*3:n*4])
+    #     qc = create_rz_nqubit(qc, phis[n*4:n*5])
+    return qc
