@@ -470,8 +470,38 @@ def create_binho_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
 ###### Layered State ######
 ###########################
 
-def create_layerd_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
-    """Create koczor anzsats 
+def create_ry_nqubit(qc: qiskit.QuantumCircuit, thetas, shift = 0):
+    """Add a R_Y layer
+
+    Args:
+        - qc (qiskit.QuantumCircuit): Init circuit
+        - thetas (Numpy array): parameters
+        - shift (Int): start index
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if qc.num_qubits - shift < len(thetas):
+        raise Exception('Number of parameters must be equal num_qubits - shift')
+    for i in range(0, len(thetas)):
+        qc.ry(thetas[i], i + shift)
+    return qc
+
+def create_swap_nqubit(qc: qiskit.QuantumCircuit, shift = 0):
+    """Add a SWAP layer
+
+    Args:
+        - qc (qiskit.QuantumCircuit): Init circuit
+        - thetas (Numpy array): parameters
+        - shift (Int): start index
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    for i in range(0 + shift, qc.num_qubits - 1, 2):
+        qc.swap(i, i + 1)
+    return qc
+
+def create_alternating_layerd_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
+    """Create Alternating layerd ansatz
 
     Args:
         qc (qiskit.QuantumCircuit): Init circuit
@@ -484,13 +514,25 @@ def create_layerd_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
     n = qc.num_qubits
     if isinstance(num_layers, int) != True:
         num_layers = (num_layers['num_layers'])
-    if len(thetas) != num_layers * n * 5:
+    if len(thetas) != num_layers * (n * 5 - 4):
         raise Exception('Number of parameters must be equal n_layers * num_qubits * 5')
-    # for i in range(0, num_layers):
-    #     phis = thetas[i:(i + 1)*n*5]
-    #     qc = create_rx_nqubit(qc, phis[:n])
-    #     qc = create_wy(qc, phis[n:n*2])
-    #     qc = create_rz_nqubit(qc, phis[n*2:n*3])
-    #     qc = create_wy(qc, phis[n*3:n*4])
-    #     qc = create_rz_nqubit(qc, phis[n*4:n*5])
+    for i in range(0, num_layers):
+        phis = thetas[i:(i + 1)*n*5]
+        qc = create_ry_nqubit(qc, phis[:n])
+        qc.barrier()
+        qc = create_swap_nqubit(qc)
+        qc.barrier()
+        qc = create_ry_nqubit(qc, phis[n:n*2 - 1])
+        qc.barrier()
+        qc = create_swap_nqubit(qc, shift = 1)
+        qc.barrier()
+        qc = create_ry_nqubit(qc, phis[n*2 - 1:n*3 - 2], shift = 1)
+        qc.barrier()
+        qc = create_swap_nqubit(qc)
+        qc.barrier()
+        qc = create_ry_nqubit(qc, phis[n*3 - 2:n*4 - 3])
+        qc.barrier()
+        qc = create_swap_nqubit(qc, shift = 1)
+        qc.barrier()
+        qc = create_ry_nqubit(qc, phis[n*4 - 3:n*5 - 4], shift = 1)
     return qc
