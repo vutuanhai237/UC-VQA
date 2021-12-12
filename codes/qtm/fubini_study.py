@@ -202,3 +202,62 @@ def calculate_binho_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1
     for i in range(1, len(gs)):
         G = block_diag(G, gs[i])
     return G
+
+
+
+def calculate_alternative_layered_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
+    """Create binho anzsats and compuate g each sub-layer
+
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit (blank)
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
+
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
+    if len(thetas) != num_layers * (n*5 - 4):
+        raise Exception('Number of parameters must be equal n_layers * (n*5 - 4)')
+    gs = []
+    index_layer = 0
+    for i in range(0, num_layers):
+        phis = thetas[i:(i + 1)*(n*5 - 4)]
+        qc_copy = qtm.qtm_nqubit.create_ry_nqubit(qc.copy(), phis[:n])
+        observers = (create_observers(qc_copy))[index_layer]
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.qtm_nqubit.create_ry_nqubit(qc, phis[:n])
+        index_layer += 1
+
+        qc_copy = qtm.qtm_nqubit.create_wy(qc.copy(), phis[n:n*2])
+        observers = (create_observers(qc_copy))[index_layer]
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.qtm_nqubit.create_wy(qc, phis[n:n*2])
+        index_layer += 1
+
+
+        qc_copy = qtm.qtm_nqubit.create_rz_nqubit(qc.copy(), phis[n*2:n*3])
+        observers = (create_observers(qc_copy))[index_layer]
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.qtm_nqubit.create_rz_nqubit(qc, phis[n*2:n*3])
+        index_layer += 1
+
+
+        qc_copy = qtm.qtm_nqubit.create_wy(qc.copy(), phis[n*3:n*4])
+        observers = (create_observers(qc_copy))[index_layer]
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.qtm_nqubit.create_wy(qc, phis[n*3:n*4])
+        index_layer += 1
+
+
+        qc_copy = qtm.qtm_nqubit.create_rz_nqubit(qc.copy(), phis[n*4:n*5])
+        observers = (create_observers(qc_copy))[index_layer]
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.qtm_nqubit.create_rz_nqubit(qc, phis[n*4:n*5])
+        index_layer += 1
+    G = gs[0]
+    for i in range(1, len(gs)):
+        G = block_diag(G, gs[i])
+    return G

@@ -519,20 +519,12 @@ def create_alternating_layerd_state(qc: qiskit.QuantumCircuit, thetas, num_layer
     for i in range(0, num_layers):
         phis = thetas[i:(i + 1)*n*5]
         qc = create_ry_nqubit(qc, phis[:n])
-        qc.barrier()
         qc = create_swap_nqubit(qc)
-        qc.barrier()
         qc = create_ry_nqubit(qc, phis[n:n*2 - 1])
-        qc.barrier()
         qc = create_swap_nqubit(qc, shift = 1)
-        qc.barrier()
         qc = create_ry_nqubit(qc, phis[n*2 - 1:n*3 - 2], shift = 1)
-        qc.barrier()
         qc = create_swap_nqubit(qc)
-        qc.barrier()
         qc = create_ry_nqubit(qc, phis[n*3 - 2:n*4 - 3])
-        qc.barrier()
         qc = create_swap_nqubit(qc, shift = 1)
-        qc.barrier()
         qc = create_ry_nqubit(qc, phis[n*4 - 3:n*5 - 4], shift = 1)
     return qc
