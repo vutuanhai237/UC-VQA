@@ -31,7 +31,10 @@ def run_ghz(num_layers, num_qubits):
             qc, 
             qtm.qtm_nqubit.create_GHZchecker_binho,
             thetas, r = 1/2, s = np.pi/2, num_layers = num_layers, theta = theta)
-        thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.inv(G) @ grad_loss)) 
+        grad1 = np.linalg.inv(G) @ grad_loss 
+        if i == 0:
+            m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
+        thetas = qtm.base_qtm.adam(thetas, m, v, i, grad1)  
         qc_copy = qtm.qtm_nqubit.create_GHZchecker_binho(qc.copy(), thetas, num_layers, theta)  
         loss = qtm.base_qtm.loss_basis(qtm.base_qtm.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_ghz.append(loss)
@@ -64,7 +67,7 @@ def run_ghz(num_layers, num_qubits):
 if __name__ == "__main__":
     # creating thread
     num_qubits = 5
-    num_layers = [3,4,5]
+    num_layers = [1,2,3,4,5]
    
     t_ghz = []
 
