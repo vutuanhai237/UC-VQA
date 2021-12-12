@@ -31,7 +31,7 @@ def run_ghz(num_layers, num_qubits):
             qc, 
             qtm.qtm_nqubit.create_GHZchecker_binho,
             thetas, r = 1/2, s = np.pi/2, num_layers = num_layers, theta = theta)
-        grad1 = np.linalg.inv(G) @ grad_loss 
+        grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
         thetas = qtm.base_qtm.adam(thetas, m, v, i, grad1)  
