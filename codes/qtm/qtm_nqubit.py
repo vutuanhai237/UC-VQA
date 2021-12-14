@@ -86,6 +86,28 @@ def create_GHZchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_l
     qc = create_ghz_state_inverse(qc, theta)
     return qc
 
+def create_GHZchecker_alternating_layered(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, theta: float):
+    """Create circuit includes alternating layered and GHZ
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int)
+        - theta (float): param for general GHZ
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    if isinstance(theta, float) != True:
+        theta = theta['theta']
+    # |psi_gen> = U_gen|000...> 
+    qc = create_alternating_layerd_state(qc, thetas, num_layers = num_layers)
+    # U_target^t|psi_gen> with U_target is GHZ state
+    qc = create_ghz_state_inverse(qc, theta)
+    return qc
+    
 ###########################
 ######### W State #########
 ###########################
@@ -215,6 +237,28 @@ def create_Wchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_lay
 
     # |psi_gen> = U_gen|000...> 
     qc = create_binho_state(qc, thetas, num_layers = num_layers)
+    # U_target^t|psi_gen> with U_target is W state
+    qc = create_w_state_inverse(qc)
+    return qc
+
+
+def create_Wchecker_alternating_layered(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int):
+    """Create circuit includes Alternating layered and W
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int)
+        - theta (float): param for general W
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+
+    # |psi_gen> = U_gen|000...> 
+    qc = create_alternating_layerd_state(qc, thetas, num_layers = num_layers)
     # U_target^t|psi_gen> with U_target is W state
     qc = create_w_state_inverse(qc)
     return qc
@@ -398,6 +442,7 @@ def create_haarchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num
     qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
     return qc1
 
+
 def create_haarchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, encoder):
     """Create circuit includes haar and koczor
 
@@ -416,6 +461,29 @@ def create_haarchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_
         encoder = encoder['encoder']
     qc1 = qiskit.QuantumCircuit(encoder.quantum_data)
     qc1 = create_binho_state(qc1, thetas, num_layers = num_layers)
+    qc1 = qc1.combine(qc.inverse())
+    qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
+    return qc1
+
+
+def create_haarchecker_alternating_layered(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, encoder):
+    """Create circuit includes Alternating layered and koczor
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int): num_layer for koczor
+        - encoder: encoder for haar
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    if isinstance(encoder, qtm.encoding.Encoding) != True:
+        encoder = encoder['encoder']
+    qc1 = qiskit.QuantumCircuit(encoder.quantum_data)
+    qc1 = create_alternating_layerd_state(qc1, thetas, num_layers = num_layers)
     qc1 = qc1.combine(qc.inverse())
     qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
     return qc1
@@ -537,3 +605,4 @@ def create_alternating_layerd_state(qc: qiskit.QuantumCircuit, thetas, num_layer
         qc = create_swap_nqubit(qc, shift = 1)
         qc = create_ry_nqubit(qc, phis[n*4 - 3:n*5 - 4], shift = 1)
     return qc
+
