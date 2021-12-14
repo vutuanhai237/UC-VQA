@@ -93,7 +93,7 @@ def calculate_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 
     gs = []
     index_layer = 0
     for i in range(0, num_layers):
-        phis = thetas[i:(i + 1)*n*5]
+        phis = thetas[i*n*5:(i + 1)*n*5]
         # Sub-Layer 1
         qc_copy = qtm.qtm_nqubit.create_rx_nqubit(qc.copy(), phis[:n])
         observers = (create_observers(qc_copy))
@@ -148,7 +148,7 @@ def calculate_binho_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1
     gs = []
     index_layer = 0
     for i in range(0, num_layers):
-        phis = thetas[i:(i + 1)*n*5]
+        phis = thetas[i*n*5:(i + 1)*n*5]
         # Sub-Layer 1
         qc_copy = qtm.qtm_nqubit.create_rx_nqubit(qc.copy(), phis[:n])
         observers = (create_observers(qc_copy))
