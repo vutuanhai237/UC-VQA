@@ -10,7 +10,7 @@ def run_haar(num_layers, num_qubits):
  
     psi = 2*np.random.rand(2**num_qubits)-1
     # Haar
-    thetas = np.zeros(num_qubits*num_layers*5)
+    thetas = np.ones(num_qubits*num_layers*5)
 
     psi = psi / np.linalg.norm(psi)
     encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')

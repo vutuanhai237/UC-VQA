@@ -17,7 +17,7 @@ def run_ghz(num_layers, num_qubits):
     # GHZ
   
     theta = np.pi/3
-    thetas = np.zeros(num_qubits*num_layers*5)
+    thetas = np.ones(num_qubits*num_layers*5)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 
     loss_values_ghz = []
