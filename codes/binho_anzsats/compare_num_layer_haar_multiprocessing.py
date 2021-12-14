@@ -10,14 +10,14 @@ def run_haar(num_layers, num_qubits):
  
     psi = 2*np.random.rand(2**num_qubits)-1
     # Haar
-    thetas = np.ones(num_qubits*num_layers*5)
+    thetas = np.zeros(num_qubits*num_layers*5)
 
     psi = psi / np.linalg.norm(psi)
     encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
 
     loss_values_haar = []
     thetass_haar = []
-    for i in range(0, 200):
+    for i in range(0, 400):
         if i % 20 == 0:
             print('Haar (' + str(num_layers) + ' layer): ', i)
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
@@ -60,7 +60,7 @@ def run_haar(num_layers, num_qubits):
 if __name__ == "__main__":
     # creating thread
     num_qubits = 5
-    num_layers = [2, 3, 4, 5, 6]
+    num_layers = [1, 2, 3, 4, 5]
    
     t_haar = []
 
