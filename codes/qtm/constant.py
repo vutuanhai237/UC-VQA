@@ -38,5 +38,9 @@ generator = {
     'i': np.array([
         [1, 0],
         [0, 1]
-    ], dtype=np.complex128)
+    ], dtype=np.complex128),
+    'id': np.array([
+        [1, 0],
+        [0, 1]
+    ], dtype=np.complex128),
 }

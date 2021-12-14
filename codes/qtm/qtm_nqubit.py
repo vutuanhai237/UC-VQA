@@ -351,7 +351,7 @@ def create_cry_nqubit_inverse(qc: qiskit.QuantumCircuit, thetas):
     return qc
 
 def create_koczor_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
-    """Create koczor anzsats 
+    """Create koczor ansatz 
 
     Args:
         qc (qiskit.QuantumCircuit): Init circuit
@@ -442,7 +442,7 @@ def create_wy(qc: qiskit.QuantumCircuit, thetas):
     return qc
 
 def create_binho_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
-    """Create koczor anzsats 
+    """Create koczor ansatz 
 
     Args:
         qc (qiskit.QuantumCircuit): Init circuit
@@ -482,8 +482,12 @@ def create_ry_nqubit(qc: qiskit.QuantumCircuit, thetas, shift = 0):
     """
     if qc.num_qubits - shift < len(thetas):
         raise Exception('Number of parameters must be equal num_qubits - shift')
+    # for i in range(0, 0 + shift):
+    #     qc.i(i)
     for i in range(0, len(thetas)):
         qc.ry(thetas[i], i + shift)
+    # for i in range(shift + len(thetas), qc.num_qubits):
+    #     qc.i(i)
     return qc
 
 def create_swap_nqubit(qc: qiskit.QuantumCircuit, shift = 0):
@@ -496,8 +500,12 @@ def create_swap_nqubit(qc: qiskit.QuantumCircuit, shift = 0):
     Returns:
         - qiskit.QuantumCircuit
     """
+    # for i in range(0, 0 + shift):
+    #     qc.i(i)
     for i in range(0 + shift, qc.num_qubits - 1, 2):
         qc.swap(i, i + 1)
+    # if (qc.num_qubits - shift) % 2 == 1:
+    #     qc.i(qc.num_qubits - 1)
     return qc
 
 def create_alternating_layerd_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
@@ -517,7 +525,8 @@ def create_alternating_layerd_state(qc: qiskit.QuantumCircuit, thetas, num_layer
     if len(thetas) != num_layers * (n * 5 - 4):
         raise Exception('Number of parameters must be equal n_layers * num_qubits * 5')
     for i in range(0, num_layers):
-        phis = thetas[i:(i + 1)*n*5]
+        phis = thetas[i*(n*5 - 4):(i + 1)*(n*5 - 4)]
+        qc.barrier()
         qc = create_ry_nqubit(qc, phis[:n])
         qc = create_swap_nqubit(qc)
         qc = create_ry_nqubit(qc, phis[n:n*2 - 1])

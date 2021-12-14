@@ -52,10 +52,10 @@ def run_haar(num_layers, num_qubits):
         traces_haar.append(trace)
         fidelities_haar.append(fidelity)
     print('Writting ... ' + str(num_layers))
-    np.savetxt("../../experiments/binho_anzsats_15layer_adam/" + str(num_layers) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_15layer_adam/" + str(num_layers) + "/thetass_haar.csv", thetass_haar, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_15layer_adam/" + str(num_layers) + "/traces_haar.csv", traces_haar, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_15layer_adam/" + str(num_layers) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/thetass_haar.csv", thetass_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/traces_haar.csv", traces_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
 
 
 

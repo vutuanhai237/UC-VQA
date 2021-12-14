@@ -55,10 +55,10 @@ def run_ghz(num_qubits, iter):
 
     print('Writting ...')
 
-    np.savetxt("../../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/traces_ghz.csv", traces_ghz, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_200iter/" + str(num_qubits) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/" + str(num_qubits) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/" + str(num_qubits) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/" + str(num_qubits) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/" + str(num_qubits) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 def run_w(num_qubits, iter):
     num_layers = 1
@@ -99,10 +99,10 @@ def run_w(num_qubits, iter):
         fidelities_w.append(fidelity)
 
     print('Writting ...')
-    np.savetxt("../../experiments/binho_anzsats_200iter/"  + str(num_qubits) + "/loss_values_w.csv", loss_values_w, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_200iter/"  + str(num_qubits) + "/thetass_w.csv", thetass_w, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_200iter/"  + str(num_qubits) + "/traces_w.csv", traces_w, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_200iter/"  + str(num_qubits) + "/fidelities_w.csv", fidelities_w, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/"  + str(num_qubits) + "/loss_values_w.csv", loss_values_w, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/"  + str(num_qubits) + "/thetass_w.csv", thetass_w, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/"  + str(num_qubits) + "/traces_w.csv", traces_w, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/"  + str(num_qubits) + "/fidelities_w.csv", fidelities_w, delimiter=",")
 
 
 def run_haar(num_qubits, iter):
@@ -155,10 +155,10 @@ def run_haar(num_qubits, iter):
         traces_haar.append(trace)
         fidelities_haar.append(fidelity)
 
-    np.savetxt("../../experiments/binho_anzsats_200iter/"  + str(num_qubits) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_200iter/"  + str(num_qubits) + "/thetass_haar.csv", thetass_haar, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_200iter/"  + str(num_qubits) + "/traces_haar.csv", traces_haar, delimiter=",")
-    np.savetxt("../../experiments/binho_anzsats_200iter/"  + str(num_qubits) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/"  + str(num_qubits) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/"  + str(num_qubits) + "/thetass_haar.csv", thetass_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/"  + str(num_qubits) + "/traces_haar.csv", traces_haar, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_200iter/"  + str(num_qubits) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
 
 
 if __name__ == "__main__":
