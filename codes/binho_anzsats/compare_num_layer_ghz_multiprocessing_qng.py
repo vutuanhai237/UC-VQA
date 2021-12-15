@@ -55,15 +55,15 @@ def run_ghz(num_layers, num_qubits):
         # Plot loss value in 100 steps
     print('Writting ...')
 
-    np.savetxt("../../experiments/binho_ansatz_15layer/" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("../../experiments/binho_ansatz_15layer/" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
-    np.savetxt("../../experiments/binho_ansatz_15layer/" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
-    np.savetxt("../../experiments/binho_ansatz_15layer/" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_3_qubits/" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_3_qubits/" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_3_qubits/" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_3_qubits/" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 
 if __name__ == "__main__":
     # creating thread
-    num_qubits = 5
+    num_qubits = 3
     num_layers = [1, 2, 3, 4, 5]
    
     t_ghz = []

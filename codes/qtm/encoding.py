@@ -6,6 +6,7 @@ This code is copy from https://github.com/adjs/dcsp/blob/master/encoding.py
 import numpy as np
 import qiskit
 
+
 class bin_tree:
     size = None
     values = None
@@ -15,7 +16,7 @@ class bin_tree:
         self.values = values
 
     def parent(self, key):
-        return int((key-0.5)/2)
+        return int((key - 0.5) / 2)
 
     def left(self, key):
         return int(2 * key + 1)
@@ -55,11 +56,11 @@ class Encoding:
         self.num_qubits = int(len(input_vector))
         self.quantum_data = qiskit.QuantumRegister(self.num_qubits)
         self.classical_data = qiskit.ClassicalRegister(n_classical)
-        self.qcircuit = qiskit.QuantumCircuit(self.quantum_data, self.classical_data)
+        self.qcircuit = qiskit.QuantumCircuit(self.quantum_data,
+                                              self.classical_data)
         for k, _ in enumerate(input_vector):
             if input_vector[k] == 1:
                 self.qcircuit.x(self.quantum_data[k])
-
 
     def qubit_encoding(self, input_vector, n_classical=1):
         """
@@ -67,7 +68,8 @@ class Encoding:
         """
         input_pattern = qiskit.QuantumRegister(len(input_vector))
         classical_register = qiskit.ClassicalRegister(n_classical)
-        self.qcircuit = qiskit.QuantumCircuit(input_pattern, classical_register)
+        self.qcircuit = qiskit.QuantumCircuit(input_pattern,
+                                              classical_register)
         for k, _ in enumerate(input_vector):
             self.qcircuit.ry(input_vector[k], input_pattern[k])
 
@@ -77,13 +79,15 @@ class Encoding:
             new_x = []
             beta = []
             for k in range(0, len(input_vector), 2):
-                norm = np.sqrt(input_vector[k] ** 2 + input_vector[k + 1] ** 2)
+                norm = np.sqrt(input_vector[k]**2 + input_vector[k + 1]**2)
                 new_x.append(norm)
                 if norm == 0:
                     beta.append(0)
                 else:
                     if input_vector[k] < 0:
-                        beta.append(2 * np.pi - 2 * np.arcsin(input_vector[k + 1] / norm)) ## testing
+                        beta.append(
+                            2 * np.pi - 2 *
+                            np.arcsin(input_vector[k + 1] / norm))  ## testing
                     else:
                         beta.append(2 * np.arcsin(input_vector[k + 1] / norm))
             Encoding._recursive_compute_beta(new_x, betas)
@@ -96,7 +100,6 @@ class Encoding:
         for j, qbit in enumerate(control_qubits):
             if binary_index[j] == '1':
                 circuit.x(qbit)
-
 
     def amplitude_encoding(self, input_vector):
         """
@@ -111,7 +114,7 @@ class Encoding:
         self._generate_circuit(betas, self.qcircuit, self.quantum_data)
 
     def dc_amplitude_encoding(self, input_vector):
-        self.num_qubits = int(len(input_vector))-1
+        self.num_qubits = int(len(input_vector)) - 1
         self.quantum_data = qiskit.QuantumRegister(self.num_qubits)
         self.qcircuit = qiskit.QuantumCircuit(self.quantum_data)
         newx = np.copy(input_vector)
@@ -140,7 +143,8 @@ class Encoding:
             right_index = my_tree.right(actual)
             while right_index <= last:
 
-                qcircuit.cswap(my_tree[actual], my_tree[left_index], my_tree[right_index])
+                qcircuit.cswap(my_tree[actual], my_tree[left_index],
+                               my_tree[right_index])
 
                 left_index = my_tree.left(left_index)
                 right_index = my_tree.left(right_index)
@@ -159,19 +163,23 @@ class Encoding:
         control_bits = []
         for angles in betas:
             if numberof_controls == 0:
-                qcircuit.ry(angles[0], quantum_input[self.num_qubits-1])
+                qcircuit.ry(angles[0], quantum_input[self.num_qubits - 1])
                 numberof_controls += 1
-                control_bits.append(quantum_input[self.num_qubits-1])
+                control_bits.append(quantum_input[self.num_qubits - 1])
             else:
                 for k, angle in enumerate(reversed(angles)):
-                    Encoding._index(k, qcircuit, control_bits, numberof_controls)
+                    Encoding._index(k, qcircuit, control_bits,
+                                    numberof_controls)
 
                     qcircuit.mcry(angle,
                                   control_bits,
-                                  quantum_input[self.num_qubits - 1 - numberof_controls],
+                                  quantum_input[self.num_qubits - 1 -
+                                                numberof_controls],
                                   None,
                                   mode='noancilla')
 
-                    Encoding._index(k, qcircuit, control_bits, numberof_controls)
-                control_bits.append(quantum_input[self.num_qubits - 1 - numberof_controls])
+                    Encoding._index(k, qcircuit, control_bits,
+                                    numberof_controls)
+                control_bits.append(quantum_input[self.num_qubits - 1 -
+                                                  numberof_controls])
                 numberof_controls += 1
