@@ -14,15 +14,15 @@ def run_w(num_layers, num_qubits):
     for i in range(0, 400):
         if i % 20 == 0:
             print('W (' + str(num_layers) + ' layer): ', i)
-        # G = qtm.fubini_study.calculate_binho_state(qc.copy(), thetas, num_layers)
+        G = qtm.fubini_study.calculate_binho_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base_qtm.grad_loss(
             qc, 
             qtm.qtm_nqubit.create_Wchecker_binho, 
             thetas, r = 1/2, s = np.pi/2, num_layers = num_layers)
-        # grad1 = np.real(np.linalg.inv(G) @ grad_loss)
+        grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
-        thetas = qtm.base_qtm.adam(thetas, m, v, i, grad_loss)    
+        thetas = qtm.base_qtm.adam(thetas, m, v, i, grad1)    
         qc_copy = qtm.qtm_nqubit.create_Wchecker_binho(qc.copy(), thetas, num_layers)
         loss = qtm.base_qtm.loss_basis(qtm.base_qtm.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_w.append(loss)
@@ -45,10 +45,10 @@ def run_w(num_layers, num_qubits):
         traces_w.append(trace)
         fidelities_w.append(fidelity)
     print('Writting ...')
-    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/loss_values_w.csv", loss_values_w, delimiter=",")
-    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/thetass_w.csv", thetass_w, delimiter=",")
-    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/traces_w.csv", traces_w, delimiter=",")
-    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/fidelities_w.csv", fidelities_w, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_qngadam/" + str(num_layers) + "/loss_values_w.csv", loss_values_w, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_qngadam/" + str(num_layers) + "/thetass_w.csv", thetass_w, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_qngadam/" + str(num_layers) + "/traces_w.csv", traces_w, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_qngadam/" + str(num_layers) + "/fidelities_w.csv", fidelities_w, delimiter=",")
 
 
 

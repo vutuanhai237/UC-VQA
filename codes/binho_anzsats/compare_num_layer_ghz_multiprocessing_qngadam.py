@@ -26,15 +26,15 @@ def run_ghz(num_layers, num_qubits):
         # fubini_study for binho_state is same for koczor state
         if i % 20 == 0:
             print('GHZ (' + str(num_layers) + ' layer): ', i)
-        # G = qtm.fubini_study.calculate_binho_state(qc.copy(), thetas, num_layers)
+        G = qtm.fubini_study.calculate_binho_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base_qtm.grad_loss(
             qc, 
             qtm.qtm_nqubit.create_GHZchecker_binho,
             thetas, r = 1/2, s = np.pi/2, num_layers = num_layers, theta = theta)
-        # grad1 = np.real(np.linalg.inv(G) @ grad_loss)
+        grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
-        thetas = qtm.base_qtm.adam(thetas, m, v, i, grad_loss)  
+        thetas = qtm.base_qtm.adam(thetas, m, v, i, grad1)  
         qc_copy = qtm.qtm_nqubit.create_GHZchecker_binho(qc.copy(), thetas, num_layers, theta)  
         loss = qtm.base_qtm.loss_basis(qtm.base_qtm.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_ghz.append(loss)
@@ -58,10 +58,10 @@ def run_ghz(num_layers, num_qubits):
         # Plot loss value in 100 steps
     print('Writting ...')
 
-    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
-    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
-    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
-    np.savetxt("../../experiments/binho_ansatz_15layer_adam/" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_qngadam/" + str(num_layers) + "/loss_values_ghz.csv", loss_values_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_qngadam/" + str(num_layers) + "/thetass_ghz.csv", thetass_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_qngadam/" + str(num_layers) + "/traces_ghz.csv", traces_ghz, delimiter=",")
+    np.savetxt("../../experiments/binho_ansatz_15layer_qngadam/" + str(num_layers) + "/fidelities_ghz.csv", fidelities_ghz, delimiter=",")
 
 
 if __name__ == "__main__":
