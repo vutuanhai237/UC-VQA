@@ -213,7 +213,7 @@ def create_w_state_3qubit_inverse(qc: qiskit.QuantumCircuit,
 
 
 def create_Wchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
-                           num_layers: int, theta: float):
+                           num_layers: int):
     """Create circuit includes koczor and W
 
     Args:
@@ -227,12 +227,11 @@ def create_Wchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
     """
     if isinstance(num_layers, int) != True:
         num_layers = num_layers['num_layers']
-    if isinstance(theta, float) != True:
-        theta = theta['theta']
+
     # |psi_gen> = U_gen|000...>
     qc = create_koczor_state(qc, thetas, num_layers=num_layers)
     # U_target^t|psi_gen> with U_target is W state
-    qc = create_w_state_3qubit_inverse(qc, theta)
+    qc = create_w_state_inverse(qc)
     return qc
 
 
