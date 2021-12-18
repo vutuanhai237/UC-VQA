@@ -102,36 +102,35 @@ def calculate_koczor_state(qc: qiskit.QuantumCircuit,
     for i in range(0, num_layers):
         phis = thetas[i * n * 5:(i + 1) * n * 5]
         # Sub-Layer 1
-        qc_copy = qtm.qtm_nqubit.create_rx_nqubit(qc.copy(), phis[:n])
+        qc_copy = qtm.nqubit.create_rx_nqubit(qc.copy(), phis[:n])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_rx_nqubit(qc, phis[:n])
+        qc = qtm.nqubit.create_rx_nqubit(qc, phis[:n])
         index_layer += 1
         # Sub-Layer 2
-        qc_copy = qtm.qtm_nqubit.create_cry_nqubit_inverse(
-            qc.copy(), phis[n:n * 2])
+        qc_copy = qtm.nqubit.create_cry_nqubit_inverse(qc.copy(),
+                                                       phis[n:n * 2])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_cry_nqubit_inverse(qc, phis[n:n * 2])
+        qc = qtm.nqubit.create_cry_nqubit_inverse(qc, phis[n:n * 2])
         index_layer += 1
         # Sub-Layer 3
-        qc_copy = qtm.qtm_nqubit.create_rz_nqubit(qc.copy(), phis[n * 2:n * 3])
+        qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n * 2:n * 3])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_rz_nqubit(qc, phis[n * 2:n * 3])
+        qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 2:n * 3])
         index_layer += 1
         # Sub-Layer 4
-        qc_copy = qtm.qtm_nqubit.create_cry_nqubit(qc.copy(),
-                                                   phis[n * 3:n * 4])
+        qc_copy = qtm.nqubit.create_cry_nqubit(qc.copy(), phis[n * 3:n * 4])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_cry_nqubit(qc, phis[n * 3:n * 4])
+        qc = qtm.nqubit.create_cry_nqubit(qc, phis[n * 3:n * 4])
         index_layer += 1
         # Sub-Layer 5
-        qc_copy = qtm.qtm_nqubit.create_rz_nqubit(qc.copy(), phis[n * 4:n * 5])
+        qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n * 4:n * 5])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_rz_nqubit(qc, phis[n * 4:n * 5])
+        qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 4:n * 5])
         index_layer += 1
     G = gs[0]
     for i in range(1, len(gs)):
@@ -163,34 +162,34 @@ def calculate_binho_state(qc: qiskit.QuantumCircuit,
     for i in range(0, num_layers):
         phis = thetas[i * n * 5:(i + 1) * n * 5]
         # Sub-Layer 1
-        qc_copy = qtm.qtm_nqubit.create_rx_nqubit(qc.copy(), phis[:n])
+        qc_copy = qtm.nqubit.create_rx_nqubit(qc.copy(), phis[:n])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_rx_nqubit(qc, phis[:n])
+        qc = qtm.nqubit.create_rx_nqubit(qc, phis[:n])
         index_layer += 1
         # Sub-Layer 2
-        qc_copy = qtm.qtm_nqubit.create_wy(qc.copy(), phis[n:n * 2])
+        qc_copy = qtm.nqubit.create_wy(qc.copy(), phis[n:n * 2])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_wy(qc, phis[n:n * 2])
+        qc = qtm.nqubit.create_wy(qc, phis[n:n * 2])
         index_layer += 1
         # Sub-Layer 3
-        qc_copy = qtm.qtm_nqubit.create_rz_nqubit(qc.copy(), phis[n * 2:n * 3])
+        qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n * 2:n * 3])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_rz_nqubit(qc, phis[n * 2:n * 3])
+        qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 2:n * 3])
         index_layer += 1
         # Sub-Layer 4
-        qc_copy = qtm.qtm_nqubit.create_wy(qc.copy(), phis[n * 3:n * 4])
+        qc_copy = qtm.nqubit.create_wy(qc.copy(), phis[n * 3:n * 4])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_wy(qc, phis[n * 3:n * 4])
+        qc = qtm.nqubit.create_wy(qc, phis[n * 3:n * 4])
         index_layer += 1
         # Sub-Layer 5
-        qc_copy = qtm.qtm_nqubit.create_rz_nqubit(qc.copy(), phis[n * 4:n * 5])
+        qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n * 4:n * 5])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_rz_nqubit(qc, phis[n * 4:n * 5])
+        qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 4:n * 5])
         index_layer += 1
     G = gs[0]
     for i in range(1, len(gs)):
@@ -222,47 +221,47 @@ def calculate_alternative_layered_state(qc: qiskit.QuantumCircuit,
     for i in range(0, num_layers):
         # Sub-Layer 1
         phis = thetas[i * (n * 5 - 4):(i + 1) * (n * 5 - 4)]
-        qc_copy = qtm.qtm_nqubit.create_ry_nqubit(qc.copy(), phis[:n])
+        qc_copy = qtm.nqubit.create_ry_nqubit(qc.copy(), phis[:n])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_ry_nqubit(qc, phis[:n])
+        qc = qtm.nqubit.create_ry_nqubit(qc, phis[:n])
         index_layer += 1
         # Sub-Layer 2
-        qc = qtm.qtm_nqubit.create_swap_nqubit(qc)
-        qc_copy = qtm.qtm_nqubit.create_ry_nqubit(qc.copy(), phis[n:n * 2 - 1])
+        qc = qtm.nqubit.create_swap_nqubit(qc)
+        qc_copy = qtm.nqubit.create_ry_nqubit(qc.copy(), phis[n:n * 2 - 1])
         observers = (create_observers(qc_copy, k=n - 1))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_ry_nqubit(qc, phis[n:n * 2 - 1])
+        qc = qtm.nqubit.create_ry_nqubit(qc, phis[n:n * 2 - 1])
         index_layer += 1
         # Sub-Layer 3
-        qc = qtm.qtm_nqubit.create_swap_nqubit(qc, shift=1)
-        qc_copy = qtm.qtm_nqubit.create_ry_nqubit(qc.copy(),
-                                                  phis[n * 2 - 1:n * 3 - 2],
-                                                  shift=1)
+        qc = qtm.nqubit.create_swap_nqubit(qc, shift=1)
+        qc_copy = qtm.nqubit.create_ry_nqubit(qc.copy(),
+                                              phis[n * 2 - 1:n * 3 - 2],
+                                              shift=1)
         observers = (create_observers(qc_copy, k=n - 1))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_ry_nqubit(qc,
-                                             phis[n * 2 - 1:n * 3 - 2],
-                                             shift=1)
+        qc = qtm.nqubit.create_ry_nqubit(qc,
+                                         phis[n * 2 - 1:n * 3 - 2],
+                                         shift=1)
         index_layer += 1
         # Sub-Layer 4
-        qc = qtm.qtm_nqubit.create_swap_nqubit(qc)
-        qc_copy = qtm.qtm_nqubit.create_ry_nqubit(qc.copy(),
-                                                  phis[n * 3 - 2:n * 4 - 3])
+        qc = qtm.nqubit.create_swap_nqubit(qc)
+        qc_copy = qtm.nqubit.create_ry_nqubit(qc.copy(),
+                                              phis[n * 3 - 2:n * 4 - 3])
         observers = (create_observers(qc_copy, k=n - 1))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_ry_nqubit(qc, phis[n * 3 - 2:n * 4 - 3])
+        qc = qtm.nqubit.create_ry_nqubit(qc, phis[n * 3 - 2:n * 4 - 3])
         index_layer += 1
         # Sub-Layer 5
-        qc = qtm.qtm_nqubit.create_swap_nqubit(qc, shift=1)
-        qc_copy = qtm.qtm_nqubit.create_ry_nqubit(qc.copy(),
-                                                  phis[n * 4 - 3:n * 5 - 4],
-                                                  shift=1)
+        qc = qtm.nqubit.create_swap_nqubit(qc, shift=1)
+        qc_copy = qtm.nqubit.create_ry_nqubit(qc.copy(),
+                                              phis[n * 4 - 3:n * 5 - 4],
+                                              shift=1)
         observers = (create_observers(qc_copy, k=n - 1))
         gs.append(calculate_g(qc, observers))
-        qc = qtm.qtm_nqubit.create_ry_nqubit(qc,
-                                             phis[n * 4 - 3:n * 5 - 4],
-                                             shift=1)
+        qc = qtm.nqubit.create_ry_nqubit(qc,
+                                         phis[n * 4 - 3:n * 5 - 4],
+                                         shift=1)
         index_layer += 1
 
     G = gs[0]

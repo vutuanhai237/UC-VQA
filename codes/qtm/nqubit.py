@@ -1,5 +1,5 @@
 import qiskit
-import qtm.base_qtm, qtm.qtm_1qubit, qtm.custom_gate
+import qtm.base, qtm.onequbit, qtm.custom_gate
 import numpy as np
 
 ###########################
@@ -287,7 +287,7 @@ def create_Wchecker_alternating_layered(qc: qiskit.QuantumCircuit,
 
 
 def u_nqubit(qc: qiskit.QuantumCircuit, thetas):
-    """Create enhanced version of qtm.qtm_1qubit.u_1q
+    """Create enhanced version of qtm.onequbit.u_1q
 
     Args:
         - qc (QuantumCircuit): Init circuit
@@ -298,7 +298,7 @@ def u_nqubit(qc: qiskit.QuantumCircuit, thetas):
     """
     j = 0
     for i in range(0, qc.num_qubits):
-        qc = qtm.qtm_1qubit.u_1qubit(qc, thetas[j:j + 3], i)
+        qc = qtm.onequbit.u_onequbit(qc, thetas[j:j + 3], i)
         j = j + 3
     return qc
 

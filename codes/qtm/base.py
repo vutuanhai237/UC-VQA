@@ -2,7 +2,7 @@ from types import FunctionType
 from typing import Dict
 import numpy as np
 import qiskit, scipy
-import qtm.progress_bar, qtm.constant, qtm.quantum_fisher
+import qtm.progress_bar, qtm.constant, qtm.qfim
 
 
 def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[]):
@@ -95,9 +95,8 @@ def get_metrics(psi, psi_hat):
     """
     rho = qiskit.quantum_info.DensityMatrix(psi)
     sigma = qiskit.quantum_info.DensityMatrix(psi_hat)
-    return qtm.base_qtm.trace_distance(rho,
-                                       sigma), qtm.base_qtm.trace_fidelity(
-                                           rho, sigma)
+    return qtm.base.trace_distance(rho,
+                                   sigma), qtm.base.trace_fidelity(rho, sigma)
 
 
 def get_u_hat(thetas, create_circuit_func: FunctionType, num_qubits: int,
@@ -149,8 +148,8 @@ def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: FunctionType,
         qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
 
         grad_loss[i] = -r * (
-            qtm.base_qtm.measure(qc1, list(range(qc1.num_qubits))) -
-            qtm.base_qtm.measure(qc2, list(range(qc2.num_qubits))))
+            qtm.base.measure(qc1, list(range(qc1.num_qubits))) -
+            qtm.base.measure(qc2, list(range(qc2.num_qubits))))
     return grad_loss
 
 
@@ -249,7 +248,7 @@ def qng(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray,
     Returns:
         - np.ndarray: parameters after update
     """
-    F = qtm.quantum_fisher.create_QFIM(psi, grad_psi)
+    F = qtm.qfim.create_QFIM(psi, grad_psi)
     # Because det(QFIM) can be nearly equal zero
 
     if np.isclose(np.linalg.det(F), 0):
@@ -276,7 +275,7 @@ def qng_adam(thetas: np.ndarray, m: np.ndarray, v: np.ndarray, i: int,
     Returns:
         np.ndarray: parameters after update
     """
-    F = qtm.quantum_fisher.create_QFIM(psi, grad_psi)
+    F = qtm.qfim.create_QFIM(psi, grad_psi)
     # Because det(QFIM) can be nearly equal zero
     if np.isclose(np.linalg.det(F), 0):
         inverse_F = np.identity(F.shape[0])
@@ -284,7 +283,7 @@ def qng_adam(thetas: np.ndarray, m: np.ndarray, v: np.ndarray, i: int,
         inverse_F = np.linalg.inv(F)
 
     grad = inverse_F @ grad_loss
-    thetas = qtm.base_qtm.adam(thetas, m, v, i, grad)
+    thetas = qtm.base.adam(thetas, m, v, i, grad)
     return thetas
 
 
@@ -357,7 +356,7 @@ def fit(qc: qiskit.QuantumCircuit,
 
         qc_copy = create_circuit_func(qc.copy(), thetas, **kwargs)
         loss = loss_func(
-            qtm.base_qtm.measure(qc_copy, list(range(qc_copy.num_qubits))))
+            qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
         thetass.append(thetas)
         if verbose == 1:
