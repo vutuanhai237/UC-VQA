@@ -51,7 +51,7 @@ def run_wchain(num_layers, num_qubits):
         trace, fidelity = qtm.base.get_metrics(psi, psi_hat)
         traces.append(trace)
         fidelities.append(fidelity)
-    print('Writting ... ' + str(num_layers) + ' layers,' + str(num_qubits)) + ' qubits'
+    print('Writting ... ' + str(num_layers) + ' layers,' + str(num_qubits) + ' qubits')
 
     np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
     np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
