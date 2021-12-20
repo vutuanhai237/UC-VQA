@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     for i in num_layers:
         for j in num_qubits:
-            t_wchains.append(multiprocessing.Process(target = run_wchain, args=(num_layers, num_qubits)))
+            t_wchains.append(multiprocessing.Process(target = run_wchain, args=(i, j)))
 
     for t_wchain in t_wchains:
         t_wchain.start()
