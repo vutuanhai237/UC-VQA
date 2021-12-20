@@ -22,7 +22,7 @@ def run_wchain(num_layers, num_qubits):
     loss_values = []
     thetass = []
 
-    for i in range(0, 2):
+    for i in range(0, 400):
         if i % 20 == 0:
             print('W_chain: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
         qc = encoder.qcircuit
@@ -51,7 +51,7 @@ def run_wchain(num_layers, num_qubits):
         trace, fidelity = qtm.base.get_metrics(psi, psi_hat)
         traces.append(trace)
         fidelities.append(fidelity)
-    print('Writting ... ' + str(num_layers) + ',' + str(num_qubits))
+    print('Writting ... ' + str(num_layers) + ' layers,' + str(num_qubits)) + ' qubits'
 
     np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
     np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
