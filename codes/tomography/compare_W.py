@@ -73,6 +73,6 @@ if __name__ == "__main__":
         t_wchain.start()
 
     for t_wchain in t_wchains:
-        t_wchain[i].join()
+        t_wchain.join()
 
     print("Done!")
