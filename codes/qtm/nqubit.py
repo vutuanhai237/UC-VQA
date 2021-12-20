@@ -653,18 +653,22 @@ def create_alternating_layerd_state(qc: qiskit.QuantumCircuit,
         qc = create_ry_nqubit(qc, phis[n * 4 - 3:n * 5 - 4], shift=1)
     return qc
 
+
 ###########################
 #### Tomography circuit ###
 ###########################
+
 
 def create_Wchain(qc: qiskit.QuantumCircuit, thetas):
     for i in range(0, qc.num_qubits - 1):
         qc.cry(thetas[i], i, i + 1)
     qc.cry(thetas[-1], qc.num_qubits - 1, 0)
     return qc
+
+
 def create_Wchain_layerd_state(qc: qiskit.QuantumCircuit,
-                                    thetas,
-                                    num_layers: int = 1):
+                               thetas,
+                               num_layers: int = 1):
     """Create Alternating layerd ansatz
 
     Args:
@@ -678,22 +682,22 @@ def create_Wchain_layerd_state(qc: qiskit.QuantumCircuit,
     n = qc.num_qubits
     if isinstance(num_layers, int) != True:
         num_layers = (num_layers['num_layers'])
-    
+
     if len(thetas) != num_layers * (n * 4):
         raise Exception(
             'Number of parameters must be equal n_layers * num_qubits * 4')
     for i in range(0, num_layers):
-        phis = thetas[i * (n * 4):(i + 1) * (n * 4)] 
+        phis = thetas[i * (n * 4):(i + 1) * (n * 4)]
         qc = create_Wchain(qc, phis[:n])
         qc.barrier()
-        qc = create_rz_nqubit(qc, phis[n:n*2])
-        qc = create_rx_nqubit(qc, phis[n*2:n*3])
-        qc = create_rz_nqubit(qc, phis[n*3:n*4])
+        qc = create_rz_nqubit(qc, phis[n:n * 2])
+        qc = create_rx_nqubit(qc, phis[n * 2:n * 3])
+        qc = create_rz_nqubit(qc, phis[n * 3:n * 4])
     return qc
 
-def create_Wchainchecker_haar(qc: qiskit.QuantumCircuit,
-                                           thetas: np.ndarray, num_layers: int,
-                                           encoder):
+
+def create_Wchainchecker_haar(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
+                              num_layers: int):
     """Create circuit includes W chain and Haar
 
     Args:
@@ -707,13 +711,8 @@ def create_Wchainchecker_haar(qc: qiskit.QuantumCircuit,
     """
     if isinstance(num_layers, int) != True:
         num_layers = num_layers['num_layers']
-    if isinstance(encoder, qtm.encoding.Encoding) != True:
-        encoder = encoder['encoder']
-
-    
-    qc = encoder.qcircuit
 
     qc = create_Wchain_layerd_state(qc, thetas, num_layers=num_layers)
     # qc = qc.combine(qc1)
-    qc.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
+    qc.add_register(qiskit.ClassicalRegister(qc.num_qubits))
     return qc
