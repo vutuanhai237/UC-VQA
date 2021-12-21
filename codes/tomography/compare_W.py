@@ -27,7 +27,7 @@ def w_chain():
     # qc = encoder.qcircuit
     # qc = qtm.nqubit.create_Wchainchecker_haar(qc, thetas, num_layers)
 
-    for i in range(0, 2):
+    for i in range(0, 400):
         if i % 20 == 0:
             print('W_chain: ', i)
         qc = encoder.qcircuit
@@ -80,7 +80,7 @@ def w_alternating():
 
     loss_values = []
     thetass = []
-    for i in range(0, 2):
+    for i in range(0, 400):
         if i % 20 == 0:
             print('W_alternating: ', i)
         qc = encoder.qcircuit
@@ -129,7 +129,7 @@ def w_alltoall():
 
     loss_values = []
     thetass = []
-    for i in range(0, 2):
+    for i in range(0, 400):
         if i % 20 == 0:
             print('W_alltoall: ', i)
         qc = encoder.qcircuit
