@@ -666,6 +666,41 @@ def create_Wchain(qc: qiskit.QuantumCircuit, thetas):
     return qc
 
 
+def create_Walternating(qc: qiskit.QuantumCircuit, thetas, index_layer):
+    # Even, chẵn
+    t = 0
+    if index_layer % 2 == 0:
+        for i in range(1, qc.num_qubits - 1, 2):
+            qc.cry(thetas[t], i, i + 1)
+            t += 1
+        qc.cry(thetas[-1], 0, qc.num_qubits - 1)
+    else:
+        # Odd, lẻ
+        for i in range(0, qc.num_qubits - 1, 2):
+            qc.cry(thetas[t], i, i + 1)
+            t += 1
+    return qc
+
+
+def create_Walltoall(qc: qiskit.QuantumCircuit, thetas):
+    t = 0
+    n_sublayers = qc.num_qubits - 2
+    for i in range(0, n_sublayers):
+        shift = 1
+        qc.barrier()
+        for j in range(i, qc.num_qubits - 1 + i):
+            if j + 1 < qc.num_qubits:
+                qc.cry(thetas[t], i, j + 1)
+                t += 1
+            else:
+                if i + shift < qc.num_qubits - 1:
+                    qc.cry(thetas[t], i + shift, qc.num_qubits - 1)
+                    t += 1
+                    shift += 1
+
+    return qc
+
+
 def create_Wchain_layerd_state(qc: qiskit.QuantumCircuit,
                                thetas,
                                num_layers: int = 1):
@@ -711,8 +746,136 @@ def create_Wchainchecker_haar(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
     """
     if isinstance(num_layers, int) != True:
         num_layers = num_layers['num_layers']
-
     qc = create_Wchain_layerd_state(qc, thetas, num_layers=num_layers)
+    # qc = qc.combine(qc1)
+    qc.add_register(qiskit.ClassicalRegister(qc.num_qubits))
+    return qc
+
+import math
+def calculate_n_walternating(index_layers, num_qubits):
+    if (index_layers + 1) % 2 == 0:
+        n_walternating = int(num_qubits / 2)
+    else:
+        n_walternating = math.ceil(num_qubits / 2)
+    
+    return n_walternating
+
+def create_Walternating_layerd_state(qc: qiskit.QuantumCircuit,
+                                     thetas,
+                                     num_layers: int = 1):
+    """Create Alternating layerd ansatz
+
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
+
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+    
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
+
+    # if len(thetas) != n_alternating + 3 * num_layers * n:
+    #     raise Exception(
+    #         'Number of parameters must be equal n_alternating')
+    n_param = 0
+    for i in range(0, num_layers):
+
+        n_alternating = qtm.nqubit.calculate_n_walternating(i, n)
+        
+        phis = thetas[n_param:n_param + n_alternating + 3 * n]
+        n_param += n_alternating + 3 * n
+        qc = create_Walternating(qc, phis[:n_alternating], i + 1)
+        qc.barrier()
+        qc = create_rz_nqubit(qc, phis[n_alternating:n_alternating + n])
+        qc = create_rx_nqubit(qc, phis[n_alternating + n:n_alternating + n * 2])
+        qc = create_rz_nqubit(qc, phis[n_alternating + n * 2:n_alternating + n * 3])
+    return qc
+
+
+def create_Walternatingchecker_haar(qc: qiskit.QuantumCircuit,
+                                    thetas: np.ndarray, num_layers: int):
+    """Create circuit includes W chain and Haar
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int): num_layer for Wchain
+        - encoder: encoder for haar
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    qc = create_Walternating_layerd_state(qc, thetas, num_layers=num_layers)
+    # qc = qc.combine(qc1)
+    qc.add_register(qiskit.ClassicalRegister(qc.num_qubits))
+    return qc
+
+
+def calculate_n_walltoall(n):
+    if n == 3:
+        n_walltoall = 2
+    else:
+        n_walltoall = n * (n - 2) + np.abs(n - 1 - 2**(n - 3))
+    return n_walltoall
+
+
+def create_Walltoall_layerd_state(qc: qiskit.QuantumCircuit,
+                                  thetas,
+                                  num_layers: int = 1):
+    """Create W all to all ansatz
+
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit
+        thetas (Numpy array): Parameters
+        num_layers (Int): numpy of layers
+
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+    n_walltoall = calculate_n_walltoall(n)
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
+
+    if len(thetas) != num_layers * (3 * n) + num_layers * n_walltoall:
+        raise Exception(
+            'Number of parameters must be equal num_layers*(3*n) + num_layers*n_walltoall'
+        )
+    for i in range(0, num_layers):
+        phis = thetas[i * (3 * n) + i * n_walltoall:(i + 1) * (3 * n) +
+                      (i + 1) * n_walltoall]
+
+        qc = create_Walltoall(qc, phis[0:n_walltoall])
+        qc.barrier()
+        qc = create_rz_nqubit(qc, phis[n_walltoall:n_walltoall + n])
+        qc = create_rx_nqubit(qc, phis[n_walltoall + n:n_walltoall + n * 2])
+        qc = create_rz_nqubit(qc,
+                              phis[n_walltoall + n * 2:n_walltoall + n * 3])
+    return qc
+
+
+def create_Walltoallchecker_haar(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
+                                 num_layers: int):
+    """Create circuit includes W all to all and Haar
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int): num_layer for W all to all
+        - encoder: encoder for haar
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+    qc = create_Walltoall_layerd_state(qc, thetas, num_layers=num_layers)
     # qc = qc.combine(qc1)
     qc.add_register(qiskit.ClassicalRegister(qc.num_qubits))
     return qc
