@@ -57,10 +57,10 @@ def w_chain():
         fidelities.append(fidelity)
     print('Writting ... ' + str(num_qubits))
 
-    np.savetxt("../../experiments/tomography_wchain_/" + str(num_layers) + '/' + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
-    np.savetxt("../../experiments/tomography_wchain_/" + str(num_layers) + '/' + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
-    np.savetxt("../../experiments/tomography_wchain_/" + str(num_layers) + '/' + str(num_qubits) + "/traces.csv", traces, delimiter=",")
-    np.savetxt("../../experiments/tomography_wchain_/" + str(num_layers) + '/' + str(num_qubits) + "/fidelities.csv", fidelities, delimiter=",")
+    np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + '/' + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
+    np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + '/' + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
+    np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + '/' + str(num_qubits) + "/traces.csv", traces, delimiter=",")
+    np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + '/' + str(num_qubits) + "/fidelities.csv", fidelities, delimiter=",")
 
 def w_alternating():
     num_qubits = 3
@@ -110,10 +110,10 @@ def w_alternating():
         fidelities.append(fidelity)
     print('Writting ... ' + str(num_qubits))
 
-    np.savetxt("../../experiments/tomography_walternating_/" + str(num_layers) + '/' + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
-    np.savetxt("../../experiments/tomography_walternating_/" + str(num_layers) + '/' + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
-    np.savetxt("../../experiments/tomography_walternating_/" + str(num_layers) + '/' + str(num_qubits) + "/traces.csv", traces, delimiter=",")
-    np.savetxt("../../experiments/tomography_walternating_/" + str(num_layers) + '/' + str(num_qubits) + "/fidelities.csv", fidelities, delimiter=",")
+    np.savetxt("../../experiments/tomography_walternating_" + str(num_layers) + '/' + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
+    np.savetxt("../../experiments/tomography_walternating_" + str(num_layers) + '/' + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
+    np.savetxt("../../experiments/tomography_walternating_" + str(num_layers) + '/' + str(num_qubits) + "/traces.csv", traces, delimiter=",")
+    np.savetxt("../../experiments/tomography_walternating_" + str(num_layers) + '/' + str(num_qubits) + "/fidelities.csv", fidelities, delimiter=",")
 
 def w_alltoall():
     num_qubits = 3
@@ -131,7 +131,7 @@ def w_alltoall():
     thetass = []
     for i in range(0, 2):
         if i % 20 == 0:
-            print('W_chain: ', i)
+            print('W_alltoall: ', i)
         qc = encoder.qcircuit
         grad_loss = qtm.base.grad_loss(
             qc, 
@@ -160,10 +160,10 @@ def w_alltoall():
     print('Writting ... ' + str(num_qubits))
 
 
-    np.savetxt("../../experiments/tomography_walltoall_/" + str(num_layers) + '/' + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
-    np.savetxt("../../experiments/tomography_walltoall_/" + str(num_layers) + '/' + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
-    np.savetxt("../../experiments/tomography_walltoall_/" + str(num_layers) + '/' + str(num_qubits) + "/traces.csv", traces, delimiter=",")
-    np.savetxt("../../experiments/tomography_walltoall_/" + str(num_layers) + '/' + str(num_qubits) + "/fidelities.csv", fidelities, delimiter=",")
+    np.savetxt("../../experiments/tomography_walltoall_" + str(num_layers) + '/' + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
+    np.savetxt("../../experiments/tomography_walltoall_" + str(num_layers) + '/' + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
+    np.savetxt("../../experiments/tomography_walltoall_" + str(num_layers) + '/' + str(num_qubits) + "/traces.csv", traces, delimiter=",")
+    np.savetxt("../../experiments/tomography_walltoall_" + str(num_layers) + '/' + str(num_qubits) + "/fidelities.csv", fidelities, delimiter=",")
 
 if __name__ == "__main__":
     # creating thread
