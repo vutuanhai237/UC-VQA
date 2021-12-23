@@ -1,18 +1,15 @@
 # Quantum Tomography
 
-- [x] Week 1, 2: Example with one qubit
+- [x] Stage 1: Reconstructed one qubit state
 
-- [x] Week 3, 4: Example with n qubits, create GHZ state.
+- [x] Stage 2: Reconstructed GHZ state.
 
-- [x] Week 5: 
+- [x] Stage 3: Reconstructed Koczor state.
 
-- Refactor and make this project as an library
-- Create an arbitrary state and reconstruct it
+- [x] Stage 4: Create a checker to make sure that the initial state is generated randomly. Create W state, make W checker and Haar checker.
 
-- [x] Week 6: Create a checker to make sure that the initial state is generated randomly
+- [x] Stage 5: Create QNG, compare it with SGD, Adam, QNG-Adam.
 
-- [x] Week 7: Create general W state, make W checker and Arbitrary checker.
+- [x] Stage 6: Comparing between initial state
 
-- [x] Week 8: Create Quantum Natural Gradient optimizer and compare it with SGD and Adam. Developing some hybrid optmizer like QNG-Adam.
-
-- [x] Week 9: Comparing between initial state
+- [ ] Stage 7: Tomography
