@@ -1,6 +1,7 @@
 import qiskit
 import numpy as np
-import qtm.constant
+from qiskit.visualization.text import Ex
+import qtm.constant, qtm.nqubit
 from typing import Dict
 from scipy.linalg import block_diag
 
@@ -31,6 +32,7 @@ def create_observers(qc: qiskit.QuantumCircuit, k: int = 0):
             wire = qc.num_qubits - 1 - gate[1][0].index
         observer.append([gate_name, wire])
     return observer
+
 
 
 def calculate_g(qc: qiskit.QuantumCircuit, observers: Dict[str, int]):
@@ -72,9 +74,7 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: Dict[str, int]):
         for j in range(0, num_observers):
             g[i, j] = psi_hat @ (Ks[i] @ Ks[j]) @ psi - (
                 psi_hat @ Ks[i] @ psi) * (psi_hat @ Ks[j] @ psi)
-            # # Ignore noise
-            # if g[i, j] < 10**(-15):
-            #     g[i, j] = 0
+
     return g
 
 
@@ -262,6 +262,193 @@ def calculate_alternative_layered_state(qc: qiskit.QuantumCircuit,
         qc = qtm.nqubit.create_ry_nqubit(qc,
                                          phis[n * 4 - 3:n * 5 - 4],
                                          shift=1)
+        index_layer += 1
+
+    G = gs[0]
+    for i in range(1, len(gs)):
+        G = block_diag(G, gs[i])
+    return G
+
+
+def calculate_Wchain_state(qc: qiskit.QuantumCircuit,
+                           thetas,
+                           num_layers: int = 1):
+    """Create W chain ansatz and compuate g each sub-layer
+
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit (blank)
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
+
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
+
+    if len(thetas) != num_layers * (n * 4):
+        raise Exception(
+            'Number of parameters must be equal n_layers * num_qubits * 4')
+
+    gs = []
+    index_layer = 0
+    for i in range(0, num_layers):
+        # Sub-Layer 1
+        phis = thetas[i * (n * 4):(i + 1) * (n * 4)]
+
+        qc_copy = qtm.nqubit.create_Wchain(qc.copy(), phis[:n])
+        observers = create_observers(qc_copy)
+        print(calculate_g(qc, observers))
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_Wchain(qc, phis[:n])
+        index_layer += 1
+        # Sub-Layer 2
+        qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n:n * 2])
+        observers = create_observers(qc_copy)
+        print(calculate_g(qc, observers))
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rz_nqubit(qc, phis[n:n * 2])
+        index_layer += 1
+        # Sub-Layer 3
+        qc_copy = qtm.nqubit.create_rx_nqubit(qc.copy(), phis[n * 2:n * 3])
+        observers = (create_observers(qc_copy))
+        print(calculate_g(qc, observers))
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rx_nqubit(qc, phis[n * 2:n * 3])
+        index_layer += 1
+        # Sub-Layer 4
+        qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n * 3:n * 4])
+        observers = (create_observers(qc_copy))
+        print(calculate_g(qc, observers))
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 3:n * 4])
+        index_layer += 1
+    G = gs[0]
+    for i in range(1, len(gs)):
+        G = block_diag(G, gs[i])
+    return G
+
+
+def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
+                                 thetas,
+                                 num_layers: int = 1):
+    """Create W alternating ansatz and compuate g each sub-layer
+
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit (blank)
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
+
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
+    n_param = 0
+    gs = []
+    index_layer = 0
+    for i in range(0, num_layers):
+        n_alternating = qtm.nqubit.calculate_n_walternating(i, n)
+        phis = thetas[n_param:n_param + n_alternating + 3 * n]
+        n_param += n_alternating + 3 * n
+        # Sub-layer 1
+        qc_copy = qtm.nqubit.create_Walternating(qc, phis[:n_alternating],
+                                                 i + 1)
+        observers = create_observers(qc_copy, k=n_alternating)
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_Walternating(qc, phis[:n_alternating], i + 1)
+        index_layer += 1
+        # Sub-layer 2
+        qc_copy = qtm.nqubit.create_rz_nqubit(
+            qc, phis[n_alternating:n_alternating + n])
+        observers = create_observers(qc_copy)
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rz_nqubit(qc,
+                                         phis[n_alternating:n_alternating + n])
+        index_layer += 1
+        # Sub-layer 3
+        qc_copy = qtm.nqubit.create_rx_nqubit(
+            qc, phis[n_alternating + n:n_alternating + n * 2])
+        observers = create_observers(qc_copy)
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rx_nqubit(
+            qc, phis[n_alternating + n:n_alternating + n * 2])
+        index_layer += 1
+        # Sub-layer 4
+        qc_copy = qtm.nqubit.create_rz_nqubit(
+            qc, phis[n_alternating + n * 2:n_alternating + n * 3])
+        observers = create_observers(qc_copy)
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rz_nqubit(
+            qc, phis[n_alternating + n * 2:n_alternating + n * 3])
+        index_layer += 1
+
+    G = gs[0]
+    for i in range(1, len(gs)):
+        G = block_diag(G, gs[i])
+    return G
+
+
+def calculate_Walltoall_state(qc: qiskit.QuantumCircuit,
+                              thetas,
+                              num_layers: int = 1):
+    """Create W alltoall ansatz and compuate g each sub-layer
+
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit (blank)
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
+
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+    n_walltoall = qtm.nqubit.calculate_n_walltoall(n)
+
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
+    if len(thetas) != num_layers * 3 * n + num_layers * n_walltoall:
+        raise Exception(
+            'The number of parameter must be equal num_layers* 3 * n + num_layers*n_walltoall'
+        )
+    n_param = 0
+    gs = []
+    index_layer = 0
+    for i in range(0, num_layers):
+
+        phis = thetas[i * (3 * n) + i * n_walltoall:(i + 1) * (3 * n) +
+                      (i + 1) * n_walltoall]
+        # Sub-layer 1
+        observers = create_observers(qc_copy, k=n - 1)
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_Walltoall(qc, phis[:n_walltoall])
+        index_layer += 1
+        # Sub-layer 2
+        qc_copy = qtm.nqubit.create_rz_nqubit(
+            qc, phis[n_walltoall:n_walltoall + n])
+        observers = create_observers(qc_copy)
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rz_nqubit(qc,
+                                         phis[n_walltoall:n_walltoall + n])
+        index_layer += 1
+        # Sub-layer 3
+        qc_copy = qtm.nqubit.create_rx_nqubit(
+            qc, phis[n_walltoall + n:n_walltoall + 2 * n])
+        observers = create_observers(qc_copy)
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rx_nqubit(
+            qc, phis[n_walltoall + n:n_walltoall + 2 * n])
+        index_layer += 1
+        # Sub-layer 4
+        qc_copy = qtm.nqubit.create_rz_nqubit(
+            qc, phis[n_walltoall + 2 * n:n_walltoall + 3 * n])
+        observers = create_observers(qc_copy)
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rz_nqubit(
+            qc, phis[n_walltoall + 2 * n:n_walltoall + 3 * n])
         index_layer += 1
 
     G = gs[0]
