@@ -299,28 +299,24 @@ def calculate_Wchain_state(qc: qiskit.QuantumCircuit,
 
         qc_copy = qtm.nqubit.create_Wchain(qc.copy(), phis[:n])
         observers = create_observers(qc_copy)
-        print(calculate_g(qc, observers))
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_Wchain(qc, phis[:n])
         index_layer += 1
         # Sub-Layer 2
         qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n:n * 2])
         observers = create_observers(qc_copy)
-        print(calculate_g(qc, observers))
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(qc, phis[n:n * 2])
         index_layer += 1
         # Sub-Layer 3
         qc_copy = qtm.nqubit.create_rx_nqubit(qc.copy(), phis[n * 2:n * 3])
         observers = (create_observers(qc_copy))
-        print(calculate_g(qc, observers))
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rx_nqubit(qc, phis[n * 2:n * 3])
         index_layer += 1
         # Sub-Layer 4
         qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n * 3:n * 4])
         observers = (create_observers(qc_copy))
-        print(calculate_g(qc, observers))
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 3:n * 4])
         index_layer += 1
