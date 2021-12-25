@@ -44,13 +44,6 @@ def run_walternating(num_layers, num_qubits):
         loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
-
-
-
-
-
-
-
     traces = []
     fidelities = []
 

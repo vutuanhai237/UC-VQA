@@ -699,12 +699,16 @@ def create_Walternating(qc: qiskit.QuantumCircuit, thetas, index_layer):
 #                     shift += 1
 
 #     return qc
-def create_Walltoall(qc: qiskit.QuantumCircuit, thetas):
+def create_Walltoall(qc: qiskit.QuantumCircuit, thetas, limit = 0):
+    if limit == 0:
+        limit = len(thetas)
     t = 0
     for i in range(0, qc.num_qubits):
         for j in range(i + 1, qc.num_qubits):
             qc.cry(thetas[t], i, j)
             t += 1
+            if t == limit:
+                return qc
     return qc
 
 def create_Wchain_layerd_state(qc: qiskit.QuantumCircuit,
@@ -828,7 +832,8 @@ def calculate_n_walltoall(n):
 
 def create_Walltoall_layerd_state(qc: qiskit.QuantumCircuit,
                                   thetas,
-                                  num_layers: int = 1):
+                                  num_layers: int = 1,
+                                  limit = 0):
     """Create W all to all ansatz
 
     Args:
@@ -851,7 +856,7 @@ def create_Walltoall_layerd_state(qc: qiskit.QuantumCircuit,
     for i in range(0, num_layers):
         phis = thetas[i * (3 * n) + i * n_walltoall:(i + 1) * (3 * n) +
                       (i + 1) * n_walltoall]
-        qc = create_Walltoall(qc, phis[0:n_walltoall])
+        qc = create_Walltoall(qc, phis[0:n_walltoall], limit = limit)
         qc.barrier()
         qc = create_rz_nqubit(qc, phis[n_walltoall:n_walltoall + n])
         qc.barrier()

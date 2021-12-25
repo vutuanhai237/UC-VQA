@@ -5,6 +5,36 @@ import qtm.constant, qtm.nqubit
 from typing import Dict
 from scipy.linalg import block_diag
 
+def is_duplicate_wire(v, gate_wire):
+    for gate_name, gate_param[0], wire in v:
+        if gate_wire == wire:
+            return True
+    return False
+def find_observers(qc: qiskit.QuantumCircuit):
+    vs = []
+    v = []
+    ws = []
+    w = []
+    i = 0
+    for gate in qc.data:
+        
+        gate_name = gate[0].name
+        gate_param = gate[0].params
+        # Non-param gates
+        if gate_name == 'barrier':
+            continue
+        # 2-qubit param gates
+        if gate[0].name in ['crx', 'cry', 'crz', 'cx']:
+            wire = qc.num_qubits - 1 - gate[1][1].index
+        # Single qubit param gates
+        else:
+            wire = qc.num_qubits - 1 - gate[1][0].index
+        print(wire)
+        if is_duplicate_wire(v, wire):
+            print('....')
+            vs.append(v)
+            v = []
+        v.append([gate_name, gate_param[0], wire])
 
 def create_observers(qc: qiskit.QuantumCircuit, k: int = 0):
     """Return dictionary of observers
@@ -351,11 +381,11 @@ def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
         phis = thetas[n_param:n_param + n_alternating + 3 * n]
         n_param += n_alternating + 3 * n
         # Sub-layer 1
-        qc_copy = qtm.nqubit.create_Walternating(qc, phis[:n_alternating],
+        qc_copy = qtm.nqubit.create_Walternating(qc.copy(), phis[:n_alternating],
                                                  i + 1)
         observers = create_observers(qc_copy, k=n_alternating)
         gs.append(calculate_g(qc, observers))
-        qc = qtm.nqubit.create_Walternating(qc, phis[:n_alternating], i + 1)
+        qc = qtm.nqubit.create_Walternating(qc.copy(), phis[:n_alternating], i + 1)
         index_layer += 1
         # Sub-layer 2
         qc_copy = qtm.nqubit.create_rz_nqubit(
@@ -367,7 +397,7 @@ def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
         index_layer += 1
         # Sub-layer 3
         qc_copy = qtm.nqubit.create_rx_nqubit(
-            qc, phis[n_alternating + n:n_alternating + n * 2])
+            qc.copy(), phis[n_alternating + n:n_alternating + n * 2])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rx_nqubit(
@@ -375,7 +405,7 @@ def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
         index_layer += 1
         # Sub-layer 4
         qc_copy = qtm.nqubit.create_rz_nqubit(
-            qc, phis[n_alternating + n * 2:n_alternating + n * 3])
+            qc.copy(), phis[n_alternating + n * 2:n_alternating + n * 3])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(
@@ -417,22 +447,32 @@ def calculate_Walltoall_state(qc: qiskit.QuantumCircuit,
 
         phis = thetas[i * (3 * n) + i * n_walltoall:(i + 1) * (3 * n) +
                       (i + 1) * n_walltoall]
-        # Sub-layer 1
-        observers = create_observers(qc_copy, k=n - 1)
-        gs.append(calculate_g(qc, observers))
+        # Sub-layer 1 -> n - 1
+        num_observers = list(range(1, n))
+        num_observers.reverse()
+        limit = 0
+        for num_observer in num_observers:
+            limit += num_observer
+            qc_copy = qtm.nqubit.create_Walltoall(qc.copy(), phis[:n_walltoall],
+                                                    limit = limit)
+            observers = create_observers(qc_copy, k = num_observer)
+            gs.append(calculate_g(qc_copy, observers))
+        
         qc = qtm.nqubit.create_Walltoall(qc, phis[:n_walltoall])
         index_layer += 1
+
         # Sub-layer 2
         qc_copy = qtm.nqubit.create_rz_nqubit(
-            qc, phis[n_walltoall:n_walltoall + n])
+            qc.copy(), phis[n_walltoall:n_walltoall + n])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(qc,
                                          phis[n_walltoall:n_walltoall + n])
+
         index_layer += 1
         # Sub-layer 3
         qc_copy = qtm.nqubit.create_rx_nqubit(
-            qc, phis[n_walltoall + n:n_walltoall + 2 * n])
+            qc.copy(), phis[n_walltoall + n:n_walltoall + 2 * n])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rx_nqubit(
@@ -440,7 +480,7 @@ def calculate_Walltoall_state(qc: qiskit.QuantumCircuit,
         index_layer += 1
         # Sub-layer 4
         qc_copy = qtm.nqubit.create_rz_nqubit(
-            qc, phis[n_walltoall + 2 * n:n_walltoall + 3 * n])
+            qc.copy(), phis[n_walltoall + 2 * n:n_walltoall + 3 * n])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(
