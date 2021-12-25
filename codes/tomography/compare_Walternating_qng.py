@@ -27,7 +27,7 @@ def run_walternating(num_layers, num_qubits):
 
     loss_values = []
     thetass = []
-    for i in range(0, 2):
+    for i in range(0, 400):
         if i % 20 == 0:
             print('W_alternating: (' + str(num_layers) + ',' +
                   str(num_qubits) + '): ' + str(i))
