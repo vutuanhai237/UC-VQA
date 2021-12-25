@@ -16,42 +16,40 @@ importlib.reload(qtm.fubini_study)
 
 def run_walternating(num_layers, num_qubits):
     n_alternating = 0
-    for i in range(0, num_layers + 1):
+    for i in range(0, num_layers):
         n_alternating += qtm.nqubit.calculate_n_walternating(i, num_qubits)
     thetas = np.ones(n_alternating + 3 * num_layers * num_qubits)
-
-    for i in range(0, len(thetas)):
-        thetas[i] += i
 
     psi = 2 * np.random.rand(2**num_qubits) - 1
     psi = psi / np.linalg.norm(psi)
     encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
 
+
     loss_values = []
     thetass = []
-    for i in range(0, 400):
+    for i in range(0, 2):
         if i % 20 == 0:
             print('W_alternating: (' + str(num_layers) + ',' +
                   str(num_qubits) + '): ' + str(i))
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        G = qtm.fubini_study.calculate_Walternating_state(
-            qc, thetas, num_layers)
+        G = qtm.fubini_study.calculate_Walternating_state(qc, thetas, num_layers)
         qc = encoder.qcircuit
         grad_loss = qtm.base.grad_loss(
-            qc,
+            qc, 
             qtm.nqubit.create_Walternatingchecker_haar,
-            thetas,
-            r=1 / 2,
-            s=np.pi / 2,
-            num_layers=num_layers)
-        thetas = np.real(thetas - qtm.constant.learning_rate *
-                         (np.linalg.pinv(G) @ grad_loss))
+            thetas, r = 1/2, s = np.pi/2, num_layers = num_layers)
+        thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.pinv(G) @ grad_loss)) 
         thetass.append(thetas.copy())
-        qc_copy = qtm.nqubit.create_Walternatingchecker_haar(
-            qc.copy(), thetas, num_layers)
-        loss = qtm.base.loss_basis(
-            qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        qc_copy = qtm.nqubit.create_Walternatingchecker_haar(qc.copy(), thetas, num_layers)  
+        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
+
+
+
+
+
+
+
 
     traces = []
     fidelities = []

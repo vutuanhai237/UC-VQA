@@ -17,9 +17,6 @@ def run_walternating(num_layers, num_qubits):
         n_alternating += qtm.nqubit.calculate_n_walternating(i, num_qubits)
     thetas = np.ones(n_alternating + 3 * num_layers * num_qubits)
 
-    for i in range(0, len(thetas)):
-        thetas[i] += i
-
     psi = 2 * np.random.rand(2**num_qubits) - 1
     psi = psi / np.linalg.norm(psi)
     encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
