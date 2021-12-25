@@ -851,7 +851,6 @@ def create_Walltoall_layerd_state(qc: qiskit.QuantumCircuit,
     for i in range(0, num_layers):
         phis = thetas[i * (3 * n) + i * n_walltoall:(i + 1) * (3 * n) +
                       (i + 1) * n_walltoall]
-        print(phis)
         qc = create_Walltoall(qc, phis[0:n_walltoall])
         qc.barrier()
         qc = create_rz_nqubit(qc, phis[n_walltoall:n_walltoall + n])
