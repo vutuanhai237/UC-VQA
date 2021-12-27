@@ -322,34 +322,28 @@ def calculate_Wchain_state(qc: qiskit.QuantumCircuit,
             'Number of parameters must be equal n_layers * num_qubits * 4')
 
     gs = []
-    index_layer = 0
     for i in range(0, num_layers):
         # Sub-Layer 1
         phis = thetas[i * (n * 4):(i + 1) * (n * 4)]
-
         qc_copy = qtm.nqubit.create_Wchain(qc.copy(), phis[:n])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_Wchain(qc, phis[:n])
-        index_layer += 1
         # Sub-Layer 2
         qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n:n * 2])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(qc, phis[n:n * 2])
-        index_layer += 1
         # Sub-Layer 3
         qc_copy = qtm.nqubit.create_rx_nqubit(qc.copy(), phis[n * 2:n * 3])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rx_nqubit(qc, phis[n * 2:n * 3])
-        index_layer += 1
         # Sub-Layer 4
         qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[n * 3:n * 4])
         observers = (create_observers(qc_copy))
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 3:n * 4])
-        index_layer += 1
     G = gs[0]
     for i in range(1, len(gs)):
         G = block_diag(G, gs[i])
@@ -375,7 +369,7 @@ def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
         num_layers = (num_layers['num_layers'])
     n_param = 0
     gs = []
-    index_layer = 0
+
     for i in range(0, num_layers):
         n_alternating = qtm.nqubit.calculate_n_walternating(i, n)
         phis = thetas[n_param:n_param + n_alternating + 3 * n]
@@ -386,15 +380,14 @@ def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
         observers = create_observers(qc_copy, k=n_alternating)
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_Walternating(qc.copy(), phis[:n_alternating], i + 1)
-        index_layer += 1
+        # print(qc.draw())
         # Sub-layer 2
         qc_copy = qtm.nqubit.create_rz_nqubit(
-            qc, phis[n_alternating:n_alternating + n])
+            qc.copy(), phis[n_alternating:n_alternating + n])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(qc,
                                          phis[n_alternating:n_alternating + n])
-        index_layer += 1
         # Sub-layer 3
         qc_copy = qtm.nqubit.create_rx_nqubit(
             qc.copy(), phis[n_alternating + n:n_alternating + n * 2])
@@ -402,7 +395,6 @@ def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rx_nqubit(
             qc, phis[n_alternating + n:n_alternating + n * 2])
-        index_layer += 1
         # Sub-layer 4
         qc_copy = qtm.nqubit.create_rz_nqubit(
             qc.copy(), phis[n_alternating + n * 2:n_alternating + n * 3])
@@ -410,8 +402,6 @@ def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(
             qc, phis[n_alternating + n * 2:n_alternating + n * 3])
-        index_layer += 1
-
     G = gs[0]
     for i in range(1, len(gs)):
         G = block_diag(G, gs[i])
