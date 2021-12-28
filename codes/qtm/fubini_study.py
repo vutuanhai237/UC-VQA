@@ -346,12 +346,8 @@ def calculate_Wchain_state(qc: qiskit.QuantumCircuit,
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 3:n * 4])
     G = gs[0]
-    
-    print("...")
-    print(gs[0])
     for i in range(1, len(gs)):
         G = block_diag(G, gs[i])
-        print(gs[i])
     return G
 
 
@@ -402,7 +398,6 @@ def calculate_Wchain2_state(qc: qiskit.QuantumCircuit,
         qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 3:n * 4])
     G = gs[0]
     
-    print("...")
     for i in range(1, len(gs)):
         G = block_diag(G, gs[i])
     return G
