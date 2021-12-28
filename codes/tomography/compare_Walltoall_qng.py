@@ -19,14 +19,15 @@ def run_walltoall(num_layers, num_qubits):
     for i in range(0, 400):
         if i % 20 == 0:
             print('W_alltoall: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
-        qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        G = qtm.fubini_study.calculate_Walltoall_state(qc, thetas, num_layers)
         qc = encoder.qcircuit
+        G = qtm.fubini_study.calculate_Walltoall_state(qc.copy(), thetas, num_layers)
+        
         grad_loss = qtm.base.grad_loss(
             qc, 
             qtm.nqubit.create_Walltoallchecker_haar,
             thetas, r = 1/2, s = np.pi/2, num_layers = num_layers)
-        thetas -= qtm.constant.learning_rate*(grad_loss) 
+        thetas = np.real(thetas - qtm.constant.learning_rate *
+                         (np.linalg.pinv(G) @ grad_loss)) 
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_Walltoallchecker_haar(qc.copy(), thetas, num_layers)  
         loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
