@@ -168,7 +168,6 @@ def create_w_state(qc: qiskit.QuantumCircuit):
     Returns:
         - qiskit.QuantumCircuit
     """
-    qc.barrier()
     qc.x(0)
 
     qc = w(qc, qc.num_qubits)

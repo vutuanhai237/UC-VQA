@@ -5,11 +5,14 @@ import qtm.constant, qtm.nqubit
 from typing import Dict
 from scipy.linalg import block_diag
 
+
 def is_duplicate_wire(v, gate_wire):
     for gate_name, gate_param[0], wire in v:
         if gate_wire == wire:
             return True
     return False
+
+
 def find_observers(qc: qiskit.QuantumCircuit):
     vs = []
     v = []
@@ -17,7 +20,7 @@ def find_observers(qc: qiskit.QuantumCircuit):
     w = []
     i = 0
     for gate in qc.data:
-        
+
         gate_name = gate[0].name
         gate_param = gate[0].params
         # Non-param gates
@@ -35,6 +38,7 @@ def find_observers(qc: qiskit.QuantumCircuit):
             vs.append(v)
             v = []
         v.append([gate_name, gate_param[0], wire])
+
 
 def create_observers(qc: qiskit.QuantumCircuit, k: int = 0):
     """Return dictionary of observers
@@ -62,7 +66,6 @@ def create_observers(qc: qiskit.QuantumCircuit, k: int = 0):
             wire = qc.num_qubits - 1 - gate[1][0].index
         observer.append([gate_name, wire])
     return observer
-
 
 
 def calculate_g(qc: qiskit.QuantumCircuit, observers: Dict[str, int]):
@@ -107,6 +110,46 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: Dict[str, int]):
             if g[i, j] < 10**(-10):
                 g[i, j] = 0
     return g
+
+
+def calculate_u3z_state(qc: qiskit.QuantumCircuit, thetas):
+    """Create u3z ansatz and compuate g each sub-layer
+
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit (blank)
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
+
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+    if len(thetas) != 3:
+        raise Exception('Number of parameters must be equal 3')
+    gs = []
+    # Sub-Layer 1
+    qc_copy = qc.copy()
+    qc_copy.rz(thetas[0], 0)
+    observers = (create_observers(qc_copy))
+    gs.append(calculate_g(qc, observers))
+    qc.rz(thetas[0], 0)
+    # Sub-Layer 2
+    qc_copy = qc.copy()
+    qc_copy.rx(thetas[1], 0)
+    observers = (create_observers(qc_copy))
+    gs.append(calculate_g(qc, observers))
+    qc.rx(thetas[1], 0)
+    # Sub-Layer 3
+    qc_copy = qc.copy()
+    qc_copy.rz(thetas[2], 0)
+    observers = (create_observers(qc_copy))
+    gs.append(calculate_g(qc, observers))
+    qc.rz(thetas[2], 0)
+
+    G = gs[0]
+    for i in range(1, len(gs)):
+        G = block_diag(G, gs[i])
+    return G
 
 
 def calculate_koczor_state(qc: qiskit.QuantumCircuit,
@@ -352,8 +395,8 @@ def calculate_Wchain_state(qc: qiskit.QuantumCircuit,
 
 
 def calculate_Wchain2_state(qc: qiskit.QuantumCircuit,
-                           thetas,
-                           num_layers: int = 1):
+                            thetas,
+                            num_layers: int = 1):
     """Create W chain ansatz and compuate g each sub-layer
 
     Args:
@@ -374,13 +417,13 @@ def calculate_Wchain2_state(qc: qiskit.QuantumCircuit,
 
     gs = []
     for i in range(0, num_layers):
-        
+
         phis = thetas[i * (n * 4):(i + 1) * (n * 4)]
         # Sub-Layer 1
-        qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[:n ])
+        qc_copy = qtm.nqubit.create_rz_nqubit(qc.copy(), phis[:n])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
-        qc = qtm.nqubit.create_rz_nqubit(qc, phis[:n ])
+        qc = qtm.nqubit.create_rz_nqubit(qc, phis[:n])
         # Sub-Layer 2
         qc_copy = qtm.nqubit.create_Wchain(qc.copy(), phis[n:n * 2])
         observers = create_observers(qc_copy)
@@ -397,10 +440,11 @@ def calculate_Wchain2_state(qc: qiskit.QuantumCircuit,
         gs.append(calculate_g(qc, observers))
         qc = qtm.nqubit.create_rz_nqubit(qc, phis[n * 3:n * 4])
     G = gs[0]
-    
+
     for i in range(1, len(gs)):
         G = block_diag(G, gs[i])
     return G
+
 
 def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
                                  thetas,
@@ -427,11 +471,12 @@ def calculate_Walternating_state(qc: qiskit.QuantumCircuit,
         phis = thetas[n_param:n_param + n_alternating + 3 * n]
         n_param += n_alternating + 3 * n
         # Sub-layer 1
-        qc_copy = qtm.nqubit.create_Walternating(qc.copy(), phis[:n_alternating],
-                                                 i + 1)
+        qc_copy = qtm.nqubit.create_Walternating(qc.copy(),
+                                                 phis[:n_alternating], i + 1)
         observers = create_observers(qc_copy, k=n_alternating)
         gs.append(calculate_g(qc, observers))
-        qc = qtm.nqubit.create_Walternating(qc.copy(), phis[:n_alternating], i + 1)
+        qc = qtm.nqubit.create_Walternating(qc.copy(), phis[:n_alternating],
+                                            i + 1)
         # print(qc.draw())
         # Sub-layer 2
         qc_copy = qtm.nqubit.create_rz_nqubit(
@@ -495,11 +540,12 @@ def calculate_Walltoall_state(qc: qiskit.QuantumCircuit,
         limit = 0
         for num_observer in num_observers:
             limit += num_observer
-            qc_copy = qtm.nqubit.create_Walltoall(qc.copy(), phis[:n_walltoall],
-                                                    limit = limit)
-            observers = create_observers(qc_copy, k = num_observer)
+            qc_copy = qtm.nqubit.create_Walltoall(qc.copy(),
+                                                  phis[:n_walltoall],
+                                                  limit=limit)
+            observers = create_observers(qc_copy, k=num_observer)
             gs.append(calculate_g(qc_copy, observers))
-        
+
         qc = qtm.nqubit.create_Walltoall(qc, phis[:n_walltoall])
         index_layer += 1
 
@@ -508,8 +554,7 @@ def calculate_Walltoall_state(qc: qiskit.QuantumCircuit,
             qc.copy(), phis[n_walltoall:n_walltoall + n])
         observers = create_observers(qc_copy)
         gs.append(calculate_g(qc, observers))
-        qc = qtm.nqubit.create_rz_nqubit(qc,
-                                         phis[n_walltoall:n_walltoall + n])
+        qc = qtm.nqubit.create_rz_nqubit(qc, phis[n_walltoall:n_walltoall + n])
 
         index_layer += 1
         # Sub-layer 3
