@@ -329,9 +329,9 @@ def u_cluster_nqubit(qc: qiskit.QuantumCircuit, thetas):
     Returns:
         - QuantumCircuit: the added circuit
     """
-    qc = u_nqubit(qc, thetas[0:qc.num_qubits * 3])
+
     qc = entangle_nqubit(qc)
-    qc = u_nqubit(qc, thetas[qc.num_qubits * 3:])
+    qc = u_nqubit(qc, thetas[0:qc.num_qubits * 3])
     return qc
 
 
