@@ -13,7 +13,7 @@ def plot_15layer(title, fidelitiesghz, fidelitiesw, fidelitieshaar, is_save = Fa
     plt.ylabel('Value')
     plt.legend()
     if is_save:
-        plt.savefig('num_layer' + title +'.png', format='png', dpi=600)
+        plt.savefig('num_layer_' + title +'.png', format='png', dpi=600)
     plt.show()
 
 def read_15layer(path, dirs):
