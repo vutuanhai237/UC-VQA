@@ -358,7 +358,7 @@ def fit(qc: qiskit.QuantumCircuit,
         loss = loss_func(
             qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
-        thetass.append(thetas)
+        thetass.append(thetas.copy())
         if verbose == 1:
             bar.update(1)
         if verbose == 2 and i % 10 == 0:
