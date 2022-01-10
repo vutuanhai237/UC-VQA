@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 def plot_15layer(title, fidelitiesghz, fidelitiesw, fidelitieshaar, is_save = False):
     x = [1,2,3,4,5]
-    plt.plot(x, fidelitiesghz, marker='o', linestyle='--', color='blue', label = 'GHZ')
-    plt.plot(x, fidelitiesw, marker='o', linestyle='--', color='orange', label = 'W')
-    plt.plot(x, fidelitieshaar, marker='o', linestyle='--', color='green', label = 'Haar')
+    plt.plot(x, fidelitiesghz, marker='o', color='blue', label = 'GHZ')
+    plt.plot(x, fidelitiesw, marker='o', color='orange', label = 'W')
+    plt.plot(x, fidelitieshaar, marker='o', color='green', label = 'Haar')
     plt.title(title)
     plt.xlabel('Number of layers')
     plt.xticks(np.arange(min(x) - 1, max(x) + 5, 1))
