@@ -70,19 +70,19 @@ def run_wchain(num_layers, num_qubits):
           ' qubits')
 
     np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" +
-               str(num_qubits) + "/loss_values_qng.csv",
+               str(num_qubits) + "/loss_values_qng_adam.csv",
                loss_values,
                delimiter=",")
     np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" +
-               str(num_qubits) + "/thetass_qng.csv",
+               str(num_qubits) + "/thetass_qng_adam.csv",
                thetass,
                delimiter=",")
     np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" +
-               str(num_qubits) + "/traces_qng.csv",
+               str(num_qubits) + "/traces_qng_adam.csv",
                traces,
                delimiter=",")
     np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" +
-               str(num_qubits) + "/fidelities_qng.csv",
+               str(num_qubits) + "/fidelities_qng_adam.csv",
                fidelities,
                delimiter=",")
 
