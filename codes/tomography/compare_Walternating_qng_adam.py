@@ -41,7 +41,7 @@ def run_walternating(num_layers, num_qubits):
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(
                 np.zeros(thetas.shape[0]))
-        thetas = qtm.base.adam(thetas, m, v, i, (np.linalg.pinv(G) @ grad_loss))
+        thetas = qtm.base.adam(thetas, m, v, i, np.real(np.linalg.pinv(G) @ grad_loss))
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_Walternatingchecker_haar(qc.copy(), thetas, num_layers)  
         loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
