@@ -22,7 +22,7 @@ def run_ghz(num_layers, num_qubits):
 
     loss_values_ghz = []
     thetass_ghz = []
-    for i in range(0, 4):
+    for i in range(0, 400):
         # fubini_study for koczor_state is same for koczor state
         if i % 20 == 0:
             print('GHZ (' + str(num_layers) + ' layer): ', i)

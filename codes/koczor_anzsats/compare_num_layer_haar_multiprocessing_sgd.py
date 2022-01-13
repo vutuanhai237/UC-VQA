@@ -17,7 +17,7 @@ def run_haar(num_layers, num_qubits):
 
     loss_values_haar = []
     thetass_haar = []
-    for i in range(0, 4):
+    for i in range(0, 400):
         if i % 20 == 0:
             print('Haar (' + str(num_layers) + ' layer): ', i)
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
