@@ -24,7 +24,7 @@ def run_w(num_layers, num_qubits):
         qc_copy = qtm.nqubit.create_Wchecker_koczor(qc.copy(), thetas, num_layers)
         loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_w.append(loss)
-        thetass_w.append(thetas)
+        thetass_w.append(thetas.copy())
 
     traces_w, fidelities_w = [], []
     for thetas in thetass_w:

@@ -37,7 +37,7 @@ def run_ghz(num_layers, num_qubits):
         qc_copy = qtm.nqubit.create_GHZchecker_koczor(qc.copy(), thetas, num_layers, theta)  
         loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_ghz.append(loss)
-        thetass_ghz.append(thetas)
+        thetass_ghz.append(thetas.copy())
     traces_ghz, fidelities_ghz = [], []
     for thetas in thetass_ghz:
         # Get |psi> = U_gen|000...>
