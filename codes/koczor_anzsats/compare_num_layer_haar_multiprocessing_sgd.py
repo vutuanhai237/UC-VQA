@@ -17,7 +17,7 @@ def run_haar(num_layers, num_qubits):
 
     loss_values_haar = []
     thetass_haar = []
-    for i in range(0, 400):
+    for i in range(0, 4):
         if i % 20 == 0:
             print('Haar (' + str(num_layers) + ' layer): ', i)
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
@@ -32,7 +32,7 @@ def run_haar(num_layers, num_qubits):
         qc_copy = qtm.nqubit.create_haarchecker_koczor(qc.copy(), thetas, num_layers, encoder)
         loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_haar.append(loss)
-        thetass_haar.append(thetas)
+        thetass_haar.append(thetas.copy())
 
     traces_haar, fidelities_haar = [], []
     for thetas in thetass_haar:
