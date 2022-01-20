@@ -193,6 +193,17 @@ def loss_basis(measurement_value: Dict[str, int]):
     """
     return 1 - measurement_value
 
+def loss_fubini_study(measurement_value: Dict[str, int]):
+    """Return loss value for loss function C = (1 - P_0)^(1/2)
+    \n Here P_0 ~ 1 or L ~ 0 will be the best value
+
+    Args:
+        - measurement_value (Float): P_0 value
+
+    Returns:
+        - Float: Loss value
+    """
+    return np.sqrt(1 - measurement_value)
 
 def sgd(thetas: np.ndarray, grad_loss):
     """Standard gradient descent

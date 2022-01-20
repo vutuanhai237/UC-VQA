@@ -41,7 +41,7 @@ def run_wchain(num_layers, num_qubits):
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(
                 np.zeros(thetas.shape[0]))
-        thetas = qtm.base.adam(thetas, m, v, i, (np.linalg.pinv(G) @ grad_loss))
+        thetas = qtm.base.adam(thetas, m, v, i, np.real((np.linalg.pinv(G) @ grad_loss)))
         
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_Wchainchecker_haar(qc.copy(), thetas,
