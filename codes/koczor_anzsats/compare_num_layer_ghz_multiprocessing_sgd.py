@@ -33,7 +33,7 @@ def run_ghz(num_layers, num_qubits):
             thetas, r = 1/2, s = np.pi/2, num_layers = num_layers, theta = theta)
         # grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         
-        thetas -= - qtm.constant.learning_rate*grad_loss
+        thetas -= qtm.constant.learning_rate*grad_loss
         qc_copy = qtm.nqubit.create_GHZchecker_koczor(qc.copy(), thetas, num_layers, theta)  
         loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_ghz.append(loss)
