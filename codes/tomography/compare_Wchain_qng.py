@@ -29,8 +29,9 @@ def run_wchain(num_layers, num_qubits):
             print('W_chain: (' + str(num_layers) + ',' + str(num_qubits) +
                   '): ' + str(i))
         qc = encoder.qcircuit
-        G = qtm.fubini_study.calculate_Wchain_state(qc.copy(), thetas, num_layers)
-        
+        G = qtm.fubini_study.calculate_Wchain_state(qc.copy(), thetas,
+                                                    num_layers)
+
         grad_loss = qtm.base.grad_loss(qc,
                                        qtm.nqubit.create_Wchainchecker_haar,
                                        thetas,
