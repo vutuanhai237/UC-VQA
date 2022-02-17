@@ -581,3 +581,47 @@ def calculate_Walltoall_state(qc: qiskit.QuantumCircuit,
     for i in range(1, len(gs)):
         G = block_diag(G, gs[i])
     return G
+
+def calculate_star2graph_state(qc: qiskit.QuantumCircuit,
+                              thetas,
+                              num_layers: int = 1):
+    """Create W alltoall ansatz and compuate g each sub-layer
+
+    Args:
+        qc (qiskit.QuantumCircuit): Init circuit (blank)
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
+
+    Returns:
+        qiskit.QuantumCircuit
+    """
+    n = qc.num_qubits
+
+    if isinstance(num_layers, int) != True:
+        num_layers = (num_layers['num_layers'])
+    if len(thetas) != num_layers*(2*n - 2):
+        raise Exception(
+            'The number of parameter must be equal num_layers * (2 * num_qubits - 2)'
+        )
+    gs = []
+    index_layer = 0
+    j = 0
+    for i in range(0, num_layers):
+        phis = thetas[i * n * 5:(i + 1) * n * 5]
+        # Sub-Layer 1
+        qc_copy = qtm.nqubit.create_rx_nqubit(qc.copy(), phis[:n])
+        observers = (create_observers(qc_copy))
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_rx_nqubit(qc, phis[:n])
+        index_layer += 1
+        # Sub-Layer 2
+        qc_copy = qtm.nqubit.create_cry_nqubit_inverse(qc.copy(),
+                                                       phis[n:n * 2])
+        observers = (create_observers(qc_copy))
+        gs.append(calculate_g(qc, observers))
+        qc = qtm.nqubit.create_cry_nqubit_inverse(qc, phis[n:n * 2])
+        index_layer += 1
+    G = gs[0]
+    for i in range(1, len(gs)):
+        G = block_diag(G, gs[i])
+    return G
