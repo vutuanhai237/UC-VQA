@@ -63,28 +63,8 @@ def create_graph_state(qc: qiskit.QuantumCircuit, thetas: np.ndarray):
         i += 1
     return qc
 
-def create_stargraph_state(qc: qiskit.QuantumCircuit, thetas: np.ndarray):
-    """Create graph state
-
-    Args:
-        qc (qiskit.QuantumCircuit): init circuit
-        thetas (np.ndarray): params
-
-    Returns:
-        (qiskit.QuantumCircuit): init circuit
-    """
-    n = qc.num_qubits
-    j = 0
-    for i in range(0, n):
-        qc.ry(thetas[j], i)
-        j += 1
-    for i in range(1, n):
-        # qc.crz(thetas[j], 0, i)
-        # j += 1
-        qc.cz(0, i)
-    return qc
 def create_star2graph_state(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layer: int):
-    """Create graph state
+    """Create star graph state
 
     Args:
         qc (qiskit.QuantumCircuit): init circuit
@@ -93,16 +73,7 @@ def create_star2graph_state(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_l
     Returns:
         (qiskit.QuantumCircuit): init circuit
     """
-    # n = qc.num_qubits
-    # j = 0
-    # for i in range(0, n):
-    #     qc.ry(thetas[j], i)
-    #     j += 1
-    # for i in range(0, n - 1):
-    #     # qc.crz(thetas[j], 0, i)
-    #     # j += 1
-    #     qc.cz(i, i + 1)
-    # qc.cz(0, n - 1)
+
     n = qc.num_qubits
     j = 0
     for l in range(0, num_layer, 1):
@@ -110,12 +81,10 @@ def create_star2graph_state(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_l
             qc.ry(thetas[j], i)
             j += 1
         qc.cz(0, 1)
-        qc.ry(thetas[j], 0)
-        j += 1
-        qc.cz(0, 2)
-        qc.ry(thetas[j], 0)
-        j += 1
-        qc.cz(0, 3)
+        for i in range(2, n):
+            qc.ry(thetas[j], 0)
+            j += 1
+            qc.cz(0, i)
     return qc
 
 def create_polygongraph_state(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layer: int):
@@ -128,29 +97,32 @@ def create_polygongraph_state(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num
     Returns:
         (qiskit.QuantumCircuit): init circuit
     """
-    # n = qc.num_qubits
-    # j = 0
-    # for i in range(0, n):
-    #     qc.ry(thetas[j], i)
-    #     j += 1
-    # for i in range(0, n - 1):
-    #     # qc.crz(thetas[j], 0, i)
-    #     # j += 1
-    #     qc.cz(i, i + 1)
-    # qc.cz(0, n - 1)
+   
     n = qc.num_qubits
     j = 0
+
+
     for l in range(0, num_layer, 1):
         for i in range(0, n):
             qc.ry(thetas[j], i)
             j += 1
-        qc.cz(0, 1)
-        qc.cz(2, 3)
-        for i in range(0, n):
-            qc.ry(thetas[j], i)
+        for i in range(0, n - 1, 2):
+            qc.cz(i, i + 1)
+        if n % 2 == 1:
+            for i in range(0, n - 1):
+                qc.ry(thetas[j], i)
+                j += 1
+        else:
+            for i in range(0, n):
+                qc.ry(thetas[j], i)
+                j += 1
+        for i in range(1, n - 1, 2):
+            qc.cz(i, i + 1)
+        if n % 2 == 1:
+            qc.ry(thetas[j], n - 1)
             j += 1
-        qc.cz(1, 2)
-        qc.cz(0, 3)
+        qc.cz(0, n - 1)
+
     return qc
 
 def create_GHZchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, theta: float):
@@ -170,27 +142,6 @@ def create_GHZchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, theta
         theta = theta['theta']
     # |psi_gen> = U_gen|000...>
     qc = create_graph_state(qc, thetas)
-    # U_target^t|psi_gen> with U_target is GHZ state
-    qc = create_ghz_state_inverse(qc, theta)
-    return qc
-
-def create_GHZchecker_stargraph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, theta: float):
-    """Create circuit includes koczor and GHZ
-
-    Args:
-        - qc (qiskit.QuantumCircuit): init circuit
-        - thetas (np.ndarray): params
-        - num_layers (int)
-        - theta (float): param for general GHZ
-
-    Returns:
-        - qiskit.QuantumCircuit
-    """
-
-    if isinstance(theta, float) != True:
-        theta = theta['theta']
-    # |psi_gen> = U_gen|000...>
-    qc = create_stargraph_state(qc, thetas)
     # U_target^t|psi_gen> with U_target is GHZ state
     qc = create_ghz_state_inverse(qc, theta)
     return qc
@@ -241,24 +192,7 @@ def create_GHZchecker_star2graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, 
     qc = create_ghz_state_inverse(qc, theta)
     return qc
 
-def create_Wchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray):
-    """Create circuit includes koczor and GHZ
 
-    Args:
-        - qc (qiskit.QuantumCircuit): init circuit
-        - thetas (np.ndarray): params
-        - num_layers (int)
-        - theta (float): param for general GHZ
-
-    Returns:
-        - qiskit.QuantumCircuit
-    """
-
-    # |psi_gen> = U_gen|000...>
-    qc = create_graph_state(qc, thetas)
-    # U_target^t|psi_gen> with U_target is GHZ state
-    qc = create_w_state_inverse(qc)
-    return qc
 
 def create_GHZchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
                              num_layers: int, theta: float):
@@ -445,6 +379,47 @@ def create_Wchecker_polygongraph(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
     # |psi_gen> = U_gen|000...>
     qc = create_polygongraph_state(qc, thetas, num_layers)
     # U_target^t|psi_gen> with U_target is W state
+    qc = create_w_state_inverse(qc)
+    return qc
+
+def create_Wchecker_star2graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
+                           num_layers: int):
+    """Create circuit includes koczor and W
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int)
+        - theta (float): param for general W
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+
+    # |psi_gen> = U_gen|000...>
+    qc = create_star2graph_state(qc, thetas, num_layers)
+    # U_target^t|psi_gen> with U_target is W state
+    qc = create_w_state_inverse(qc)
+    return qc
+
+def create_Wchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray):
+    """Create circuit includes koczor and GHZ
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): params
+        - num_layers (int)
+        - theta (float): param for general GHZ
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+
+    # |psi_gen> = U_gen|000...>
+    qc = create_graph_state(qc, thetas)
+    # U_target^t|psi_gen> with U_target is GHZ state
     qc = create_w_state_inverse(qc)
     return qc
 
