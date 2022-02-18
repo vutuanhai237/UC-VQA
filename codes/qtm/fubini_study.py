@@ -625,3 +625,121 @@ def calculate_star2graph_state(qc: qiskit.QuantumCircuit,
     for i in range(1, len(gs)):
         G = block_diag(G, gs[i])
     return G
+
+######################################
+## General quantum natural gradient ##
+######################################
+
+def get_wires_of_gate(gate):
+    """Get index bit that gate act on
+
+    Args:
+        gate (qiskit.QuantumGate): Quantum gate
+
+    Returns:
+        numpy arrray: list of index bits
+    """
+    list_wire = []
+    for register in gate[1]:
+        list_wire.append(register.index)
+    return list_wire
+
+def is_gate_in_list_wires(gate, wires):
+    """Check if a gate lies on the next layer or not
+
+    Args:
+        gate (qiskit.QuantumGate): Quantum gate
+        wires (numpy arrray): list of index bits
+
+    Returns:
+        Bool
+    """
+    list_wire = get_wires_of_gate(gate)
+    for wire in list_wire:
+        if wire in wires:
+            return True
+    return False
+
+def split_into_layers(qc: qiskit.QuantumCircuit):
+    """Split a quantum circuit into layers
+
+    Args:
+        qc (qiskit.QuantumCircuit): origin circuit
+
+    Returns:
+        list: list of list of quantum gates
+    """
+    layers = []
+    layer = []
+    wires = []
+    is_param_layer = None
+    for gate in qc.data:
+        name = gate[0].name
+        if name in qtm.constant.ignore_generator:
+            continue
+        param = gate[0].params
+        wire = get_wires_of_gate(gate)
+        if is_param_layer is None:
+            if len(param) == 0:
+                is_param_layer = False
+            else:
+                is_param_layer = True
+        # New layer's condition: depth increase or convert from non-parameterized layer to parameterized layer or vice versa
+        if is_gate_in_list_wires(gate, wires) or (is_param_layer == False and len(param) != 0) or (is_param_layer == True and len(param) == 0):
+            if is_param_layer == False:
+                # First field is 'Is parameterized layer or not?'
+                layers.append((False,layer))
+            else:
+                layers.append((True,layer))
+            layer = []
+            wires = []
+        # Update sub-layer status
+        if len(param) == 0:
+            is_param_layer = False
+        else:
+            is_param_layer = True
+        for w in wire:
+            wires.append(w)
+        layer.append((name, param, wire))
+    # Last sub-layer
+    if is_param_layer == False:
+        # First field is 'Is parameterized layer or not?'
+        layers.append((False,layer))
+    else:
+        layers.append((True,layer))
+    return layers
+
+def add_layer_into_circuit(qc, layer):
+    for name, param, wire in layer:
+        if name == 'rx':
+            qc.rx(param[0], wire[0])
+        if name == 'ry':
+            qc.ry(param[0], wire[0])
+        if name == 'rz':
+            qc.rz(param[0], wire[0])
+        if name == 'crx':
+            qc.crx(param[0], wire[0], wire[1])
+        if name == 'cry':
+            qc.cry(param[0], wire[0], wire[1])
+        if name == 'crz':
+            qc.crz(param[0], wire[0], wire[1])
+        if name == 'cz':
+            qc.cz(wire[0], wire[1])
+    return qc
+
+def qng(qc, thetas, create_circuit_func, num_layers):
+    n = qc.num_qubits
+    gs = []
+    qc_new = qiskit.QuantumCircuit(n, n)
+    qc_new = create_circuit_func(qc_new, thetas, num_layers)
+    layers = split_into_layers(qc_new)
+    for i in range(0, num_layers):
+        for is_param_layer, layer in layers[i * int(len(layers) / 2): (i + 1) * int(len(layers) / 2)]:
+            if is_param_layer:
+                observers = qtm.fubini_study.create_observers(add_layer_into_circuit(qc.copy(), layer), len(layer))
+                gs.append(qtm.fubini_study.calculate_g(qc, observers))
+            qc = add_layer_into_circuit(qc, layer)
+    G = gs[0]
+    for i in range(1, len(gs)):
+        G = block_diag(G, gs[i])
+    return G

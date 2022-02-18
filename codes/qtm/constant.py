@@ -17,6 +17,12 @@ generator = {
     'id': np.array([[1, 0], [0, 1]], dtype=np.complex128),
 }
 
+ignore_generator = [
+    'barrier'
+]
+parameterized_generator = [
+    'rx', 'ry', 'rz', 'crx', 'cry', 'crz'
+]
 # This information is extracted from http://dx.doi.org/10.1103/PhysRevA.83.042314
 edges_graph_state = {
     2: ["0-1"],
