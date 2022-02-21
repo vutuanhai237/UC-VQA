@@ -9,8 +9,7 @@ import qtm.encoding
 import multiprocessing
 
 
-def run_walltoall(num_qubits):
-    num_layers = 2
+def run_walltoall(num_layers, num_qubits):
     thetas = np.ones((num_qubits*num_layers*5))
     theta = np.pi / 2
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
@@ -68,10 +67,10 @@ if __name__ == "__main__":
 
     num_qubits = [3, 4, 5, 6, 7, 8, 9, 10]
     linear_ansatzs = []
-
+    i = 2
     for j in num_qubits:
         linear_ansatzs.append(multiprocessing.Process(
-            target=run_walltoall, args=j))
+            target=run_walltoall, args=(i, j)))
 
     for linear_ansatz in linear_ansatzs:
         linear_ansatz.start()
