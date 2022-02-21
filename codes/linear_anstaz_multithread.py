@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     for j in num_qubits:
         linear_ansatzs.append(multiprocessing.Process(
-            target=run_walltoall, args=(j)))
+            target=run_walltoall, args=j))
 
     for linear_ansatz in linear_ansatzs:
         linear_ansatz.start()
