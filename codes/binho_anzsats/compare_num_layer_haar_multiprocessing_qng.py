@@ -39,12 +39,10 @@ def run_haar(num_layers, num_qubits):
         # Get |psi> = U_gen|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
         qc = qtm.nqubit.create_binho_state(qc, thetas, num_layers = num_layers)
-        psi = qiskit.quantum_info.Statevector.from_instruction(qc)
-        rho_psi = qiskit.quantum_info.DensityMatrix(psi)
+        psi , rho_psi = qtm.base.extract_state(qc)
         # Get |psi~> = U_target|000...>
         qc1 = encoder.qcircuit
-        psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc1)
-        rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
+psi_hat , rho_psi_hat = qtm.base.extract_state(qc1)
         # Calculate the metrics
         trace, fidelity = qtm.base.get_metrics(psi, psi_hat)
         traces_haar.append(trace)

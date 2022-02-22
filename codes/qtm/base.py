@@ -4,6 +4,18 @@ import numpy as np
 import qiskit, scipy
 import qtm.progress_bar, qtm.constant, qtm.qfim
 
+def extract_state(qc: qiskit.QuantumCircuit):
+    """Get infomation about quantum circuit
+
+    Args:
+        - qc (qiskit.QuantumCircuit): Extracted circuit
+
+    Returns:
+       - tuple: state vector and density matrix
+    """
+    psi = qiskit.quantum_info.Statevector.from_instruction(qc)
+    rho_psi = qiskit.quantum_info.DensityMatrix(psi)
+    return psi, rho_psi
 
 def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[]):
     """Measuring the quantu circuit which fully measurement gates
@@ -244,8 +256,20 @@ def adam(thetas: np.ndarray, m: np.ndarray, v: np.ndarray, iteration: int,
                                                           epsilon)
     return thetas
 
+def qng_fubini_study(thetas: np.ndarray, G: np.ndarray, grad_loss: np.ndarray):
+    """_summary_
 
-def qng(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray,
+    Args:
+        - thetas (np.ndarray): parameters
+        - G (np.ndarray): Fubini-study matrix
+        - grad_loss (np.ndarray): gradient of loss function, is a N x 1 matrix
+
+    Returns:
+        - np.ndarray: parameters after update
+    """
+    thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.inv(G) @ grad_loss)) 
+    return thetas           
+def qng_qfim(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray,
         grad_loss: np.ndarray):
     """Update parameters based on quantum natural gradient algorithm
     \n thetas^{i + 1} = thetas^{i} - alpha * F^{-1} * nabla L
@@ -343,7 +367,7 @@ def fit(qc: qiskit.QuantumCircuit,
                     np.zeros(thetas.shape[0]))
             thetas = adam(thetas, m, v, i, grad_loss)
 
-        elif optimizer_name == 'qng' or optimizer_name == 'qng_adam':
+        elif optimizer_name in ['qng_fubini_study', 'qng_qfim', 'qng_adam']:
             grad_psi1 = grad_psi(qc,
                                  create_circuit_func,
                                  thetas,
@@ -354,10 +378,12 @@ def fit(qc: qiskit.QuantumCircuit,
             psi = qiskit.quantum_info.Statevector.from_instruction(
                 qc_copy).data
             psi = np.expand_dims(psi, 1)
+            if optimizer_name == 'qng_fubini_study':
+                G = qtm.fubini_study.qng(qc.copy(), thetas, create_circuit_func, **kwargs)
+                thetas = qng_fubini_study(thetas, G, grad_loss)
+            if optimizer_name == 'qng_qfim':
 
-            if optimizer_name == 'qng':
-
-                thetas = qng(thetas, psi, grad_psi1, grad_loss)
+                thetas = qng_qfim(thetas, psi, grad_psi1, grad_loss)
 
             if optimizer_name == 'qng_adam':
                 if i == 0:
