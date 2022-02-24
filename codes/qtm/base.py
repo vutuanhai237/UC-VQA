@@ -17,7 +17,7 @@ def extract_state(qc: qiskit.QuantumCircuit):
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     return psi, rho_psi
 
-def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[]):
+def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[], is_noise = True):
     """Measuring the quantu circuit which fully measurement gates
     
     Args:
@@ -31,9 +31,31 @@ def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[]):
         cbits = qubits.copy()
     for i in range(0, len(qubits)):
         qc.measure(qubits[i], cbits[i])
-    counts = qiskit.execute(
-        qc, backend=qtm.constant.backend,
-        shots=qtm.constant.num_shots).result().get_counts()
+
+    if is_noise:
+        # Error probabilities
+        prob_1 = 0.1  # 1-qubit gate
+        prob_2 = 0.1  # 2-qubit gate
+
+        # Depolarizing quantum errors
+        error_1 = qiskit.providers.aer.noise.depolarizing_error(prob_1, 1)
+        error_2 = qiskit.providers.aer.noise.depolarizing_error(prob_2, 2)
+
+        # Add errors to noise model
+        noise_model = qiskit.providers.aer.noise.NoiseModel()
+        noise_model.add_all_qubit_quantum_error(error_1, ['u1', 'u2', 'u3'])
+        noise_model.add_all_qubit_quantum_error(error_2, ['cx', 'cz', 'crx', 'cry', 'crz'])
+
+        # Get basis gates from noise model
+        basis_gates = noise_model.basis_gates
+        counts = qiskit.execute(qc, backend=qtm.constant.backend,
+                 basis_gates=basis_gates,
+                 noise_model=noise_model,
+                 shots=qtm.constant.num_shots).result().get_counts()
+    else:
+        counts = qiskit.execute(
+            qc, backend=qtm.constant.backend,
+            shots=qtm.constant.num_shots).result().get_counts()
     return counts.get("0" * len(qubits), 0) / qtm.constant.num_shots
 
 
