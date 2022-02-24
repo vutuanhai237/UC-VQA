@@ -20,8 +20,8 @@ def run_walltoall(num_layers, num_qubits):
             print('Linear ansatz GHZ: (' + str(num_layers) +
                   ',' + str(num_qubits) + '): ' + str(i))
 
-        G = qtm.fubini_study.calculate_koczor_state(
-            qc.copy(), thetas, num_layers)
+        G = qtm.fubini_study.qng(
+            qc.copy(), thetas, qtm.nqubit.create_GHZchecker_koczor, num_layers)
         grad_loss = qtm.base.grad_loss(
             qc,
             qtm.nqubit.create_GHZchecker_koczor,
