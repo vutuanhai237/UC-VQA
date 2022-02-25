@@ -34,8 +34,8 @@ def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[], is_noise = True):
 
     if is_noise:
         # Error probabilities
-        prob_1 = 0.04  # 1-qubit gate
-        prob_2 = 0.04  # 2-qubit gate
+        prob_1 = 0.03  # 1-qubit gate
+        prob_2 = 0.03  # 2-qubit gate
 
         # Depolarizing quantum errors
         error_1 = qiskit.providers.aer.noise.depolarizing_error(prob_1, 1)
