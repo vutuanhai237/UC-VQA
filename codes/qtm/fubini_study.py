@@ -746,13 +746,21 @@ def qng(qc: qiskit.QuantumCircuit, thetas, create_circuit_func: FunctionType, nu
     qc_new = create_circuit_func(qc_new, thetas, num_layers)
     # Splitting circuit into list of V and W sub-layer (non-parameter and parameter)
     layers = split_into_layers(qc_new)
-    for i in range(0, num_layers):
-        for is_param_layer, layer in layers[i * int(len(layers) / 2): (i + 1) * int(len(layers) / 2)]:
+    if num_layers == 1:
+        for is_param_layer, layer in layers:
             if is_param_layer:
                 observers = qtm.fubini_study.create_observers(add_layer_into_circuit(qc.copy(), layer), len(layer))
                 gs.append(qtm.fubini_study.calculate_g(qc, observers))
             # Add next sub-layer into the current circuit
             qc = add_layer_into_circuit(qc, layer)
+    else:
+        for i in range(0, num_layers):
+            for is_param_layer, layer in layers[i * int(len(layers) / 2): (i + 1) * int(len(layers) / 2)]:
+                if is_param_layer:
+                    observers = qtm.fubini_study.create_observers(add_layer_into_circuit(qc.copy(), layer), len(layer))
+                    gs.append(qtm.fubini_study.calculate_g(qc, observers))
+                # Add next sub-layer into the current circuit
+                qc = add_layer_into_circuit(qc, layer)
     G = gs[0]
     for i in range(1, len(gs)):
         G = block_diag(G, gs[i])
