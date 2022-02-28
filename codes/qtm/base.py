@@ -1,8 +1,15 @@
+import qiskit
+import scipy
+import qtm.progress_bar
+import qtm.constant
+import qtm.qfim
+import numpy as np
+from qiskit.ignis.mitigation.measurement import complete_meas_cal, CompleteMeasFitter
+from qiskit.providers.aer import noise
 from types import FunctionType
 from typing import Dict
-import numpy as np
-import qiskit, scipy
-import qtm.progress_bar, qtm.constant, qtm.qfim
+from unittest import result
+
 
 def extract_state(qc: qiskit.QuantumCircuit):
     """Get infomation about quantum circuit
@@ -17,9 +24,47 @@ def extract_state(qc: qiskit.QuantumCircuit):
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     return psi, rho_psi
 
-def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[], is_noise = True):
+# def get_noise_model(prob: float):
+#     prob_1 = prob  # 1-qubit gate
+#     prob_2 = prob  # 2-qubit gate
+
+#     # Depolarizing quantum errors
+#     error_1 = qiskit.providers.aer.noise.depolarizing_error(prob_1, 1)
+#     error_2 = qiskit.providers.aer.noise.depolarizing_error(prob_2, 2)
+
+#     # Add errors to noise model
+#     noise_model = qiskit.providers.aer.noise.NoiseModel()
+#     noise_model.add_all_qubit_quantum_error(error_1, ['u1', 'u2', 'u3'])
+#     noise_model.add_all_qubit_quantum_error(
+#         error_2, ['cx', 'cz', 'crx', 'cry', 'crz'])
+#     return noise_model
+
+
+def generate_noise_model(num_qubit, error_prob):
+    noise_model = noise.NoiseModel()
+    for qi in range(num_qubit):
+        read_err = noise.errors.readout_error.ReadoutError(
+            [[1 - error_prob, error_prob], [error_prob, 1 - error_prob]])
+        noise_model.add_readout_error(read_err, [qi])
+    return noise_model
+
+
+def generate_measurement_filter(num_qubits, noise_model):
+    # for running measurement error mitigation
+    meas_cals, state_labels = complete_meas_cal(qubit_list=range(
+        num_qubits), qr=qiskit.QuantumRegister(num_qubits))
+    # Execute the calibration circuits
+    job = qiskit.execute(meas_cals, backend=qtm.constant.backend,
+                         shots=qtm.constant.num_shots, noise_model=noise_model)
+    cal_results = job.result()
+    # Make a calibration matrix
+    meas_filter = CompleteMeasFitter(cal_results, state_labels).filter
+    return meas_filter
+
+
+def measure(qc: qiskit.QuantumCircuit, qubits, cbits = []):
     """Measuring the quantu circuit which fully measurement gates
-    
+
     Args:
         - qc (QuantumCircuit): Measured circuit
         - qubits (Numpy array): List of measured qubit
@@ -27,35 +72,28 @@ def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[], is_noise = True):
     Returns:
         - float: Frequency of 00.. cbit
     """
+    n = len(qubits)
     if cbits == []:
         cbits = qubits.copy()
-    for i in range(0, len(qubits)):
+    for i in range(0, n):
         qc.measure(qubits[i], cbits[i])
-
-    if is_noise:
-        # Error probabilities
-        prob_1 = 0.01  # 1-qubit gate
-        prob_2 = 0.01  # 2-qubit gate
-
-        # Depolarizing quantum errors
-        error_1 = qiskit.providers.aer.noise.depolarizing_error(prob_1, 1)
-        error_2 = qiskit.providers.aer.noise.depolarizing_error(prob_2, 2)
-
-        # Add errors to noise model
-        noise_model = qiskit.providers.aer.noise.NoiseModel()
-        noise_model.add_all_qubit_quantum_error(error_1, ['u1', 'u2', 'u3'])
-        noise_model.add_all_qubit_quantum_error(error_2, ['cx', 'cz', 'crx', 'cry', 'crz'])
-
-        # Get basis gates from noise model
-        basis_gates = noise_model.basis_gates
-        counts = qiskit.execute(qc, backend=qtm.constant.backend,
-                 basis_gates=basis_gates,
-                 noise_model=noise_model,
-                 shots=qtm.constant.num_shots).result().get_counts()
+    if qtm.constant.noise_prob > 0:
+        noise_model = generate_noise_model(n, qtm.constant.noise_prob)
+        results = qiskit.execute(qc, backend=qtm.constant.backend,
+                                 noise_model=noise_model,
+                                 shots=qtm.constant.num_shots).result()
+        # Raw counts
+        counts = results.get_counts()
+        # Mitigating noise based on https://qiskit.org/textbook/ch-quantum-hardware/measurement-error-mitigation.html
+        meas_filter = generate_measurement_filter(n, noise_model=noise_model)
+        # print(meas_filter)
+        # Mitigated counts
+        counts = meas_filter.apply(counts.copy())
     else:
         counts = qiskit.execute(
             qc, backend=qtm.constant.backend,
             shots=qtm.constant.num_shots).result().get_counts()
+
     return counts.get("0" * len(qubits), 0) / qtm.constant.num_shots
 
 
@@ -106,7 +144,7 @@ def trace_fidelity(rho, sigma):
     Args:
         - rho (DensityMatrix): first density matrix
         - sigma (DensityMatrix): second density matrix
-    
+
     Returns:
         - float: trace metric has value from 0 to 1
     """
@@ -119,11 +157,11 @@ def trace_fidelity(rho, sigma):
 
 def get_metrics(psi, psi_hat):
     """Get different metrics between the origin state and the reconstructed state
-    
+
     Args:
         - psi (Statevector): first state vector
         - psi_hat (Statevector): second state vector
-    
+
     Returns:
         - Tuple: trace and fidelity
     """
@@ -155,9 +193,9 @@ def get_u_hat(thetas, create_circuit_func: FunctionType, num_qubits: int,
 def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: FunctionType,
               thetas, r: float, s: float, **kwargs):
     """Return the gradient of the loss function
-    
+
     L = 1 - |<psi~|psi>|^2 = 1 - P_0
-    
+
     => nabla_L = - nabla_P_0 = - r (P_0(+s) - P_0(-s))
 
     Args:
@@ -227,6 +265,7 @@ def loss_basis(measurement_value: Dict[str, int]):
     """
     return 1 - measurement_value
 
+
 def loss_fubini_study(measurement_value: Dict[str, int]):
     """Return loss value for loss function C = (1 - P_0)^(1/2)
     \n Here P_0 ~ 1 or L ~ 0 will be the best value
@@ -238,6 +277,7 @@ def loss_fubini_study(measurement_value: Dict[str, int]):
         - Float: Loss value
     """
     return np.sqrt(1 - measurement_value)
+
 
 def sgd(thetas: np.ndarray, grad_loss):
     """Standard gradient descent
@@ -278,6 +318,7 @@ def adam(thetas: np.ndarray, m: np.ndarray, v: np.ndarray, iteration: int,
                                                           epsilon)
     return thetas
 
+
 def qng_fubini_study(thetas: np.ndarray, G: np.ndarray, grad_loss: np.ndarray):
     """_summary_
 
@@ -289,10 +330,13 @@ def qng_fubini_study(thetas: np.ndarray, G: np.ndarray, grad_loss: np.ndarray):
     Returns:
         - np.ndarray: parameters after update
     """
-    thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.inv(G) @ grad_loss)) 
-    return thetas           
+    thetas = np.real(thetas - qtm.constant.learning_rate *
+                     (np.linalg.inv(G) @ grad_loss))
+    return thetas
+
+
 def qng_qfim(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray,
-        grad_loss: np.ndarray):
+             grad_loss: np.ndarray):
     """Update parameters based on quantum natural gradient algorithm
     \n thetas^{i + 1} = thetas^{i} - alpha * F^{-1} * nabla L
 
@@ -366,7 +410,7 @@ def fit(qc: qiskit.QuantumCircuit,
         - optimizer (FunctionType): Otimizer function
         - verbose (Int): the seeing level of the fitting process (0: nothing, 1: progress bar, 2: one line per step)
         - **kwargs: additional parameters for different create_circuit_func()
-    
+
     Returns:
         - thetas (Numpy array): the optimized parameters
         - loss_values (Numpy array): the list of loss_value
@@ -401,7 +445,8 @@ def fit(qc: qiskit.QuantumCircuit,
                 qc_copy).data
             psi = np.expand_dims(psi, 1)
             if optimizer_name == 'qng_fubini_study':
-                G = qtm.fubini_study.qng(qc.copy(), thetas, create_circuit_func, **kwargs)
+                G = qtm.fubini_study.qng(
+                    qc.copy(), thetas, create_circuit_func, **kwargs)
                 thetas = qng_fubini_study(thetas, G, grad_loss)
             if optimizer_name == 'qng_qfim':
 
