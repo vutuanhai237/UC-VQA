@@ -85,10 +85,10 @@ def measure(qc: qiskit.QuantumCircuit, qubits, cbits = []):
         # Raw counts
         counts = results.get_counts()
         # Mitigating noise based on https://qiskit.org/textbook/ch-quantum-hardware/measurement-error-mitigation.html
-        meas_filter = generate_measurement_filter(n, noise_model=noise_model)
-        # print(meas_filter)
-        # Mitigated counts
-        counts = meas_filter.apply(counts.copy())
+        # meas_filter = generate_measurement_filter(n, noise_model=noise_model)
+        # # print(meas_filter)
+        # # Mitigated counts
+        # counts = meas_filter.apply(counts.copy())
     else:
         counts = qiskit.execute(
             qc, backend=qtm.constant.backend,
