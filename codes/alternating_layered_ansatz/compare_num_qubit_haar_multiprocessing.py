@@ -1,19 +1,21 @@
+import importlib
 import qiskit
 import numpy as np
 import sys
 import multiprocessing
 sys.path.insert(1, '../')
-import qtm.base, qtm.constant, qtm.nqubit, qtm.fubini_study, qtm.encoding
-import importlib
+import qtm.base
+import qtm.constant
+import qtm.nqubit
+import qtm.fubini_study
+import qtm.encoding
 importlib.reload(qtm.base)
 importlib.reload(qtm.constant)
 importlib.reload(qtm.onequbit)
 importlib.reload(qtm.nqubit)
-# Init parameters
-
-# For arbitrary initial state
 
 theta = np.pi/3
+
 
 def run_haar(num_layers, num_qubits):
 
@@ -28,50 +30,54 @@ def run_haar(num_layers, num_qubits):
         if i % 20 == 0:
             print('Haar (' + str(num_layers) + ' layer): ', i)
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        G = qtm.fubini_study.calculate_alternative_layered_state(qc.copy(), thetas, num_layers)
+        G = qtm.fubini_study.calculate_alternative_layered_state(
+            qc.copy(), thetas, num_layers)
         qc = encoder.qcircuit
         grad_loss = qtm.base.grad_loss(
-            qc, 
-            qtm.nqubit.create_haarchecker_alternating_layered, 
-            thetas, r = 1/2, s = np.pi/2, num_layers = num_layers, encoder = encoder)
+            qc,
+            qtm.nqubit.create_haarchecker_alternating_layered,
+            thetas, r=1/2, s=np.pi/2, num_layers=num_layers, encoder=encoder)
 
-        thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.inv(G) @ grad_loss))   
-        qc_copy = qtm.nqubit.create_haarchecker_alternating_layered(qc.copy(), thetas, num_layers, encoder)
-        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        thetas = np.real(thetas - qtm.constant.learning_rate *
+                         (np.linalg.inv(G) @ grad_loss))
+        qc_copy = qtm.nqubit.create_haarchecker_alternating_layered(
+            qc.copy(), thetas, num_layers, encoder)
+        loss = qtm.base.loss_basis(qtm.base.measure(
+            qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_haar.append(loss)
         thetass_haar.append(thetas)
 
     traces_haar, fidelities_haar = [], []
     for thetas in thetass_haar:
-    # Get |psi> = U_gen|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.nqubit.create_alternating_layerd_state(qc, thetas, num_layers = num_layers)
-        psi , rho_psi = qtm.base.extract_state(qc)
-        # Get |psi~> = U_target|000...>
+        qc = qtm.nqubit.create_alternating_layerd_state(
+            qc, thetas, num_layers=num_layers)
+        psi, rho_psi = qtm.base.extract_state(qc)
         qc1 = encoder.qcircuit
-psi_hat , rho_psi_hat = qtm.base.extract_state(qc1)
-        # Calculate the metrics
+        psi_hat, rho_psi_hat = qtm.base.extract_state(qc1)
         trace, fidelity = qtm.base.get_metrics(psi, psi_hat)
         traces_haar.append(trace)
         fidelities_haar.append(fidelity)
     print('Writting ... ' + str(num_qubits))
-    np.savetxt("../../experiments/alternating_layered_ansatz/" + str(num_qubits) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
-    np.savetxt("../../experiments/alternating_layered_ansatz/" + str(num_qubits) + "/thetass_haar.csv", thetass_haar, delimiter=",")
-    np.savetxt("../../experiments/alternating_layered_ansatz/" + str(num_qubits) + "/traces_haar.csv", traces_haar, delimiter=",")
-    np.savetxt("../../experiments/alternating_layered_ansatz/" + str(num_qubits) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
-
-
+    np.savetxt("../../experiments/alternating_layered_ansatz/" +
+               str(num_qubits) + "/loss_values_haar.csv", loss_values_haar, delimiter=",")
+    np.savetxt("../../experiments/alternating_layered_ansatz/" +
+               str(num_qubits) + "/thetass_haar.csv", thetass_haar, delimiter=",")
+    np.savetxt("../../experiments/alternating_layered_ansatz/" +
+               str(num_qubits) + "/traces_haar.csv", traces_haar, delimiter=",")
+    np.savetxt("../../experiments/alternating_layered_ansatz/" +
+               str(num_qubits) + "/fidelities_haar.csv", fidelities_haar, delimiter=",")
 
 
 if __name__ == "__main__":
-    # creating thread
     num_qubits = [3, 4, 5, 6, 7, 8, 9, 10]
     num_layers = 1
-   
+
     t_haar = []
 
     for i in num_qubits:
-        t_haar.append(multiprocessing.Process(target = run_haar, args=(num_layers, i)))
+        t_haar.append(multiprocessing.Process(
+            target=run_haar, args=(num_layers, i)))
 
     for i in range(0, len(num_qubits)):
         t_haar[i].start()
