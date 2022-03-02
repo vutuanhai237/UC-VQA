@@ -2,7 +2,8 @@ from ast import FunctionType
 import qiskit
 import numpy as np
 from qiskit.visualization.text import Ex
-import qtm.constant, qtm.nqubit
+import qtm.constant
+import qtm.nqubit
 from typing import Dict, Tuple, List
 from scipy.linalg import block_diag
 
@@ -583,9 +584,10 @@ def calculate_Walltoall_state(qc: qiskit.QuantumCircuit,
         G = block_diag(G, gs[i])
     return G
 
+
 def calculate_star2graph_state(qc: qiskit.QuantumCircuit,
-                              thetas,
-                              num_layers: int = 1):
+                               thetas,
+                               num_layers: int = 1):
     """Create W alltoall ansatz and compuate g each sub-layer
 
     Args:
@@ -631,6 +633,7 @@ def calculate_star2graph_state(qc: qiskit.QuantumCircuit,
 ## General quantum natural gradient ##
 ######################################
 
+
 def get_wires_of_gate(gate: Tuple):
     """Get index bit that gate act on
 
@@ -644,6 +647,7 @@ def get_wires_of_gate(gate: Tuple):
     for register in gate[1]:
         list_wire.append(register.index)
     return list_wire
+
 
 def is_gate_in_list_wires(gate: Tuple, wires: List):
     """Check if a gate lies on the next layer or not
@@ -660,6 +664,7 @@ def is_gate_in_list_wires(gate: Tuple, wires: List):
         if wire in wires:
             return True
     return False
+
 
 def split_into_layers(qc: qiskit.QuantumCircuit):
     """Split a quantum circuit into layers
@@ -689,9 +694,9 @@ def split_into_layers(qc: qiskit.QuantumCircuit):
         if is_gate_in_list_wires(gate, wires) or (is_param_layer == False and len(param) != 0) or (is_param_layer == True and len(param) == 0):
             if is_param_layer == False:
                 # First field is 'Is parameterized layer or not?'
-                layers.append((False,layer))
+                layers.append((False, layer))
             else:
-                layers.append((True,layer))
+                layers.append((True, layer))
             layer = []
             wires = []
         # Update sub-layer status
@@ -705,10 +710,11 @@ def split_into_layers(qc: qiskit.QuantumCircuit):
     # Last sub-layer
     if is_param_layer == False:
         # First field is 'Is parameterized layer or not?'
-        layers.append((False,layer))
+        layers.append((False, layer))
     else:
-        layers.append((True,layer))
+        layers.append((True, layer))
     return layers
+
 
 def add_layer_into_circuit(qc: qiskit.QuantumCircuit, layer: List):
     """Based on information in layer, adding new gates into current circuit
@@ -737,6 +743,7 @@ def add_layer_into_circuit(qc: qiskit.QuantumCircuit, layer: List):
             qc.cz(wire[0], wire[1])
     return qc
 
+
 def qng(qc: qiskit.QuantumCircuit, thetas, create_circuit_func: FunctionType, num_layers: int):
     n = qc.num_qubits
     # List of g matrices
@@ -749,7 +756,8 @@ def qng(qc: qiskit.QuantumCircuit, thetas, create_circuit_func: FunctionType, nu
     if num_layers == 1:
         for is_param_layer, layer in layers:
             if is_param_layer:
-                observers = qtm.fubini_study.create_observers(add_layer_into_circuit(qc.copy(), layer), len(layer))
+                observers = qtm.fubini_study.create_observers(
+                    add_layer_into_circuit(qc.copy(), layer), len(layer))
                 gs.append(qtm.fubini_study.calculate_g(qc, observers))
             # Add next sub-layer into the current circuit
             qc = add_layer_into_circuit(qc, layer)
@@ -757,7 +765,8 @@ def qng(qc: qiskit.QuantumCircuit, thetas, create_circuit_func: FunctionType, nu
         for i in range(0, num_layers):
             for is_param_layer, layer in layers[i * int(len(layers) / 2): (i + 1) * int(len(layers) / 2)]:
                 if is_param_layer:
-                    observers = qtm.fubini_study.create_observers(add_layer_into_circuit(qc.copy(), layer), len(layer))
+                    observers = qtm.fubini_study.create_observers(
+                        add_layer_into_circuit(qc.copy(), layer), len(layer))
                     gs.append(qtm.fubini_study.calculate_g(qc, observers))
                 # Add next sub-layer into the current circuit
                 qc = add_layer_into_circuit(qc, layer)

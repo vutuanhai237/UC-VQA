@@ -2,6 +2,7 @@ import tqdm
 
 # Copy from stackoverflow
 
+
 class ProgressBar(object):
     def __init__(self, max_value, disable=True):
         self.max_value = max_value

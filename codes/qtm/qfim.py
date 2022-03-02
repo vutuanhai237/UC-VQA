@@ -4,7 +4,7 @@ import numpy as np
 def create_QFIM(psi: np.ndarray, grad_psi: np.ndarray):
     """Create Quantum Fisher Information matrix base on 
     \n https://quantum-journal.org/views/qv-2021-10-06-61/
-    
+
     Args:
         - psi (np.ndarray): Current state vector, is a N x 1 matrix
         - grad_psi (np.ndarray): All partial derivatives of $\psi$, is a N x N matrix

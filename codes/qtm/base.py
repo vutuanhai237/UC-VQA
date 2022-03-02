@@ -24,20 +24,21 @@ def extract_state(qc: qiskit.QuantumCircuit):
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     return psi, rho_psi
 
-# def get_noise_model(prob: float):
-#     prob_1 = prob  # 1-qubit gate
-#     prob_2 = prob  # 2-qubit gate
 
-#     # Depolarizing quantum errors
-#     error_1 = qiskit.providers.aer.noise.depolarizing_error(prob_1, 1)
-#     error_2 = qiskit.providers.aer.noise.depolarizing_error(prob_2, 2)
+def generate_depolarizing_noise_model(prob: float):
+    prob_1 = prob  # 1-qubit gate
+    prob_2 = prob  # 2-qubit gate
 
-#     # Add errors to noise model
-#     noise_model = qiskit.providers.aer.noise.NoiseModel()
-#     noise_model.add_all_qubit_quantum_error(error_1, ['u1', 'u2', 'u3'])
-#     noise_model.add_all_qubit_quantum_error(
-#         error_2, ['cx', 'cz', 'crx', 'cry', 'crz'])
-#     return noise_model
+    # Depolarizing quantum errors
+    error_1 = qiskit.providers.aer.noise.depolarizing_error(prob_1, 1)
+    error_2 = qiskit.providers.aer.noise.depolarizing_error(prob_2, 2)
+
+    # Add errors to noise model
+    noise_model = qiskit.providers.aer.noise.NoiseModel()
+    noise_model.add_all_qubit_quantum_error(error_1, ['u1', 'u2', 'u3'])
+    noise_model.add_all_qubit_quantum_error(
+        error_2, ['cx', 'cz', 'crx', 'cry', 'crz'])
+    return noise_model
 
 
 def generate_noise_model(num_qubit, error_prob):
@@ -62,7 +63,7 @@ def generate_measurement_filter(num_qubits, noise_model):
     return meas_filter
 
 
-def measure(qc: qiskit.QuantumCircuit, qubits, cbits = []):
+def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[]):
     """Measuring the quantu circuit which fully measurement gates
 
     Args:
@@ -85,10 +86,9 @@ def measure(qc: qiskit.QuantumCircuit, qubits, cbits = []):
         # Raw counts
         counts = results.get_counts()
         # Mitigating noise based on https://qiskit.org/textbook/ch-quantum-hardware/measurement-error-mitigation.html
-        # meas_filter = generate_measurement_filter(n, noise_model=noise_model)
-        # # print(meas_filter)
-        # # Mitigated counts
-        # counts = meas_filter.apply(counts.copy())
+        meas_filter = generate_measurement_filter(n, noise_model=noise_model)
+        # Mitigated counts
+        counts = meas_filter.apply(counts.copy())
     else:
         counts = qiskit.execute(
             qc, backend=qtm.constant.backend,

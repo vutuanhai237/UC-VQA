@@ -57,7 +57,7 @@ class Encoding:
                     if input_vector[k] < 0:
                         beta.append(
                             2 * np.pi - 2 *
-                            np.arcsin(input_vector[k + 1] / norm))  ## testing
+                            np.arcsin(input_vector[k + 1] / norm))  # testing
                     else:
                         beta.append(2 * np.arcsin(input_vector[k + 1] / norm))
             Encoding._recursive_compute_beta(new_x, betas)
@@ -81,7 +81,6 @@ class Encoding:
         betas = []
         Encoding._recursive_compute_beta(newx, betas)
         self._generate_circuit(betas, self.qcircuit, self.quantum_data)
-
 
     def _generate_circuit(self, betas, qcircuit, quantum_input):
         numberof_controls = 0  # number of controls
