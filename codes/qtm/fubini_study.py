@@ -95,6 +95,7 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: Dict[str, int]):
     # Each K[j] must have 2^n x 2^n dimensional with n is the number of qubits
     Ks = []
     # Observer shorts from high to low
+    print(observers)
     for observer_name, observer_wire in observers:
         observer = qtm.constant.generator[observer_name]
         if observer_wire == 0:
@@ -107,7 +108,8 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: Dict[str, int]):
             else:
                 K = np.kron(K, qtm.constant.generator['i'])
         Ks.append(K)
-
+        
+        print(K)
     for i in range(0, num_observers):
         for j in range(0, num_observers):
             g[i, j] = psi_hat @ (Ks[i] @ Ks[j]) @ psi - (
