@@ -95,21 +95,24 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: Dict[str, int]):
     # Each K[j] must have 2^n x 2^n dimensional with n is the number of qubits
     Ks = []
     # Observer shorts from high to low
-    print(observers)
     for observer_name, observer_wire in observers:
         observer = qtm.constant.generator[observer_name]
         if observer_wire == 0:
             K = observer
         else:
-            K = qtm.constant.generator['i']
+            if observer_name in ['crx', 'cry', 'crz']:
+                K = qtm.constant.generator['11']
+            else:
+                K = qtm.constant.generator['i']
         for i in range(1, num_qubits):
             if i == observer_wire:
                 K = np.kron(K, observer)
             else:
-                K = np.kron(K, qtm.constant.generator['i'])
+                if observer_name in ['crx', 'cry', 'crz']:
+                    K = np.kron(K, qtm.constant.generator['11'])
+                else:
+                    K = np.kron(K, qtm.constant.generator['i'])
         Ks.append(K)
-        
-        print(K)
     for i in range(0, num_observers):
         for j in range(0, num_observers):
             g[i, j] = psi_hat @ (Ks[i] @ Ks[j]) @ psi - (
@@ -159,10 +162,10 @@ def calculate_u3z_state(qc: qiskit.QuantumCircuit, thetas):
     return G
 
 
-def calculate_koczor_state(qc: qiskit.QuantumCircuit,
+def calculate_linear_state(qc: qiskit.QuantumCircuit,
                            thetas,
                            num_layers: int = 1):
-    """Create koczor ansatz and compuate g each sub-layer
+    """Create linear ansatz and compuate g each sub-layer
 
     Args:
         qc (qiskit.QuantumCircuit): Init circuit (blank)

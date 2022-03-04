@@ -139,7 +139,7 @@ def create_polygongraph_state(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num
 
 
 def create_GHZchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, theta: float):
-    """Create circuit includes koczor and GHZ
+    """Create circuit includes linear and GHZ
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -161,7 +161,7 @@ def create_GHZchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, theta
 
 
 def create_GHZchecker_polygongraph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, theta: float):
-    """Create circuit includes koczor and GHZ
+    """Create circuit includes linear and GHZ
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -185,7 +185,7 @@ def create_GHZchecker_polygongraph(qc: qiskit.QuantumCircuit, thetas: np.ndarray
 
 
 def create_GHZchecker_star2graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int, theta: float):
-    """Create circuit includes koczor and GHZ
+    """Create circuit includes linear and GHZ
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -208,9 +208,9 @@ def create_GHZchecker_star2graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, 
     return qc
 
 
-def create_GHZchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
+def create_GHZchecker_linear(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
                              num_layers: int, theta: float):
-    """Create circuit includes koczor and GHZ
+    """Create circuit includes linear and GHZ
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -226,7 +226,7 @@ def create_GHZchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
     if isinstance(theta, float) != True:
         theta = theta['theta']
     # |psi_gen> = U_gen|000...>
-    qc = create_koczor_state(qc, thetas, num_layers=num_layers)
+    qc = create_linear_state(qc, thetas, num_layers=num_layers)
     # U_target^t|psi_gen> with U_target is GHZ state
     qc = create_ghz_state_inverse(qc, theta)
     return qc
@@ -377,7 +377,7 @@ def create_w_state_3qubit_inverse(qc: qiskit.QuantumCircuit,
 
 def create_Wchecker_polygongraph(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
                                  num_layers: int):
-    """Create circuit includes koczor and W
+    """Create circuit includes linear and W
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -400,7 +400,7 @@ def create_Wchecker_polygongraph(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
 
 def create_Wchecker_star2graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
                                num_layers: int):
-    """Create circuit includes koczor and W
+    """Create circuit includes linear and W
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -422,7 +422,7 @@ def create_Wchecker_star2graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
 
 
 def create_Wchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray):
-    """Create circuit includes koczor and GHZ
+    """Create circuit includes linear and GHZ
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -441,9 +441,9 @@ def create_Wchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray):
     return qc
 
 
-def create_Wchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
+def create_Wchecker_linear(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
                            num_layers: int):
-    """Create circuit includes koczor and W
+    """Create circuit includes linear and W
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -458,7 +458,7 @@ def create_Wchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
         num_layers = num_layers['num_layers']
 
     # |psi_gen> = U_gen|000...>
-    qc = create_koczor_state(qc, thetas, num_layers=num_layers)
+    qc = create_linear_state(qc, thetas, num_layers=num_layers)
     # U_target^t|psi_gen> with U_target is W state
     qc = create_w_state_inverse(qc)
     return qc
@@ -651,10 +651,10 @@ def create_cry_nqubit_inverse(qc: qiskit.QuantumCircuit, thetas):
     return qc
 
 
-def create_koczor_state(qc: qiskit.QuantumCircuit,
+def create_linear_state(qc: qiskit.QuantumCircuit,
                         thetas,
                         num_layers: int = 1):
-    """Create koczor ansatz. The number of param is num_layers * n * 5
+    """Create linear ansatz. The number of param is num_layers * n * 5
 
     Args:
         qc (qiskit.QuantumCircuit): Init circuit
@@ -680,14 +680,14 @@ def create_koczor_state(qc: qiskit.QuantumCircuit,
     return qc
 
 
-def create_haarchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
+def create_haarchecker_linear(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
                               num_layers: int, encoder):
-    """Create circuit includes haar and koczor
+    """Create circuit includes haar and linear
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
         - thetas (np.ndarray): params
-        - num_layers (int): num_layers for koczor
+        - num_layers (int): num_layers for linear
         - encoder: encoder for haar
 
     Returns:
@@ -698,19 +698,19 @@ def create_haarchecker_koczor(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
     if isinstance(encoder, qtm.encoding.Encoding) != True:
         encoder = encoder['encoder']
     qc1 = qiskit.QuantumCircuit(encoder.quantum_data)
-    qc1 = create_koczor_state(qc1, thetas, num_layers=num_layers)
+    qc1 = create_linear_state(qc1, thetas, num_layers=num_layers)
     qc1 = qc1.combine(qc.inverse())
     qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
     return qc1
 
 
 def create_haarchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, encoder):
-    """Create circuit includes haar and koczor
+    """Create circuit includes haar and linear
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
         - thetas (np.ndarray): params
-        - num_layers (int): num_layers for koczor
+        - num_layers (int): num_layers for linear
         - encoder: encoder for haar
 
     Returns:
@@ -727,12 +727,12 @@ def create_haarchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, enco
 
 def create_haarchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
                              num_layers: int, encoder):
-    """Create circuit includes haar and koczor
+    """Create circuit includes haar and linear
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
         - thetas (np.ndarray): params
-        - num_layers (int): num_layers for koczor
+        - num_layers (int): num_layers for linear
         - encoder: encoder for haar
 
     Returns:
@@ -752,12 +752,12 @@ def create_haarchecker_binho(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
 def create_haarchecker_alternating_layered(qc: qiskit.QuantumCircuit,
                                            thetas: np.ndarray, num_layers: int,
                                            encoder):
-    """Create circuit includes Alternating layered and koczor
+    """Create circuit includes Alternating layered and linear
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
         - thetas (np.ndarray): params
-        - num_layers (int): num_layers for koczor
+        - num_layers (int): num_layers for linear
         - encoder: encoder for haar
 
     Returns:
@@ -798,7 +798,7 @@ def create_wy(qc: qiskit.QuantumCircuit, thetas):
 
 
 def create_binho_state(qc: qiskit.QuantumCircuit, thetas, num_layers: int = 1):
-    """Create koczor ansatz 
+    """Create linear ansatz 
 
     Args:
         qc (qiskit.QuantumCircuit): Init circuit

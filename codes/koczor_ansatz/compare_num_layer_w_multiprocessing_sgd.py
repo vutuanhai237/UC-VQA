@@ -14,14 +14,14 @@ def run_w(num_layers, num_qubits):
     for i in range(0, 400):
         if i % 20 == 0:
             print('W (' + str(num_layers) + ' layer): ', i)
-        # G = qtm.fubini_study.calculate_koczor_state(qc.copy(), thetas, num_layers)
+        # G = qtm.fubini_study.calculate_linear_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base.grad_loss(
             qc, 
-            qtm.nqubit.create_Wchecker_koczor, 
+            qtm.nqubit.create_Wchecker_linear, 
             thetas, r = 1/2, s = np.pi/2, num_layers = num_layers)
         # grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         thetas -= qtm.constant.learning_rate*grad_loss    
-        qc_copy = qtm.nqubit.create_Wchecker_koczor(qc.copy(), thetas, num_layers)
+        qc_copy = qtm.nqubit.create_Wchecker_linear(qc.copy(), thetas, num_layers)
         loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_w.append(loss)
         thetass_w.append(thetas.copy())
@@ -30,7 +30,7 @@ def run_w(num_layers, num_qubits):
     for thetas in thetass_w:
         # Get |psi> = U_gen|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.nqubit.create_koczor_state(qc, thetas, num_layers = num_layers)
+        qc = qtm.nqubit.create_linear_state(qc, thetas, num_layers = num_layers)
         psi , rho_psi = qtm.base.extract_state(qc)
         # Get |psi~> = U_target|000...>
         qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
@@ -41,10 +41,10 @@ psi_hat , rho_psi_hat = qtm.base.extract_state(qc1)
         traces_w.append(trace)
         fidelities_w.append(fidelity)
     print('Writting ...')
-    np.savetxt("../../experiments/koczor_ansatz_15layer_sgd/" + str(num_layers) + "/loss_values_w.csv", loss_values_w, delimiter=",")
-    np.savetxt("../../experiments/koczor_ansatz_15layer_sgd/" + str(num_layers) + "/thetass_w.csv", thetass_w, delimiter=",")
-    np.savetxt("../../experiments/koczor_ansatz_15layer_sgd/" + str(num_layers) + "/traces_w.csv", traces_w, delimiter=",")
-    np.savetxt("../../experiments/koczor_ansatz_15layer_sgd/" + str(num_layers) + "/fidelities_w.csv", fidelities_w, delimiter=",")
+    np.savetxt("../../experiments/linear_ansatz_15layer_sgd/" + str(num_layers) + "/loss_values_w.csv", loss_values_w, delimiter=",")
+    np.savetxt("../../experiments/linear_ansatz_15layer_sgd/" + str(num_layers) + "/thetass_w.csv", thetass_w, delimiter=",")
+    np.savetxt("../../experiments/linear_ansatz_15layer_sgd/" + str(num_layers) + "/traces_w.csv", traces_w, delimiter=",")
+    np.savetxt("../../experiments/linear_ansatz_15layer_sgd/" + str(num_layers) + "/fidelities_w.csv", fidelities_w, delimiter=",")
 
 
 

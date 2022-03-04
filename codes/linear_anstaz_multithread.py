@@ -21,14 +21,14 @@ def run_walltoall(num_layers, num_qubits):
                   ',' + str(num_qubits) + '): ' + str(i))
 
         G = qtm.fubini_study.qng(
-            qc.copy(), thetas, qtm.nqubit.create_GHZchecker_koczor, num_layers)
+            qc.copy(), thetas, qtm.nqubit.create_GHZchecker_linear, num_layers)
         grad_loss = qtm.base.grad_loss(
             qc,
-            qtm.nqubit.create_GHZchecker_koczor,
+            qtm.nqubit.create_GHZchecker_linear,
             thetas, r=1/2, s=np.pi/2, num_layers=num_layers, theta=theta)
         thetas = np.real(thetas - qtm.constant.learning_rate *
                          (np.linalg.inv(G) @ grad_loss))
-        qc_copy = qtm.nqubit.create_GHZchecker_koczor(
+        qc_copy = qtm.nqubit.create_GHZchecker_linear(
             qc.copy(), thetas, num_layers, theta)
         loss = qtm.base.loss_fubini_study(qtm.base.measure(
             qc_copy, list(range(qc_copy.num_qubits))))
@@ -44,7 +44,7 @@ def run_walltoall(num_layers, num_qubits):
     for thetas in thetass:
         # Get |psi> = U_gen|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.nqubit.create_koczor_state(qc, thetas, num_layers)
+        qc = qtm.nqubit.create_linear_state(qc, thetas, num_layers)
         psi , rho_psi = qtm.base.extract_state(qc)
         # Get |psi~> = U_target|000...>
         qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)

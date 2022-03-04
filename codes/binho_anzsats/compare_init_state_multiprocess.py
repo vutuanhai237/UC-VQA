@@ -27,7 +27,7 @@ def run_ghz(num_qubits, iter):
     for i in range(0, iter):
         if i % 20 == 0:
             print('GHZ (' + str(num_qubits) + '): ', i)
-        # fubini_study for binho_state is same for koczor state
+        # fubini_study for binho_state is same for linear state
         G = qtm.fubini_study.calculate_binho_state(
             qc.copy(), thetas, num_layers)
         grad_loss = qtm.base.grad_loss(

@@ -4,7 +4,7 @@
 
 - [x] Stage 2: Reconstructed GHZ state.
 
-- [x] Stage 3: Reconstructed Koczor state.
+- [x] Stage 3: Reconstructed linear state.
 
 - [x] Stage 4: Create a checker to make sure that the initial state is generated randomly. Create W state, make W checker and Haar checker.
 
