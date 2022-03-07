@@ -16,7 +16,7 @@ generator = {
     'crz': -1 / 2 * np.array([[1, 0], [0, -1]], dtype=np.complex128),
     'i': np.array([[1, 0], [0, 1]], dtype=np.complex128),
     'id': np.array([[1, 0], [0, 1]], dtype=np.complex128),
-    '11': np.array([[0, 0], [0, 0]], dtype=np.complex128)
+    '11': np.array([[0, 0], [0, 1]], dtype=np.complex128)
 }
 
 ignore_generator = [

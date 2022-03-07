@@ -34,9 +34,7 @@ def find_observers(qc: qiskit.QuantumCircuit):
         # Single qubit param gates
         else:
             wire = qc.num_qubits - 1 - gate[1][0].index
-        print(wire)
         if is_duplicate_wire(v, wire):
-            print('....')
             vs.append(v)
             v = []
         v.append([gate_name, gate_param[0], wire])
@@ -63,9 +61,9 @@ def create_observers(qc: qiskit.QuantumCircuit, k: int = 0):
         # 2-qubit param gates
         if gate[0].name in ['crx', 'cry', 'crz', 'cx']:
             # Take controlled wire as index
-            # wire = qc.num_qubits - 1 - gate[1][1].index
+            wire = qc.num_qubits - 1 - gate[1][1].index
             # Take control wire as index
-            wire = qc.num_qubits - 1 - gate[1][0].index
+            # wire = qc.num_qubits - 1 - gate[1][0].index
         # Single qubit param gates
         else:
             wire = qc.num_qubits - 1 - gate[1][0].index
@@ -758,6 +756,7 @@ def qng(qc: qiskit.QuantumCircuit, thetas, create_circuit_func: FunctionType, nu
     qc_new = create_circuit_func(qc_new, thetas, num_layers)
     # Splitting circuit into list of V and W sub-layer (non-parameter and parameter)
     layers = split_into_layers(qc_new)
+    
     if num_layers == 1:
         for is_param_layer, layer in layers:
             if is_param_layer:
