@@ -77,7 +77,7 @@ if __name__ == "__main__":
     # creating thread
 
     num_layers = [1, 2, 3, 4, 5]
-    num_qubits = [3]
+    num_qubits = [3, 4, 5]
     t_wchains = []
 
     for i in num_layers:
