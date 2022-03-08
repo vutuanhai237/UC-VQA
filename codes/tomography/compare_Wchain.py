@@ -16,8 +16,8 @@ def run_wchain(num_layers, num_qubits):
     thetas = np.ones(num_layers*num_qubits*4)
     psi = 2*np.random.rand(2**num_qubits)-1
     psi = psi / np.linalg.norm(psi)
-    encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
-
+    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
+    qc.initialize(psi, range(0, num_qubits))
 
     loss_values = []
     thetass = []
@@ -25,24 +25,22 @@ def run_wchain(num_layers, num_qubits):
     for i in range(0, 400):
         if i % 20 == 0:
             print('W_chain: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
-        qc = encoder.qcircuit
+
         grad_loss = qtm.base.grad_loss(
             qc, 
-            qtm.nqubit.create_Wchainchecker_haar,
+            qtm.nqubit.create_Wchain_layerd_state,
             thetas, r = 1/2, s = np.pi/2, num_layers = num_layers)
         thetas -= qtm.constant.learning_rate*(grad_loss) 
         thetass.append(thetas.copy())
-        qc_copy = qtm.nqubit.create_Wchainchecker_haar(qc.copy(), thetas, num_layers)  
-        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        qc_copy = qtm.nqubit.create_Wchain_layerd_state(qc.copy(), thetas, num_layers)  
+        loss = qtm.base.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
     traces = []
     fidelities = []
 
     for thetas in thetass:
-        # Get |psi> = U_gen|000...>
-        qc1 = encoder.qcircuit
-        psi = qiskit.quantum_info.Statevector.from_instruction(qc1)
+
         # Get |psi~> = U_target|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
         qc = qtm.nqubit.create_Wchain_layerd_state(qc, thetas, num_layers = num_layers).inverse()
@@ -53,16 +51,16 @@ def run_wchain(num_layers, num_qubits):
         fidelities.append(fidelity)
     print('Writting ... ' + str(num_layers) + ' layers,' + str(num_qubits) + ' qubits')
 
-    np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
-    np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
-    np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/traces.csv", traces, delimiter=",")
-    np.savetxt("../../experiments/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/fidelities.csv", fidelities, delimiter=",")
+    np.savetxt("../../experiments/tomography/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/loss_values.csv", loss_values, delimiter=",")
+    np.savetxt("../../experiments/tomography/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/thetass.csv", thetass, delimiter=",")
+    np.savetxt("../../experiments/tomography/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/traces.csv", traces, delimiter=",")
+    np.savetxt("../../experiments/tomography/tomography_wchain_" + str(num_layers) + "/" + str(num_qubits) + "/fidelities.csv", fidelities, delimiter=",")
 
 if __name__ == "__main__":
     # creating thread
     
     num_layers = [1, 2, 3, 4, 5]
-    num_qubits = [3,4,5]
+    num_qubits = [3, 4, 5]
     t_wchains = []
 
     for i in num_layers:
