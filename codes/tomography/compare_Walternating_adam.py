@@ -36,7 +36,7 @@ def run_walternating(num_layers, num_qubits):
         thetas = qtm.base.adam(thetas, m, v, i, grad_loss) 
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_Walternating_layerd_state(qc.copy(), thetas, num_layers)  
-        loss = qtm.base.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        loss = qtm.base.loss_basic(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
     traces = []
