@@ -23,7 +23,7 @@ def run_wchain(num_layers, num_qubits):
     qc.initialize(psi, range(0, num_qubits))
     loss_values = []
     thetass = []
-    for i in range(0, 200):
+    for i in range(0, 400):
         if i % 20 == 0:
             print('W_chain: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
         G = qtm.fubini_study.qng(qc.copy(), thetas, qtm.nqubit.create_Wchain_layerd_state, num_layers)

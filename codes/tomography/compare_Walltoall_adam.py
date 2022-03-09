@@ -12,41 +12,37 @@ importlib.reload(qtm.nqubit)
 importlib.reload(qtm.fubini_study)
 
 def run_walltoall(num_layers, num_qubits):
-    n_walltoall = qtm.nqubit.calculate_n_walltoall(num_qubits)
-    thetas = np.ones(num_layers* 3 * num_qubits + num_layers*n_walltoall)
-    for i in range(0, len(thetas)):
-        thetas[i] += i
+
+    thetas = np.ones(num_layers*num_qubits*4)
     psi = 2*np.random.rand(2**num_qubits)-1
     psi = psi / np.linalg.norm(psi)
-    encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
-
+    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
+    qc.initialize(psi, range(0, num_qubits))
 
     loss_values = []
     thetass = []
+
     for i in range(0, 400):
         if i % 20 == 0:
-            print('W_alltoall: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
-        qc = encoder.qcircuit
+            print('W_chain: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
+    
         grad_loss = qtm.base.grad_loss(
             qc, 
-            qtm.nqubit.create_Walltoallchecker_haar,
+            qtm.nqubit.create_Walltoall_layerd_state,
             thetas, r = 1/2, s = np.pi/2, num_layers = num_layers)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(
                 np.zeros(thetas.shape[0]))
-        thetas = qtm.base.adam(thetas, m, v, i, grad_loss)
+        thetas = qtm.base.adam(thetas, m, v, i, grad_loss) 
         thetass.append(thetas.copy())
-        qc_copy = qtm.nqubit.create_Walltoallchecker_haar(qc.copy(), thetas, num_layers)  
-        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        qc_copy = qtm.nqubit.create_Walltoall_layerd_state(qc.copy(), thetas, num_layers)  
+        loss = qtm.base.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
     traces = []
     fidelities = []
 
     for thetas in thetass:
-        # Get |psi> = U_gen|000...>
-        qc1 = encoder.qcircuit
-        psi = qiskit.quantum_info.Statevector.from_instruction(qc1)
         # Get |psi~> = U_target|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
         qc = qtm.nqubit.create_Walltoall_layerd_state(qc, thetas, num_layers = num_layers).inverse()
@@ -55,13 +51,12 @@ def run_walltoall(num_layers, num_qubits):
         trace, fidelity = qtm.base.get_metrics(psi, psi_hat)
         traces.append(trace)
         fidelities.append(fidelity)
-
     print('Writting ... ' + str(num_layers) + ' layers,' + str(num_qubits) + ' qubits')
 
-    np.savetxt("../../experiments/tomography_walltoall_" + str(num_layers) + "/" + str(num_qubits) + "/loss_values_adam.csv", loss_values, delimiter=",")
-    np.savetxt("../../experiments/tomography_walltoall_" + str(num_layers) + "/" + str(num_qubits) + "/thetass_adam.csv", thetass, delimiter=",")
-    np.savetxt("../../experiments/tomography_walltoall_" + str(num_layers) + "/" + str(num_qubits) + "/traces_adam.csv", traces, delimiter=",")
-    np.savetxt("../../experiments/tomography_walltoall_" + str(num_layers) + "/" + str(num_qubits) + "/fidelities_adam.csv", fidelities, delimiter=",")
+    np.savetxt("../../experiments/tomography/tomography_walltoall_" + str(num_layers) + "/" + str(num_qubits) + "/loss_values_adam.csv", loss_values, delimiter=",")
+    np.savetxt("../../experiments/tomography/tomography_walltoall_" + str(num_layers) + "/" + str(num_qubits) + "/thetass_adam.csv", thetass, delimiter=",")
+    np.savetxt("../../experiments/tomography/tomography_walltoall_" + str(num_layers) + "/" + str(num_qubits) + "/traces_adam.csv", traces, delimiter=",")
+    np.savetxt("../../experiments/tomography/tomography_walltoall_" + str(num_layers) + "/" + str(num_qubits) + "/fidelities_adam.csv", fidelities, delimiter=",")
 
 if __name__ == "__main__":
     # creating thread
