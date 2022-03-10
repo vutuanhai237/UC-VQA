@@ -41,11 +41,18 @@ def run_walltoall(num_layers, num_qubits):
         loss_values.append(loss)
     traces = []
     fidelities = []
-
+    np.savetxt("../../experiments/tomography/tomography_walltoall_" + str(num_layers) +
+               "/" + str(num_qubits) + "/loss_values_qng.csv",
+               loss_values,
+               delimiter=",")
+    np.savetxt("../../experiments/tomography/tomography_walltoall_" + str(num_layers) +
+               "/" + str(num_qubits) + "/thetass_qng.csv",
+               thetass,
+               delimiter=",")
     for thetas in thetass:
         # Get |psi~> = U_target|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.nqubit.create_walltoall_layerd_state(
+        qc = qtm.nqubit.create_Walltoall_layerd_state(
             qc, thetas, num_layers=num_layers).inverse()
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc)
         # Calculate the metrics
@@ -56,14 +63,7 @@ def run_walltoall(num_layers, num_qubits):
     print('Writting ... ' + str(num_layers) + ' layers,' + str(num_qubits) +
           ' qubits')
 
-    np.savetxt("../../experiments/tomography/tomography_walltoall_" + str(num_layers) +
-               "/" + str(num_qubits) + "/loss_values_qng.csv",
-               loss_values,
-               delimiter=",")
-    np.savetxt("../../experiments/tomography/tomography_walltoall_" + str(num_layers) +
-               "/" + str(num_qubits) + "/thetass_qng.csv",
-               thetass,
-               delimiter=",")
+    
     np.savetxt("../../experiments/tomography/tomography_walltoall_" + str(num_layers) +
                "/" + str(num_qubits) + "/traces_qng.csv",
                traces,
