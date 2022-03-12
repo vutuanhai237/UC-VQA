@@ -916,6 +916,13 @@ def create_Wchain(qc: qiskit.QuantumCircuit, thetas):
     return qc
 
 
+def create_WchainCNOT(qc: qiskit.QuantumCircuit):
+    for i in range(0, qc.num_qubits - 1):
+        qc.cnot(i, i + 1)
+    qc.cnot(qc.num_qubits - 1, 0)
+    return qc
+
+
 def create_Walternating(qc: qiskit.QuantumCircuit, thetas, index_layer):
     # Even, chẵn
     t = 0
@@ -931,24 +938,21 @@ def create_Walternating(qc: qiskit.QuantumCircuit, thetas, index_layer):
             t += 1
     return qc
 
-# Misunderstand version
-# def create_Walltoall(qc: qiskit.QuantumCircuit, thetas):
-#     t = 0
-#     n_sublayers = qc.num_qubits - 2
-#     for i in range(0, n_sublayers):
-#         shift = 1
-#         qc.barrier()
-#         for j in range(i, qc.num_qubits - 1 + i):
-#             if j + 1 < qc.num_qubits:
-#                 qc.cry(thetas[t], i, j + 1)
-#                 t += 1
-#             else:
-#                 if i + shift < qc.num_qubits - 1:
-#                     qc.cry(thetas[t], i + shift, qc.num_qubits - 1)
-#                     t += 1
-#                     shift += 1
 
-#     return qc
+def create_WalternatingCNOT(qc: qiskit.QuantumCircuit, index_layer):
+    # Even, chẵn
+    t = 0
+    if index_layer % 2 == 0:
+        for i in range(1, qc.num_qubits - 1, 2):
+            qc.cnot(i, i + 1)
+            t += 1
+        qc.cnot(0, qc.num_qubits - 1)
+    else:
+        # Odd, lẻ
+        for i in range(0, qc.num_qubits - 1, 2):
+            qc.cnot(i, i + 1)
+            t += 1
+    return qc
 
 
 def create_Walltoall(qc: qiskit.QuantumCircuit, thetas, limit=0):
@@ -958,6 +962,19 @@ def create_Walltoall(qc: qiskit.QuantumCircuit, thetas, limit=0):
     for i in range(0, qc.num_qubits):
         for j in range(i + 1, qc.num_qubits):
             qc.cry(thetas[t], i, j)
+            t += 1
+            if t == limit:
+                return qc
+    return qc
+
+
+def create_WalltoallCNOT(qc: qiskit.QuantumCircuit, limit=0):
+    # if limit == 0:
+    #     limit = len(thetas)
+    t = 0
+    for i in range(0, qc.num_qubits):
+        for j in range(i + 1, qc.num_qubits):
+            qc.cnot(i, j)
             t += 1
             if t == limit:
                 return qc
@@ -994,9 +1011,9 @@ def create_Wchain_layerd_state(qc: qiskit.QuantumCircuit,
     return qc
 
 
-def create_Wchain2_layerd_state(qc: qiskit.QuantumCircuit,
-                                thetas,
-                                num_layers: int = 1):
+def create_WchainCNOT_layerd_state(qc: qiskit.QuantumCircuit,
+                                   thetas,
+                                   num_layers: int = 1):
     """Create Alternating layerd ansatz
 
     Args:
@@ -1011,58 +1028,16 @@ def create_Wchain2_layerd_state(qc: qiskit.QuantumCircuit,
     if isinstance(num_layers, int) != True:
         num_layers = (num_layers['num_layers'])
 
-    if len(thetas) != num_layers * (n * 4):
+    if len(thetas) != num_layers * (n * 3):
         raise Exception(
-            'Number of parameters must be equal n_layers * num_qubits * 4')
+            'Number of parameters must be equal n_layers * num_qubits * 3')
     for i in range(0, num_layers):
-        phis = thetas[i * (n * 4):(i + 1) * (n * 4)]
-        qc = create_rz_nqubit(qc, phis[:n])
-        qc = create_Wchain(qc, phis[n:n * 2])
+        phis = thetas[i * (n * 3):(i + 1) * (n * 3)]
+        qc = create_WchainCNOT(qc)
         qc.barrier()
-        qc = create_rx_nqubit(qc, phis[n * 2:n * 3])
-        qc = create_rz_nqubit(qc, phis[n * 3:])
-    return qc
-
-
-def create_Wchainchecker_haar(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
-                              num_layers: int):
-    """Create circuit includes W chain and Haar
-
-    Args:
-        - qc (qiskit.QuantumCircuit): init circuit
-        - thetas (np.ndarray): params
-        - num_layers (int): num_layers for Wchain
-        - encoder: encoder for haar
-
-    Returns:
-        - qiskit.QuantumCircuit
-    """
-    if isinstance(num_layers, int) != True:
-        num_layers = num_layers['num_layers']
-    qc = create_Wchain_layerd_state(qc, thetas, num_layers=num_layers)
-    # qc = qc.combine(qc1)
-    qc.add_register(qiskit.ClassicalRegister(qc.num_qubits))
-    return qc
-
-
-def create_Wchain2checker_haar(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
-                               num_layers: int):
-    """Create circuit includes W chain and Haar
-
-    Args:
-        - qc (qiskit.QuantumCircuit): init circuit
-        - thetas (np.ndarray): params
-        - num_layers (int): num_layers for Wchain
-        - encoder: encoder for haar
-
-    Returns:
-        - qiskit.QuantumCircuit
-    """
-    if isinstance(num_layers, int) != True:
-        num_layers = num_layers['num_layers']
-    qc = create_Wchain2_layerd_state(qc, thetas, num_layers=num_layers)
-    # qc = qc.combine(qc1)
-    qc.add_register(qiskit.ClassicalRegister(qc.num_qubits))
+        qc = create_rz_nqubit(qc, phis[:n ])
+        qc = create_rx_nqubit(qc, phis[n:n * 2])
+        qc = create_rz_nqubit(qc, phis[n * 2:n * 3])
     return qc
 
 
@@ -1109,24 +1084,30 @@ def create_Walternating_layerd_state(qc: qiskit.QuantumCircuit,
     return qc
 
 
-def create_Walternatingchecker_haar(qc: qiskit.QuantumCircuit,
-                                    thetas: np.ndarray, num_layers: int):
-    """Create circuit includes W chain and Haar
+def create_WalternatingCNOT_layerd_state(qc: qiskit.QuantumCircuit,
+                                         thetas,
+                                         num_layers: int = 1):
+    """Create Alternating layerd ansatz
 
     Args:
-        - qc (qiskit.QuantumCircuit): init circuit
-        - thetas (np.ndarray): params
-        - num_layers (int): num_layers for Wchain
-        - encoder: encoder for haar
+        qc (qiskit.QuantumCircuit): Init circuit
+        thetas (Numpy array): Parameters
+        n_layers (Int): numpy of layers
 
     Returns:
-        - qiskit.QuantumCircuit
+        qiskit.QuantumCircuit
     """
+    n = qc.num_qubits
+
     if isinstance(num_layers, int) != True:
-        num_layers = num_layers['num_layers']
-    qc = create_Walternating_layerd_state(qc, thetas, num_layers=num_layers)
-    # qc = qc.combine(qc1)
-    qc.add_register(qiskit.ClassicalRegister(qc.num_qubits))
+        num_layers = (num_layers['num_layers'])
+    for i in range(0, num_layers):
+        phis = thetas[i * (n * 3):(i + 1) * (n * 3)]
+        qc = create_WalternatingCNOT(qc, i + 1)
+        qc.barrier()
+        qc = create_rz_nqubit(qc, phis[:n])
+        qc = create_rx_nqubit(qc, phis[n: n * 2])
+        qc = create_rz_nqubit(qc, phis[n * 2: n * 3])
     return qc
 
 
@@ -1175,22 +1156,28 @@ def create_Walltoall_layerd_state(qc: qiskit.QuantumCircuit,
     return qc
 
 
-def create_Walltoallchecker_haar(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
-                                 num_layers: int):
-    """Create circuit includes W all to all and Haar
+def create_WalltoallCNOT_layerd_state(qc: qiskit.QuantumCircuit,
+                                      thetas,
+                                      num_layers: int = 1,
+                                      limit=0):
+    """Create W all to all ansatz
 
     Args:
-        - qc (qiskit.QuantumCircuit): init circuit
-        - thetas (np.ndarray): params
-        - num_layers (int): num_layers for W all to all
-        - encoder: encoder for haar
+        qc (qiskit.QuantumCircuit): Init circuit
+        thetas (Numpy array): Parameters
+        num_layers (Int): numpy of layers
 
     Returns:
-        - qiskit.QuantumCircuit
+        qiskit.QuantumCircuit
     """
+    n = qc.num_qubits
     if isinstance(num_layers, int) != True:
-        num_layers = num_layers['num_layers']
-    qc = create_Walltoall_layerd_state(qc, thetas, num_layers=num_layers)
-    # qc = qc.combine(qc1)
-    qc.add_register(qiskit.ClassicalRegister(qc.num_qubits))
+        num_layers = (num_layers['num_layers'])
+    for i in range(0, num_layers):
+        phis = thetas[i * (3 * n):(i + 1) * (3 * n)]
+        qc = create_WalltoallCNOT(qc, limit=limit)
+        qc.barrier()
+        qc = create_rz_nqubit(qc, phis[: n])
+        qc = create_rx_nqubit(qc, phis[n: n * 2])
+        qc = create_rz_nqubit(qc, phis[n * 2: n * 3])
     return qc
