@@ -36,14 +36,13 @@ def run_wchain(num_layers, num_qubits):
         thetas = qtm.base.adam(thetas, m, v, i, grad_loss) 
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_Wchain_layerd_state(qc.copy(), thetas, num_layers)  
-        loss = qtm.base.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
     traces = []
     fidelities = []
 
     for thetas in thetass:
-        # Get |psi~> = U_target|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
         qc = qtm.nqubit.create_Wchain_layerd_state(qc, thetas, num_layers = num_layers).inverse()
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc)
@@ -62,7 +61,7 @@ if __name__ == "__main__":
     # creating thread
     
     num_layers = [1, 2, 3, 4, 5]
-    num_qubits = [3,4,5]
+    num_qubits = [3, 4, 5]
     t_wchains = []
 
     for i in num_layers:

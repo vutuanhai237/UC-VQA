@@ -24,7 +24,7 @@ def run_walternating(num_layers, num_qubits):
 
     for i in range(0, 400):
         if i % 20 == 0:
-            print('W_chain: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
+            print('W_alternating: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
     
         grad_loss = qtm.base.grad_loss(
             qc, 
@@ -36,7 +36,7 @@ def run_walternating(num_layers, num_qubits):
         thetas = qtm.base.adam(thetas, m, v, i, grad_loss) 
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_Walternating_layerd_state(qc.copy(), thetas, num_layers)  
-        loss = qtm.base.loss_basic(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
     traces = []
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # creating thread
     
     num_layers = [1, 2, 3, 4, 5]
-    num_qubits = [3,4,5]
+    num_qubits = [3, 4, 5]
     t_walternatings = []
 
     for i in num_layers:

@@ -24,7 +24,7 @@ def run_walltoall(num_layers, num_qubits):
 
     for i in range(0, 400):
         if i % 20 == 0:
-            print('W_chain: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
+            print('W_alltoall: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
     
         grad_loss = qtm.base.grad_loss(
             qc, 
@@ -36,7 +36,7 @@ def run_walltoall(num_layers, num_qubits):
         thetas = qtm.base.adam(thetas, m, v, i, grad_loss) 
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_Walltoall_layerd_state(qc.copy(), thetas, num_layers)  
-        loss = qtm.base.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
     traces = []
