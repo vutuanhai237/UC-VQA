@@ -8,7 +8,6 @@ import multiprocessing
 
 
 def run_wchain(num_layers, num_qubits):
-
     thetas = np.ones(num_layers*num_qubits*3)
     psi = 2*np.random.rand(2**num_qubits)-1
     psi = psi / np.linalg.norm(psi)
