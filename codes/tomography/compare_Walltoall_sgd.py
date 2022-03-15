@@ -13,7 +13,9 @@ importlib.reload(qtm.fubini_study)
 
 def run_walltoall(num_layers, num_qubits):
 
-    thetas = np.ones(num_layers*num_qubits*4)
+    n_walltoall = qtm.nqubit.calculate_n_walltoall(num_qubits)
+    thetas = np.ones(num_layers* 3 * num_qubits + num_layers*n_walltoall)
+    
     psi = 2*np.random.rand(2**num_qubits)-1
     psi = psi / np.linalg.norm(psi)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
