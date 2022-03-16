@@ -1,19 +1,15 @@
-import qtm.encoding
-import qtm.fubini_study
-import qtm.nqubit
-import qtm.constant
-import qtm.base
+
 import multiprocessing
 import importlib
 import qiskit
 import numpy as np
 import sys
 sys.path.insert(1, '../')
-importlib.reload(qtm.base)
-importlib.reload(qtm.constant)
-importlib.reload(qtm.onequbit)
-importlib.reload(qtm.nqubit)
-importlib.reload(qtm.fubini_study)
+import qtm.encoding
+import qtm.fubini_study
+import qtm.nqubit
+import qtm.constant
+import qtm.base
 
 
 def run_walltoall(num_layers, num_qubits):
