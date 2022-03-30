@@ -48,8 +48,8 @@ for thetas in thetass:
     trace, fidelity = qtm.base.get_metrics(psi, psi_hat)
     traces.append(trace)
     fidelities.append(fidelity)
-np.savetxt("../../experiments/linear_ansatz_ghz/" + str(num_qubits) +  "./traces_qng.csv", traces, delimiter=",")
-np.savetxt("../../experiments/linear_ansatz_ghz/" + str(num_qubits) + "./fidelities_qng.csv", fidelities, delimiter=",")
+np.savetxt("../../experiments/linear_ansatz_ghz/" + str(num_qubits) +  "/traces_qng.csv", traces, delimiter=",")
+np.savetxt("../../experiments/linear_ansatz_ghz/" + str(num_qubits) + "/fidelities_qng.csv", fidelities, delimiter=",")
 
 num_qubits = 3
 num_layers = 2
