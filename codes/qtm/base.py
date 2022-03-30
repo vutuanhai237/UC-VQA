@@ -236,6 +236,7 @@ def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: FunctionType,
     """
     index_list = get_cry_index(create_circuit_func, thetas,
                                num_qubits=qc.num_qubits, **kwargs)
+    print(index_list)
     grad_loss = np.zeros(len(thetas))
     alpha = np.pi / 2
     beta = 3 * np.pi / 2
