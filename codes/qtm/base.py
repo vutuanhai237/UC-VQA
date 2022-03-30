@@ -190,6 +190,30 @@ def get_u_hat(thetas, create_circuit_func: FunctionType, num_qubits: int,
     return qiskit.quantum_info.Statevector.from_instruction(qc)
 
 
+def get_cry_index(create_circuit_func: FunctionType, thetas, num_qubits, **kwargs):
+    """Return a list where i_th = 1 mean thetas[i] is parameter of CRY gate
+
+    Args:
+        func (FunctionType): The creating circuit function
+        thetas (Numpy array): Parameters
+    Returns:
+        - Numpy array: The index list has length equal with number of parameters
+    """
+    qc = qiskit.QuantumCircuit(num_qubits)
+    qc = create_circuit_func(qc, thetas, **kwargs)
+    layers = qtm.fubini_study.split_into_layers(qc)
+    index_list = []
+    for layer in layers:
+        for gate in layer[1]:
+            if gate[0] == 'cry':
+                index_list.append(1)
+            else:
+                index_list.append(0)
+            if len(index_list) == len(thetas):
+                return index_list
+    return index_list
+
+
 def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: FunctionType,
               thetas, r: float, s: float, **kwargs):
     """Return the gradient of the loss function
@@ -204,24 +228,49 @@ def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: FunctionType,
         - thetas (Numpy array): Parameters
         - r (float): r in parameter shift rule
         - s (float): s in parameter shift rule
+        - type (string): parameter shift rule mode, mode 'standard' for normal and mode 'control' for circuit which has CR_i gate
         - **kwargs: additional parameters for different create_circuit_func()
 
     Returns:
         - Numpy array: The vector of gradient
     """
+    index_list = get_cry_index(create_circuit_func, thetas,
+                               num_qubits=qc.num_qubits, **kwargs)
     grad_loss = np.zeros(len(thetas))
+    alpha = np.pi / 2
+    beta = 3 * np.pi / 2
+    d_plus = (np.sqrt(2) + 1) / (4*np.sqrt(2))
+    d_minus = (np.sqrt(2) - 1) / (4*np.sqrt(2))
     for i in range(0, len(thetas)):
+        if index_list[i] == 0:
+            # In equation (13)
+            thetas1, thetas2 = thetas.copy(), thetas.copy()
+            thetas1[i] += s
+            thetas2[i] -= s
 
-        thetas1, thetas2 = thetas.copy(), thetas.copy()
-        thetas1[i] += s
-        thetas2[i] -= s
+            qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
+            qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
 
-        qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
-        qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
-
-        grad_loss[i] = -r * (
-            qtm.base.measure(qc1, list(range(qc1.num_qubits))) -
-            qtm.base.measure(qc2, list(range(qc2.num_qubits))))
+            grad_loss[i] = -r * (
+                qtm.base.measure(qc1, list(range(qc1.num_qubits))) -
+                qtm.base.measure(qc2, list(range(qc2.num_qubits))))
+        if index_list[i] == 1:
+            # In equation (14)
+            thetas1, thetas2 = thetas.copy(), thetas.copy()
+            thetas3, thetas4 = thetas.copy(), thetas.copy()
+            thetas1[i] += alpha
+            thetas2[i] -= alpha
+            thetas3[i] += beta
+            thetas4[i] -= beta
+            qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
+            qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
+            qc3 = create_circuit_func(qc.copy(), thetas3, **kwargs)
+            qc4 = create_circuit_func(qc.copy(), thetas4, **kwargs)
+            grad_loss[i] = -(d_plus * (
+                qtm.base.measure(qc1, list(range(qc1.num_qubits))) -
+                qtm.base.measure(qc2, list(range(qc2.num_qubits)))) - d_minus * (
+                qtm.base.measure(qc3, list(range(qc1.num_qubits))) -
+                qtm.base.measure(qc4, list(range(qc2.num_qubits)))))
     return grad_loss
 
 
