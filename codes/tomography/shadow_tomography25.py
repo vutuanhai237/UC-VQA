@@ -1,6 +1,3 @@
-
-import qtm.fubini_study
-
 from itertools import combinations
 import qiskit
 import numpy as np
