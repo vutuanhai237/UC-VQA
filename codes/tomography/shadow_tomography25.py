@@ -12,7 +12,11 @@ psi = [0.26424641, 0.23103536, 0.11177099, 0.17962657, 0.18777508, 0.07123707,
        0.27819402, 0.0785904, 0.09997989, 0.17438181, 0.16625928, 0.23213874,
        0.01231226, 0.18198155]
 rho = qiskit.quantum_info.DensityMatrix(psi).data
-
+def self_tensor(matrix, n):
+    product = matrix
+    for i in range(1, n):
+        product = np.kron(product, matrix)
+    return product
 
 def generate_u_pauli(num_qubits):
     lis = [0, 1, 2]
