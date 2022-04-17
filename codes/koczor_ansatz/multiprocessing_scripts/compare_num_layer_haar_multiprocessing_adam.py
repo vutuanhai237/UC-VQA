@@ -26,7 +26,7 @@ def run_haar(num_layers, num_qubits):
         grad_loss = qtm.base.grad_loss(
             qc, 
             qtm.nqubit.create_haarchecker_linear, 
-            thetas, r = 1/2, s = np.pi/2, num_layers = num_layers, encoder = encoder)
+            thetas, num_layers = num_layers, encoder = encoder)
         # grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))

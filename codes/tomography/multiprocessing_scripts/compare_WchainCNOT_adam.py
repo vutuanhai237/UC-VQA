@@ -29,7 +29,7 @@ def run_wchain(num_layers, num_qubits):
         grad_loss = qtm.base.grad_loss(
             qc, 
             qtm.nqubit.create_WchainCNOT_layerd_state,
-            thetas, r = 1/2, s = np.pi/2, num_layers = num_layers)
+            thetas, num_layers = num_layers)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(
                 np.zeros(thetas.shape[0]))

@@ -18,7 +18,7 @@ def run_w(num_layers, num_qubits):
         grad_loss = qtm.base.grad_loss(
             qc, 
             qtm.nqubit.create_Wchecker_linear, 
-            thetas, r = 1/2, s = np.pi/2, num_layers = num_layers)
+            thetas, num_layers = num_layers)
         thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.inv(G) @ grad_loss))   
         qc_copy = qtm.nqubit.create_Wchecker_linear(qc.copy(), thetas, num_layers)
         loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
