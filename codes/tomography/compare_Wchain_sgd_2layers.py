@@ -29,7 +29,7 @@ def run_wchain(num_layers, num_qubits):
         grad_loss = qtm.base.grad_loss(
             qc, 
             qtm.nqubit.create_Wchain_layerd_state,
-            thetas, r = 1/2, s = np.pi/2, num_layers = num_layers)
+            thetas, num_layers = num_layers)
         thetas -= qtm.constant.learning_rate*(grad_loss) 
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_Wchain_layerd_state(qc.copy(), thetas, num_layers)  

@@ -215,7 +215,7 @@ def get_cry_index(create_circuit_func: FunctionType, thetas, num_qubits, **kwarg
 
 
 def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: FunctionType,
-              thetas, r: float, s: float, **kwargs):
+              thetas, **kwargs):
     """Return the gradient of the loss function
 
     L = 1 - |<psi~|psi>|^2 = 1 - P_0
@@ -226,9 +226,7 @@ def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: FunctionType,
         - qc (QuantumCircuit): The quantum circuit want to calculate the gradient
         - create_circuit_func (Function): The creating circuit function
         - thetas (Numpy array): Parameters
-        - r (float): r in parameter shift rule
-        - s (float): s in parameter shift rule
-        - type (string): parameter shift rule mode, mode 'standard' for normal and mode 'control' for circuit which has CR_i gate
+        - c_0 (float): cost value
         - **kwargs: additional parameters for different create_circuit_func()
 
     Returns:
@@ -245,13 +243,13 @@ def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: FunctionType,
         if index_list[i] == 0:
             # In equation (13)
             thetas1, thetas2 = thetas.copy(), thetas.copy()
-            thetas1[i] += s
-            thetas2[i] -= s
+            thetas1[i] += np.pi/2
+            thetas2[i] -= np.pi/2
 
             qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
             qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
 
-            grad_loss[i] = -r * (
+            grad_loss[i] = -1/2 * (
                 qtm.base.measure(qc1, list(range(qc1.num_qubits))) -
                 qtm.base.measure(qc2, list(range(qc2.num_qubits))))
         if index_list[i] == 1:
@@ -266,11 +264,11 @@ def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: FunctionType,
             qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
             qc3 = create_circuit_func(qc.copy(), thetas3, **kwargs)
             qc4 = create_circuit_func(qc.copy(), thetas4, **kwargs)
-            grad_loss[i] = -(d_plus * (
+            grad_loss[i] = - (d_plus * (
                 qtm.base.measure(qc1, list(range(qc1.num_qubits))) -
                 qtm.base.measure(qc2, list(range(qc2.num_qubits)))) - d_minus * (
-                qtm.base.measure(qc3, list(range(qc1.num_qubits))) -
-                qtm.base.measure(qc4, list(range(qc2.num_qubits)))))
+                qtm.base.measure(qc3, list(range(qc3.num_qubits))) -
+                qtm.base.measure(qc4, list(range(qc4.num_qubits)))))
     return grad_loss
 
 
