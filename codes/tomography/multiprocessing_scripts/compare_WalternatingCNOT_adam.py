@@ -8,7 +8,7 @@ import multiprocessing
 
 def run_walternating(num_layers, num_qubits):
 
-    thetas = np.ones(3 * num_layers * num_qubits)
+    thetas = np.ones(int(num_layers*num_qubits / 2) + 3 * num_layers * num_qubits)
     psi = 2*np.random.rand(2**num_qubits)-1
     psi = psi / np.linalg.norm(psi)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
