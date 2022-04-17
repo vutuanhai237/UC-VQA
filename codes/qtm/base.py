@@ -467,8 +467,7 @@ def fit(qc: qiskit.QuantumCircuit,
     if verbose == 1:
         bar = qtm.progress_bar.ProgressBar(max_value=num_steps, disable=False)
     for i in range(0, num_steps):
-        grad_loss = grad_func(qc, create_circuit_func, thetas, 1 / 2,
-                              np.pi / 2, **kwargs)
+        grad_loss = grad_func(qc, create_circuit_func, thetas, **kwargs)
         optimizer_name = optimizer.__name__
 
         if optimizer_name == 'sgd':
