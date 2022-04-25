@@ -61,7 +61,7 @@ def run_walternating(num_layers, num_qubits):
 if __name__ == "__main__":
     # creating thread
     
-    num_layers = [3]
+    num_layers = [4]
     num_qubits = [2, 3, 4, 5, 6]
     t_walternatings = []
 
