@@ -1,15 +1,24 @@
-# Quantum Tomography
+# Source code for the paper title "Universal compilation for quantum state preparation and tomography"
 
-- [x] Stage 1: Reconstructed one qubit state
+Author: Vu Tuan Hai and Le Bin Ho
 
-- [x] Stage 2: Reconstructed GHZ state.
+Access: https://arxiv.org/abs/2204.11635
 
-- [x] Stage 3: Reconstructed linear state.
+Bibitem:
 
-- [x] Stage 4: Create a checker to make sure that the initial state is generated randomly. Create W state, make W checker and Haar checker.
+```
+@misc{hai2022universal,
+      title={Universal compilation for quantum state preparation and tomography}, 
+      author={Vu Tuan Hai and Le Bin Ho},
+      year={2022},
+      eprint={2204.11635},
+      archivePrefix={arXiv},
+      primaryClass={quant-ph}
+}
+```
 
-- [x] Stage 5: Create QNG, compare it with SGD, Adam, QNG-Adam.
+How to use this code:
 
-- [x] Stage 6: Comparing between initial state
-
-- [ ] Stage 7: Tomography
+- Folder experiments: contains all data
+- Folder codes: python script and jupyter notebook file, you can find many Figures in these file, or reuse some codes from base module.
+- Folder docs: hand-written for discussions between authors.
