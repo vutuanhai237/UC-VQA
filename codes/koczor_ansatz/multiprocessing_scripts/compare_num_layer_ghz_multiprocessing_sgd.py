@@ -35,7 +35,7 @@ def run_ghz(num_layers, num_qubits):
         
         thetas -= qtm.constant.learning_rate*grad_loss
         qc_copy = qtm.nqubit.create_GHZchecker_linear(qc.copy(), thetas, num_layers, theta)  
-        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        loss = qtm.loss.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_ghz.append(loss)
         thetass_ghz.append(thetas.copy())
     traces_ghz, fidelities_ghz = [], []
@@ -46,7 +46,7 @@ def run_ghz(num_layers, num_qubits):
         psi , rho_psi = qtm.base.extract_state(qc)
         # Get |psi~> = U_target|000...>
         qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc1 = qtm.nqubit.create_ghz_state(qc1, theta = theta)
+        qc1 = qtm.nqubit.create_ghz_state(num_qubits, theta = theta)
 psi_hat , rho_psi_hat = qtm.base.extract_state(qc1)
         # Calculate the metrics
         trace, fidelity = qtm.base.get_metrics(psi, psi_hat)

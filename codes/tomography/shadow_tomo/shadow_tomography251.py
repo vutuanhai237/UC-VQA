@@ -31,8 +31,7 @@ thetas = np.ones(num_layers*num_qubits*4)
 qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 qc.initialize(psi, range(0, num_qubits))
 
-loss_values = []
-thetass = []
+
 
 for i in range(0, 400):
     grad_loss = qtm.base.grad_loss(
@@ -42,11 +41,11 @@ for i in range(0, 400):
     if i == 0:
         m, v = list(np.zeros(thetas.shape[0])), list(
             np.zeros(thetas.shape[0]))
-    thetas = qtm.base.adam(thetas, m, v, i, grad_loss)
+    thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)
     thetass.append(thetas.copy())
     qc_copy = qtm.nqubit.create_Wchain_layerd_state(
         qc.copy(), thetas, num_layers)
-    loss = qtm.base.loss_basis(qtm.base.measure(
+    loss = qtm.loss.loss_basis(qtm.base.measure(
         qc_copy, list(range(qc_copy.num_qubits))))
     loss_values.append(loss)
 variances = []

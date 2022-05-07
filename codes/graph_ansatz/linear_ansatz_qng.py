@@ -12,8 +12,7 @@ num_layers = 2
 thetas = np.ones(num_qubits*num_layers*5)
 theta = np.pi / 2
 qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-loss_values = []
-thetass = []
+
 bar = qtm.progress_bar.ProgressBar(max_value=100, disable=False)
 for i in range(0, 100):
     bar.update(1)
@@ -24,7 +23,7 @@ for i in range(0, 100):
         thetas, num_layers = num_layers, theta = theta)
     thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.pinv(G) @ grad_loss))   
     qc_copy = qtm.nqubit.create_GHZchecker_linear(qc.copy(), thetas, num_layers, theta)
-    loss = qtm.base.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+    loss = qtm.loss.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
     loss_values.append(loss)
     thetass.append(thetas)
 bar.close()
@@ -41,7 +40,7 @@ for thetas in thetass:
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     # Get |psi~> = U_target|000...>
     qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc1 = qtm.nqubit.create_ghz_state(qc1, theta)
+    qc1 = qtm.nqubit.create_ghz_state(num_qubits, theta)
     psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc1)
     rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
     # Calculate the metrics
@@ -56,8 +55,7 @@ num_layers = 2
 thetas = np.ones(num_qubits*num_layers*5)
 theta = np.pi / 2
 qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-loss_values = []
-thetass = []
+
 bar = qtm.progress_bar.ProgressBar(max_value=100, disable=False)
 for i in range(0, 100):
     bar.update(1)
@@ -68,7 +66,7 @@ for i in range(0, 100):
         thetas, num_layers = num_layers)
     thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.pinv(G) @ grad_loss))   
     qc_copy = qtm.nqubit.create_Wchecker_linear(qc.copy(), thetas, num_layers)
-    loss = qtm.base.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+    loss = qtm.loss.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
     loss_values.append(loss)
     thetass.append(thetas)
 bar.close()
@@ -85,7 +83,7 @@ for thetas in thetass:
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     # Get |psi~> = U_target|000...>
     qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc1 = qtm.nqubit.create_w_state(qc1)
+    qc1 = qtm.nqubit.create_w_state(num_qubits)
     psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc1)
     rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
     # Calculate the metrics

@@ -22,9 +22,9 @@ def run_w(num_layers, num_qubits):
         # grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
-        thetas = qtm.base.adam(thetas, m, v, i, grad_loss)    
+        thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)    
         qc_copy = qtm.nqubit.create_Wchecker_linear(qc.copy(), thetas, num_layers)
-        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        loss = qtm.loss.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_w.append(loss)
         thetass_w.append(thetas)
 
@@ -36,7 +36,7 @@ def run_w(num_layers, num_qubits):
         psi , rho_psi = qtm.base.extract_state(qc)
         # Get |psi~> = U_target|000...>
         qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc1 = qtm.nqubit.create_w_state(qc1)
+        qc1 = qtm.nqubit.create_w_state(num_qubits)
 psi_hat , rho_psi_hat = qtm.base.extract_state(qc1)
         # Calculate the metrics
         trace, fidelity = qtm.base.get_metrics(psi, psi_hat)

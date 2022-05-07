@@ -1,11 +1,26 @@
 import qiskit
 import numpy as np
 
+# Training hyperparameter
 num_shots = 10000
 learning_rate = 0.04
 noise_prob = 0.00
 backend = qiskit.Aer.get_backend('qasm_simulator')
 
+# For parameter-shift rule
+two_term_psr = {
+    'r': 1/2,
+    's': np.pi / 2
+}
+
+four_term_psr = {
+    'alpha': np.pi / 2,
+    'beta' : 3 * np.pi / 2,
+    'd_plus' : (np.sqrt(2) + 1) / (4*np.sqrt(2)),
+    'd_minus': (np.sqrt(2) - 1) / (4*np.sqrt(2))
+}
+
+# For QNG
 generator = {
     'cu': -1 / 2 * np.array([[0, -1j], [1j, 0]], dtype=np.complex128),
     'rx': -1 / 2 * np.array([[0, 1], [1, 0]], dtype=np.complex128),
@@ -25,6 +40,7 @@ ignore_generator = [
 parameterized_generator = [
     'rx', 'ry', 'rz', 'crx', 'cry', 'crz'
 ]
+
 # This information is extracted from http://dx.doi.org/10.1103/PhysRevA.83.042314
 edges_graph_state = {
     2: ["0-1"],

@@ -6,8 +6,8 @@ def create_QFIM(psi: np.ndarray, grad_psi: np.ndarray):
     \n https://quantum-journal.org/views/qv-2021-10-06-61/
 
     Args:
-        - psi (np.ndarray): Current state vector, is a N x 1 matrix
-        - grad_psi (np.ndarray): All partial derivatives of $\psi$, is a N x N matrix
+        - psi (np.ndarray): current state vector, is a N x 1 matrix
+        - grad_psi (np.ndarray): all partial derivatives of $\psi$, is a N x N matrix
 
     Returns:
         np.ndarray: N x N matrix

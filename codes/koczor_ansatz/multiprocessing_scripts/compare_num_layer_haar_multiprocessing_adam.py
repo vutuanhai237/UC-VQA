@@ -30,9 +30,9 @@ def run_haar(num_layers, num_qubits):
         # grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
-        thetas = qtm.base.adam(thetas, m, v, i, grad_loss)    
+        thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)    
         qc_copy = qtm.nqubit.create_haarchecker_linear(qc.copy(), thetas, num_layers, encoder)
-        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        loss = qtm.loss.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_haar.append(loss)
         thetass_haar.append(thetas)
 

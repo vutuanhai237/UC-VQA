@@ -14,14 +14,13 @@ num_layers = 2
 thetas = np.ones(num_qubits*num_layers*5)
 theta = np.pi / 2
 qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-loss_values = []
-thetass = []
+
 thetass, loss_values = qtm.base.fit(
     qc, num_steps = 100, thetas = thetas, 
     create_circuit_func = qtm.nqubit.create_GHZchecker_linear, 
     grad_func = qtm.base.grad_loss,
-    loss_func = qtm.base.loss_fubini_study,
-    optimizer = qtm.base.sgd,
+    loss_func = qtm.loss.loss_fubini_study,
+    optimizer = qtm.optimizer.sgd,
     verbose = 1,
     theta = theta,
     num_layers = num_layers,
@@ -40,7 +39,7 @@ for thetas in thetass:
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     # Get |psi~> = U_target|000...>
     qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc1 = qtm.nqubit.create_ghz_state(qc1, theta)
+    qc1 = qtm.nqubit.create_ghz_state(num_qubits, theta)
     psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc1)
     rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
     # Calculate the metrics
@@ -55,14 +54,13 @@ num_layers = 2
 thetas = np.ones(num_qubits*num_layers*5)
 theta = np.pi / 2
 qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-loss_values = []
-thetass = []
+
 thetass, loss_values = qtm.base.fit(
     qc, num_steps = 100, thetas = thetas, 
     create_circuit_func = qtm.nqubit.create_Wchecker_linear, 
     grad_func = qtm.base.grad_loss,
-    loss_func = qtm.base.loss_fubini_study,
-    optimizer = qtm.base.sgd,
+    loss_func = qtm.loss.loss_fubini_study,
+    optimizer = qtm.optimizer.sgd,
     verbose = 1,
     num_layers = num_layers,
     is_return_all_thetas = True
@@ -80,7 +78,7 @@ for thetas in thetass:
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     # Get |psi~> = U_target|000...>
     qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc1 = qtm.nqubit.create_w_state(qc1)
+    qc1 = qtm.nqubit.create_w_state(num_qubits)
     psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc1)
     rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
     # Calculate the metrics

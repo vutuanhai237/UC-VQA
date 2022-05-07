@@ -35,11 +35,11 @@ def run_walltoall(num_layers, num_qubits):
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(
                 np.zeros(thetas.shape[0]))
-        thetas = qtm.base.adam(thetas, m, v, i, grad_loss)
+        thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_WalternatingCNOT_layerd_state(
             qc.copy(), thetas, num_layers)
-        loss = qtm.base.loss_basis(qtm.base.measure(
+        loss = qtm.loss.loss_basis(qtm.base.measure(
             qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 

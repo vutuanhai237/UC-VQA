@@ -28,7 +28,7 @@ def run_walternating(num_layers, num_qubits):
         thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.pinv(G) @ grad_loss)) 
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_Walternating_layerd_state(qc.copy(), thetas, num_layers)  
-        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        loss = qtm.loss.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
 
@@ -68,7 +68,7 @@ def run_walternating(num_layers, num_qubits):
 if __name__ == "__main__":
     # creating thread
 
-    num_layers = [5]
+    num_layers = [1]
     num_qubits = [2, 3, 4, 5, 6]
     t_walternatings = []
 

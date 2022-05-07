@@ -29,7 +29,7 @@ def run_walltoall(num_layers, num_qubits):
         thetas -= qtm.constant.learning_rate*(grad_loss) 
         thetass.append(thetas.copy())
         qc_copy = qtm.nqubit.create_WalltoallCNOT_layerd_state(qc.copy(), thetas, num_layers)  
-        loss = qtm.base.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        loss = qtm.loss.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
     
