@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import importlib
 import sys
 sys.path.insert(1, '../')
-import qtm.base, qtm.constant, qtm.nqubit, qtm.fubini_study, qtm.progress_bar
+import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.progress_bar
 importlib.reload(qtm.base)
 importlib.reload(qtm.constant)
 num_qubits = 3
@@ -16,13 +16,13 @@ qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 bar = qtm.progress_bar.ProgressBar(max_value=100, disable=False)
 for i in range(0, 100):
     bar.update(1)
-    G = qtm.fubini_study.qng(qc.copy(), thetas, qtm.nqubit.create_linear_state, num_layers)
+    G = qtm.fubini_study.qng(qc.copy(), thetas, qtm.ansatz.create_linear_state, num_layers)
     grad_loss = qtm.base.grad_loss(
         qc, 
-        qtm.nqubit.create_GHZchecker_linear, 
+        qtm.ansatz.create_GHZchecker_linear, 
         thetas, num_layers = num_layers, theta = theta)
     thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.pinv(G) @ grad_loss))   
-    qc_copy = qtm.nqubit.create_GHZchecker_linear(qc.copy(), thetas, num_layers, theta)
+    qc_copy = qtm.ansatz.create_GHZchecker_linear(qc.copy(), thetas, num_layers, theta)
     loss = qtm.loss.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
     loss_values.append(loss)
     thetass.append(thetas)
@@ -35,12 +35,12 @@ i = 0
 for thetas in thetass:
     # Get |psi> = U_gen|000...>
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc = qtm.nqubit.create_linear_state(qc, thetas, num_layers)
+    qc = qtm.ansatz.create_linear_state(qc, thetas, num_layers)
     psi = qiskit.quantum_info.Statevector.from_instruction(qc)
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     # Get |psi~> = U_target|000...>
     qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc1 = qtm.nqubit.create_ghz_state(num_qubits, theta)
+    qc1 = qtm.ansatz.create_ghz_state(num_qubits, theta)
     psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc1)
     rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
     # Calculate the metrics
@@ -62,10 +62,10 @@ for i in range(0, 100):
     G = qtm.fubini_study.calculate_linear_state(qc.copy(), thetas, num_layers)
     grad_loss = qtm.base.grad_loss(
         qc, 
-        qtm.nqubit.create_Wchecker_linear, 
+        qtm.ansatz.create_Wchecker_linear, 
         thetas, num_layers = num_layers)
     thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.pinv(G) @ grad_loss))   
-    qc_copy = qtm.nqubit.create_Wchecker_linear(qc.copy(), thetas, num_layers)
+    qc_copy = qtm.ansatz.create_Wchecker_linear(qc.copy(), thetas, num_layers)
     loss = qtm.loss.loss_fubini_study(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
     loss_values.append(loss)
     thetass.append(thetas)
@@ -78,12 +78,12 @@ i = 0
 for thetas in thetass:
     # Get |psi> = U_gen|000...>
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc = qtm.nqubit.create_linear_state(qc, thetas, num_layers)
+    qc = qtm.ansatz.create_linear_state(qc, thetas, num_layers)
     psi = qiskit.quantum_info.Statevector.from_instruction(qc)
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     # Get |psi~> = U_target|000...>
     qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc1 = qtm.nqubit.create_w_state(num_qubits)
+    qc1 = qtm.ansatz.create_w_state(num_qubits)
     psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc1)
     rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
     # Calculate the metrics

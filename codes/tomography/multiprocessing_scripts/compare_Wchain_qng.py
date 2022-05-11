@@ -3,14 +3,14 @@ import numpy as np
 import sys
 
 sys.path.insert(1, '../')
-import qtm.base, qtm.constant, qtm.nqubit, qtm.fubini_study, qtm.encoding
+import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.encoding
 import importlib
 import multiprocessing
 
 importlib.reload(qtm.base)
 importlib.reload(qtm.constant)
-importlib.reload(qtm.onequbit)
-importlib.reload(qtm.nqubit)
+
+importlib.reload(qtm.ansatz)
 importlib.reload(qtm.fubini_study)
 
 
@@ -26,15 +26,15 @@ def run_wchain(num_layers, num_qubits):
     for i in range(0, 400):
         if i % 20 == 0:
             print('W_chain: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
-        G = qtm.fubini_study.qng(qc.copy(), thetas, qtm.nqubit.create_Wchain_layerd_state, num_layers)
+        G = qtm.fubini_study.qng(qc.copy(), thetas, qtm.ansatz.create_Wchain_layerd_state, num_layers)
         grad_loss = qtm.base.grad_loss(
             qc, 
-            qtm.nqubit.create_Wchain_layerd_state,
+            qtm.ansatz.create_Wchain_layerd_state,
             thetas, num_layers = num_layers)
         
         thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.inv(G) @ grad_loss))
         thetass.append(thetas.copy())
-        qc_copy = qtm.nqubit.create_Wchain_layerd_state(qc.copy(), thetas, num_layers)  
+        qc_copy = qtm.ansatz.create_Wchain_layerd_state(qc.copy(), thetas, num_layers)  
         loss = qtm.loss.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
@@ -45,7 +45,7 @@ def run_wchain(num_layers, num_qubits):
 
     for thetas in thetass:
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.nqubit.create_Wchain_layerd_state(
+        qc = qtm.ansatz.create_Wchain_layerd_state(
             qc, thetas, num_layers=num_layers).inverse()
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc)
         # Calculate the metrics

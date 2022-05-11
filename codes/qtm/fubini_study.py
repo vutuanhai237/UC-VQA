@@ -1,11 +1,9 @@
-from ast import FunctionType
 import qiskit
 import numpy as np
-from qiskit.visualization.text import Ex
 import qtm.constant
-import qtm.nqubit
-from typing import Dict, Tuple, List
-from scipy.linalg import block_diag
+import qtm.ansatz
+import typing, types
+import scipy
 
 
 def create_observers(qc: qiskit.QuantumCircuit, k: int = 0):
@@ -39,7 +37,7 @@ def create_observers(qc: qiskit.QuantumCircuit, k: int = 0):
     return observer
 
 
-def calculate_g(qc: qiskit.QuantumCircuit, observers: Dict[str, int]):
+def calculate_g(qc: qiskit.QuantumCircuit, observers: typing.Dict[str, int]):
     """Fubini-Study tensor. Detail informations: 
     \n https://pennylane.ai/qml/demos/tutorial_quantum_natural_gradient.html
 
@@ -92,7 +90,7 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: Dict[str, int]):
 ## General quantum natural gradient ##
 ######################################
 
-def get_wires_of_gate(gate: Tuple):
+def get_wires_of_gate(gate: typing.Tuple):
     """Get index bit that gate act on
 
     Args:
@@ -107,7 +105,7 @@ def get_wires_of_gate(gate: Tuple):
     return list_wire
 
 
-def is_gate_in_list_wires(gate: Tuple, wires: List):
+def is_gate_in_list_wires(gate: typing.Tuple, wires: typing.List):
     """Check if a gate lies on the next layer or not
 
     Args:
@@ -174,7 +172,7 @@ def split_into_layers(qc: qiskit.QuantumCircuit):
     return layers
 
 
-def add_layer_into_circuit(qc: qiskit.QuantumCircuit, layer: List):
+def add_layer_into_circuit(qc: qiskit.QuantumCircuit, layer: typing.List):
     """Based on information in layers, adding new gates into current circuit
 
     Args:
@@ -202,7 +200,7 @@ def add_layer_into_circuit(qc: qiskit.QuantumCircuit, layer: List):
     return qc
 
 
-def qng(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: FunctionType, **kwargs):
+def qng(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: types.FunctionType, **kwargs):
     """Calculate G matrix in qng
 
     Args:
@@ -232,5 +230,5 @@ def qng(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: Func
 
     G = gs[0]
     for i in range(1, len(gs)):
-        G = block_diag(G, gs[i])
+        G = scipy.linalg.block_diag(G, gs[i])
     return G

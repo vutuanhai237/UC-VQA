@@ -52,7 +52,7 @@ def qng_fubini_study(thetas: np.ndarray, G: np.ndarray, grad_loss: np.ndarray):
         - np.ndarray: parameters after update
     """
     thetas = np.real(thetas - qtm.constant.learning_rate *
-                     (np.linalg.inv(G) @ grad_loss))
+                     (np.linalg.pinv(G) @ grad_loss))
     return thetas
 
 

@@ -3,12 +3,12 @@ import numpy as np
 import sys
 import multiprocessing
 sys.path.insert(1, '../')
-import qtm.base, qtm.constant, qtm.nqubit, qtm.fubini_study, qtm.encoding
+import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.encoding
 import importlib
 importlib.reload(qtm.base)
 importlib.reload(qtm.constant)
-importlib.reload(qtm.onequbit)
-importlib.reload(qtm.nqubit)
+
+importlib.reload(qtm.ansatz)
 # Init parameters
 
 # For arbitrary initial state
@@ -29,13 +29,13 @@ def run_ghz(num_layers, num_qubits):
         # G = qtm.fubini_study.calculate_linear_state(qc.copy(), thetas, num_layers)
         grad_loss = qtm.base.grad_loss(
             qc, 
-            qtm.nqubit.create_GHZchecker_linear,
+            qtm.ansatz.create_GHZchecker_linear,
             thetas, num_layers = num_layers, theta = theta)
         # grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(np.zeros(thetas.shape[0]))
         thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)  
-        qc_copy = qtm.nqubit.create_GHZchecker_linear(qc.copy(), thetas, num_layers, theta)  
+        qc_copy = qtm.ansatz.create_GHZchecker_linear(qc.copy(), thetas, num_layers, theta)  
         loss = qtm.loss.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_ghz.append(loss)
         thetass_ghz.append(thetas)
@@ -43,11 +43,11 @@ def run_ghz(num_layers, num_qubits):
     for thetas in thetass_ghz:
         # Get |psi> = U_gen|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.nqubit.create_linear_state(qc, thetas, num_layers = num_layers)
+        qc = qtm.ansatz.create_linear_state(qc, thetas, num_layers = num_layers)
         psi , rho_psi = qtm.base.extract_state(qc)
         # Get |psi~> = U_target|000...>
         qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc1 = qtm.nqubit.create_ghz_state(num_qubits, theta = theta)
+        qc1 = qtm.ansatz.create_ghz_state(num_qubits, theta = theta)
 psi_hat , rho_psi_hat = qtm.base.extract_state(qc1)
         # Calculate the metrics
         trace, fidelity = qtm.base.get_metrics(psi, psi_hat)

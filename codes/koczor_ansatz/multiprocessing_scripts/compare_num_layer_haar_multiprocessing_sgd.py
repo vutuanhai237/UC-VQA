@@ -3,7 +3,7 @@ import numpy as np
 import sys
 import multiprocessing
 sys.path.insert(1, '../')
-import qtm.base, qtm.constant, qtm.nqubit, qtm.fubini_study, qtm.encoding
+import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.encoding
 
 
 def run_haar(num_layers, num_qubits):
@@ -25,11 +25,11 @@ def run_haar(num_layers, num_qubits):
         qc = encoder.qcircuit
         grad_loss = qtm.base.grad_loss(
             qc, 
-            qtm.nqubit.create_haarchecker_linear, 
+            qtm.ansatz.create_haarchecker_linear, 
             thetas, num_layers = num_layers, encoder = encoder)
         # grad1 = np.real(np.linalg.inv(G) @ grad_loss)
         thetas -= qtm.constant.learning_rate*grad_loss    
-        qc_copy = qtm.nqubit.create_haarchecker_linear(qc.copy(), thetas, num_layers, encoder)
+        qc_copy = qtm.ansatz.create_haarchecker_linear(qc.copy(), thetas, num_layers, encoder)
         loss = qtm.loss.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values_haar.append(loss)
         thetass_haar.append(thetas.copy())
@@ -38,7 +38,7 @@ def run_haar(num_layers, num_qubits):
     for thetas in thetass_haar:
         # Get |psi> = U_gen|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.nqubit.create_linear_state(qc, thetas, num_layers = num_layers)
+        qc = qtm.ansatz.create_linear_state(qc, thetas, num_layers = num_layers)
         psi , rho_psi = qtm.base.extract_state(qc)
         # Get |psi~> = U_target|000...>
         qc1 = encoder.qcircuit

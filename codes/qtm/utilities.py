@@ -60,8 +60,8 @@ def get_metrics(psi, psi_hat):
     """
     rho = qiskit.quantum_info.DensityMatrix(psi)
     sigma = qiskit.quantum_info.DensityMatrix(psi_hat)
-    return qtm.base.trace_distance(rho,
-                                   sigma), qtm.base.trace_fidelity(rho, sigma)
+    return qtm.utilities.trace_distance(rho,
+                                   sigma), qtm.utilities.trace_fidelity(rho, sigma)
 
 
 def calculate_state_preparation_metrics(create_u_func: types.FunctionType, v: qiskit.QuantumCircuit, thetass, **kwargs):
@@ -78,7 +78,7 @@ def calculate_state_preparation_metrics(create_u_func: types.FunctionType, v: qi
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(u)
         rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
         # Calculate the metrics
-        trace, fidelity = qtm.base.get_metrics(psi, psi_hat)
+        trace, fidelity = qtm.utilities.get_metrics(psi, psi_hat)
         traces.append(trace)
         fidelities.append(fidelity)
     return traces, fidelities
@@ -95,7 +95,7 @@ def calculate_tomography_metrics(u: qiskit.QuantumCircuit, create_vdagger_func: 
         v = create_vdagger_func(v, thetas, **kwargs).inverse()
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(v)
         # Calculate the metrics
-        trace, fidelity = qtm.base.get_metrics(psi, psi_hat)
+        trace, fidelity = qtm.utilities.get_metrics(psi, psi_hat)
         traces.append(trace)
         fidelities.append(fidelity)
 

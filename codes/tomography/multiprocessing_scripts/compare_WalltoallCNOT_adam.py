@@ -7,7 +7,7 @@ import sys
 sys.path.insert(1, '../')
 import qtm.encoding
 import qtm.fubini_study
-import qtm.nqubit
+import qtm.ansatz
 import qtm.constant
 import qtm.base
 
@@ -30,14 +30,14 @@ def run_walltoall(num_layers, num_qubits):
 
         grad_loss = qtm.base.grad_loss(
             qc,
-            qtm.nqubit.create_WalternatingCNOT_layerd_state,
+            qtm.ansatz.create_WalternatingCNOT_layerd_state,
             thetas, r=1/2, s=np.pi/2, num_layers=num_layers)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(
                 np.zeros(thetas.shape[0]))
         thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)
         thetass.append(thetas.copy())
-        qc_copy = qtm.nqubit.create_WalternatingCNOT_layerd_state(
+        qc_copy = qtm.ansatz.create_WalternatingCNOT_layerd_state(
             qc.copy(), thetas, num_layers)
         loss = qtm.loss.loss_basis(qtm.base.measure(
             qc_copy, list(range(qc_copy.num_qubits))))
@@ -49,7 +49,7 @@ def run_walltoall(num_layers, num_qubits):
     for thetas in thetass:
         # Get |psi~> = U_target|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.nqubit.create_WalternatingCNOT_layerd_state(
+        qc = qtm.ansatz.create_WalternatingCNOT_layerd_state(
             qc, thetas, num_layers=num_layers).inverse()
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc)
         # Calculate the metrics

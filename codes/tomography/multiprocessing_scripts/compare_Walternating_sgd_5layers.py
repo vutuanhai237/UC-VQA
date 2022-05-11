@@ -2,13 +2,13 @@ import qiskit
 import numpy as np
 import sys
 sys.path.insert(1, '../')
-import qtm.base, qtm.constant, qtm.nqubit, qtm.fubini_study, qtm.encoding
+import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.encoding
 import importlib
 import multiprocessing
 importlib.reload(qtm.base)
 importlib.reload(qtm.constant)
-importlib.reload(qtm.onequbit)
-importlib.reload(qtm.nqubit)
+
+importlib.reload(qtm.ansatz)
 importlib.reload(qtm.fubini_study)
 
 def run_walternating(num_layers, num_qubits):
@@ -28,11 +28,11 @@ def run_walternating(num_layers, num_qubits):
 
         grad_loss = qtm.base.grad_loss(
             qc, 
-            qtm.nqubit.create_Walternating_layerd_state,
+            qtm.ansatz.create_Walternating_layerd_state,
             thetas, num_layers = num_layers)
         thetas -= qtm.constant.learning_rate*(grad_loss) 
         thetass.append(thetas.copy())
-        qc_copy = qtm.nqubit.create_Walternating_layerd_state(qc.copy(), thetas, num_layers)  
+        qc_copy = qtm.ansatz.create_Walternating_layerd_state(qc.copy(), thetas, num_layers)  
         loss = qtm.loss.loss_basis(qtm.base.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
@@ -43,7 +43,7 @@ def run_walternating(num_layers, num_qubits):
 
         # Get |psi~> = U_target|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.nqubit.create_Walternating_layerd_state(qc, thetas, num_layers = num_layers).inverse()
+        qc = qtm.ansatz.create_Walternating_layerd_state(qc, thetas, num_layers = num_layers).inverse()
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc)
         # Calculate the metrics
         trace, fidelity = qtm.base.get_metrics(psi, psi_hat)

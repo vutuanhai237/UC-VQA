@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import importlib
 import sys
 sys.path.insert(1, '../')
-import qtm.base, qtm.constant, qtm.nqubit, qtm.fubini_study, qtm.progress_bar
+import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.progress_bar
 importlib.reload(qtm.base)
 importlib.reload(qtm.constant)
 
@@ -17,7 +17,7 @@ qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 
 thetass, loss_values = qtm.base.fit(
     qc, num_steps = 100, thetas = thetas, 
-    create_circuit_func = qtm.nqubit.create_GHZchecker_linear, 
+    create_circuit_func = qtm.ansatz.create_GHZchecker_linear, 
     grad_func = qtm.base.grad_loss,
     loss_func = qtm.loss.loss_fubini_study,
     optimizer = qtm.optimizer.sgd,
@@ -34,12 +34,12 @@ i = 0
 for thetas in thetass:
     # Get |psi> = U_gen|000...>
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc = qtm.nqubit.create_linear_state(qc, thetas, num_layers)
+    qc = qtm.ansatz.create_linear_state(qc, thetas, num_layers)
     psi = qiskit.quantum_info.Statevector.from_instruction(qc)
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     # Get |psi~> = U_target|000...>
     qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc1 = qtm.nqubit.create_ghz_state(num_qubits, theta)
+    qc1 = qtm.ansatz.create_ghz_state(num_qubits, theta)
     psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc1)
     rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
     # Calculate the metrics
@@ -57,7 +57,7 @@ qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
 
 thetass, loss_values = qtm.base.fit(
     qc, num_steps = 100, thetas = thetas, 
-    create_circuit_func = qtm.nqubit.create_Wchecker_linear, 
+    create_circuit_func = qtm.ansatz.create_Wchecker_linear, 
     grad_func = qtm.base.grad_loss,
     loss_func = qtm.loss.loss_fubini_study,
     optimizer = qtm.optimizer.sgd,
@@ -73,12 +73,12 @@ i = 0
 for thetas in thetass:
     # Get |psi> = U_gen|000...>
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc = qtm.nqubit.create_linear_state(qc, thetas, num_layers)
+    qc = qtm.ansatz.create_linear_state(qc, thetas, num_layers)
     psi = qiskit.quantum_info.Statevector.from_instruction(qc)
     rho_psi = qiskit.quantum_info.DensityMatrix(psi)
     # Get |psi~> = U_target|000...>
     qc1 = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc1 = qtm.nqubit.create_w_state(num_qubits)
+    qc1 = qtm.ansatz.create_w_state(num_qubits)
     psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc1)
     rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
     # Calculate the metrics
