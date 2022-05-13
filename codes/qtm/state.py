@@ -1,7 +1,7 @@
 import qiskit, numpy as np
-import qtm.gate
+import qtm.gate, qtm.encoding
 
-def w(num_qubits: int, shift: int = 0):
+def w(qc: qiskit.QuantumCircuit, num_qubits: int, shift: int = 0):
     """The below codes is implemented from [this paper](https://arxiv.org/abs/1606.09290)
     \n Simplest case: 3 qubits. <img src='../images/general_w.png' width = 500px/>
     \n General case: more qubits. <img src='../images/general_w2.png' width = 500px/>
@@ -16,7 +16,6 @@ def w(num_qubits: int, shift: int = 0):
     Returns:
         - qiskit.QuantumCircuit
     """
-    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
     if num_qubits < 2:
         raise ValueError('W state must has at least 2-qubit')
     if num_qubits == 2:
@@ -90,6 +89,12 @@ def create_haar_state(num_qubits: int):
     qc.initialize(psi, qubits = range(0, num_qubits))
     return qc
 
+def create_haar_state_inverse(num_qubits: int):
+    psi = 2*np.random.rand(2**num_qubits)-1
+    psi = psi / np.linalg.norm(psi)
+    encoder = qtm.encoding.Encoding(psi, 'amplitude_encoding')
+    qc = encoder.qcircuit
+    return qc.inverse()
 
 def create_w_state(num_qubits):
     """Create n-qubit W state based on the its number of qubits

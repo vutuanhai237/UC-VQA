@@ -64,13 +64,13 @@ def get_metrics(psi, psi_hat):
                                    sigma), qtm.utilities.trace_fidelity(rho, sigma)
 
 
-def calculate_state_preparation_metrics(create_u_func: types.FunctionType, v: qiskit.QuantumCircuit, thetass, **kwargs):
+def calculate_state_preparation_metrics(create_u_func: types.FunctionType, vdagger: qiskit.QuantumCircuit, thetass, **kwargs):
     traces = []
     fidelities = []
-    n = v.num_qubits
+    n = vdagger.num_qubits
     for thetas in thetass:
         # Target state
-        psi = qiskit.quantum_info.Statevector.from_instruction(v)
+        psi = qiskit.quantum_info.Statevector.from_instruction(vdagger)
         rho_psi = qiskit.quantum_info.DensityMatrix(psi)
         # Preparation state
         u = qiskit.QuantumCircuit(n, n)
@@ -84,7 +84,7 @@ def calculate_state_preparation_metrics(create_u_func: types.FunctionType, v: qi
     return traces, fidelities
 
 
-def calculate_tomography_metrics(u: qiskit.QuantumCircuit, create_vdagger_func: types.FunctionType, thetass, **kwargs):
+def calculate_state_tomography_metrics(u: qiskit.QuantumCircuit, create_vdagger_func: types.FunctionType, thetass, **kwargs):
     traces = []
     fidelities = []
     n = u.num_qubits   
