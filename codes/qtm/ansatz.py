@@ -1001,7 +1001,7 @@ def calculate_n_walternating(index_layers, num_qubits):
     return n_walternating
 
 
-def create_Walternating_layerd_state(qc: qiskit.QuantumCircuit,
+def create_Walternating_layerd_ansatz(qc: qiskit.QuantumCircuit,
                                      thetas: np.ndarray,
                                      num_layers: int = 1):
     """Create Walternating layerd ansatz
