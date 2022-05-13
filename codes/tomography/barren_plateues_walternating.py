@@ -19,7 +19,7 @@ for num_layers in layers:
     for i in range(0, 200):
         if i % 20 == 0:
             print('W_alternating: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
-        G = qtm.fubini_study.qng(qc.copy(), thetas, qtm.ansatz.create_Walternating_layerd_ansatz, num_layers = num_layers)
+        G = qtm.fubini_study.qng(qc.copy(), thetas, qtm.ansatz.create_Walternating_layered_ansatz, num_layers = num_layers)
         grad_loss = qtm.base.grad_loss(
             qc, 
             qtm.ansatz.create_Walternating_layered_ansatz,

@@ -273,7 +273,7 @@ def create_GHZchecker_alternating_layered(qc: qiskit.QuantumCircuit,
     if isinstance(theta, float) != True:
         theta = theta['theta']
     # |psi_gen> = U_gen|000...>
-    qc = create_alternating_layerd_ansatz(qc, thetas, num_layers=num_layers)
+    qc = create_alternating_layered_ansatz(qc, thetas, num_layers=num_layers)
     # U_target^t|psi_gen> with U_target is GHZ state
     qc = qtm.state.create_ghz_state_inverse(qc, theta)
     return qc
@@ -414,7 +414,7 @@ def create_Wchecker_alternating_layered(qc: qiskit.QuantumCircuit,
         num_layers = num_layers['num_layers']
 
     # |psi_gen> = U_gen|000...>
-    qc = create_alternating_layerd_ansatz(qc, thetas, num_layers=num_layers)
+    qc = create_alternating_layered_ansatz(qc, thetas, num_layers=num_layers)
     # U_target^t|psi_gen> with U_target is W state
     qc = qtm.state.create_w_state_inverse(qc)
     return qc
@@ -677,7 +677,7 @@ def create_haarchecker_alternating_layered(qc: qiskit.QuantumCircuit,
     if isinstance(encoder, qtm.encoding.Encoding) != True:
         encoder = encoder['encoder']
     qc1 = qiskit.QuantumCircuit(encoder.quantum_data)
-    qc1 = create_alternating_layerd_ansatz(qc1, thetas, num_layers=num_layers)
+    qc1 = create_alternating_layered_ansatz(qc1, thetas, num_layers=num_layers)
     qc1 = qc1.combine(qc.inverse())
     qc1.add_register(qiskit.ClassicalRegister(encoder.num_qubits))
     return qc1
@@ -771,10 +771,10 @@ def create_swap_nqubit(qc: qiskit.QuantumCircuit, shift=0):
     return qc
 
 
-def create_alternating_layerd_ansatz(qc: qiskit.QuantumCircuit,
+def create_alternating_layered_ansatz(qc: qiskit.QuantumCircuit,
                                     thetas: np.ndarray,
                                     num_layers: int = 1):
-    """Create Alternating layerd ansatz
+    """Create Alternating layered ansatz
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -932,10 +932,10 @@ def create_WalltoallCNOT(qc: qiskit.QuantumCircuit, limit=0):
     return qc
 
 
-def create_Wchain_layerd_ansatz(qc: qiskit.QuantumCircuit,
+def create_Wchain_layered_ansatz(qc: qiskit.QuantumCircuit,
                                thetas: np.ndarray,
                                num_layers: int = 1):
-    """Create Alternating layerd ansatz
+    """Create Alternating layered ansatz
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -962,10 +962,10 @@ def create_Wchain_layerd_ansatz(qc: qiskit.QuantumCircuit,
     return qc
 
 
-def create_WchainCNOT_layerd_ansatz(qc: qiskit.QuantumCircuit,
+def create_WchainCNOT_layered_ansatz(qc: qiskit.QuantumCircuit,
                                    thetas: np.ndarray,
                                    num_layers: int = 1):
-    """Create WchainCNOT layerd ansatz
+    """Create WchainCNOT layered ansatz
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -1001,10 +1001,10 @@ def calculate_n_walternating(index_layers, num_qubits):
     return n_walternating
 
 
-def create_Walternating_layerd_ansatz(qc: qiskit.QuantumCircuit,
+def create_Walternating_layered_ansatz(qc: qiskit.QuantumCircuit,
                                      thetas: np.ndarray,
                                      num_layers: int = 1):
-    """Create Walternating layerd ansatz
+    """Create Walternating layered ansatz
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -1033,10 +1033,10 @@ def create_Walternating_layerd_ansatz(qc: qiskit.QuantumCircuit,
     return qc
 
 
-def create_WalternatingCNOT_layerd_ansatz(qc: qiskit.QuantumCircuit,
+def create_WalternatingCNOT_layered_ansatz(qc: qiskit.QuantumCircuit,
                                          thetas: np.ndarray,
                                          num_layers: int = 1):
-    """Create WalternatingCNOT layerd ansatz
+    """Create WalternatingCNOT layered ansatz
 
     Args:
         - qc (qiskit.QuantumCircuit): init circuit
@@ -1067,7 +1067,7 @@ def calculate_n_walltoall(n):
     return n_walltoall
 
 
-def create_Walltoall_layerd_ansatz(qc: qiskit.QuantumCircuit,
+def create_Walltoall_layered_ansatz(qc: qiskit.QuantumCircuit,
                                   thetas: np.ndarray,
                                   num_layers: int = 1,
                                   limit=0):
@@ -1105,7 +1105,7 @@ def create_Walltoall_layerd_ansatz(qc: qiskit.QuantumCircuit,
     return qc
 
 
-def create_WalltoallCNOT_layerd_ansatz(qc: qiskit.QuantumCircuit,
+def create_WalltoallCNOT_layered_ansatz(qc: qiskit.QuantumCircuit,
                                       thetas: np.ndarray,
                                       num_layers: int = 1,
                                       limit=0):
