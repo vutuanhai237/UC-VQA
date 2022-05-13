@@ -9,8 +9,8 @@ for num_layers in layers:
     variances = []
     grads = []
     num_qubits = 5
-    thetas = np.ones(num_layers*num_qubits*4)
-    psi = 2*np.random.rand(2**num_qubits)-1
+    thetas = np.ones(int(num_qubits*num_layers/2) + 3 * num_layers * num_qubits)
+    psi = 2 * np.random.uniform(0, 2*np.pi, (2**num_qubits))
     psi = psi / np.linalg.norm(psi)
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
     qc.initialize(psi, range(0, num_qubits))
