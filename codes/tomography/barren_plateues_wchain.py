@@ -8,7 +8,7 @@ ts = []
 for num_layers in layers:
     variances = []
     grads = []
-    num_qubits = 5
+    num_qubits = 4
     thetas = np.ones(num_layers*num_qubits*4)
     psi = 2*np.random.rand(2**num_qubits)-1
     psi = psi / np.linalg.norm(psi)

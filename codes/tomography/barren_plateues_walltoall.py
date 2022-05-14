@@ -8,7 +8,7 @@ ts = []
 for num_layers in layers:
     variances = []
     grads = []
-    num_qubits = 5
+    num_qubits = 4
     n_walltoall = qtm.ansatz.calculate_n_walltoall(num_qubits)
     thetas = np.ones(num_layers* 3 * num_qubits + num_layers*n_walltoall)
 
