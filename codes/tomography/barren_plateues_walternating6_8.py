@@ -3,7 +3,7 @@ import numpy as np
 import sys
 sys.path.insert(1, '../')
 import qtm.base, qtm.constant, qtm.fubini_study
-layers = range(1, 6)
+layers = range(6, 9)
 ts = []
 for num_layers in layers:
     variances = []
@@ -32,4 +32,4 @@ for num_layers in layers:
         t.append(grad[-1])
     print(np.var(t))
     ts.append(np.var(t))
-np.savetxt("./barren_walternating.csv", ts, delimiter=",")
+np.savetxt("./barren_walternating6_8.csv", ts, delimiter=",")
