@@ -100,11 +100,11 @@ class QuantumCompilation():
                 self.optimizer = qtm.optimizer.sgd
             elif _optimizer == 'adam':
                 self.optimizer = qtm.optimizer.adam
-            elif _optimizer == 'qng_fubini_study':
+            elif _optimizer == 'qng-fubini-study':
                 self.optimizer = qtm.optimizer.qng_fubini_study
-            elif _optimizer == 'qng_qfim':
+            elif _optimizer == 'qng-qfim':
                 self.optimizer = qtm.optimizer.qng_qfim
-            elif _optimizer == 'qng_adam':
+            elif _optimizer == 'qng-adam':
                 self.optimizer = qtm.optimizer.qng_adam
         else:
             raise ValueError('The optimizer must be a function f: thetas -> thetas or string in ["sgd", "adam", "qng_qfim", "qng_fubini_study", "qng_adam"]')
@@ -161,31 +161,32 @@ class QuantumCompilation():
             self.traces, self.fidelities = qtm.utilities.calculate_state_tomography_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
         return
 
-    def save(self, metric: str, path = './', save_all: bool = False):
+    def save(self, metric: str = "", text = "", path = './', save_all: bool = False):
         """_summary_
 
         Args:
-            metric (str)
-            path (str, optional): Defaults to './'.
-            save_all (bool, optional): Save thetass, fidelity, trace and loss_value if save_all = True
+            - metric (str)
+            - text (str): Defaults to './'. Additional file name string
+            - path (str, optional): Defaults to './'.
+            - save_all (bool, optional): Save thetass, fidelity, trace and loss_value if save_all = True
 
         Raises:
             ValueError: if save_all = False and metric is not right.
         """
         if save_all:
-            np.savetxt(path + "/thetass.csv", self.thetass, delimiter=",")
-            np.savetxt(path + "/fidelities.csv", self.fidelities, delimiter=",")
-            np.savetxt(path + "/traces.csv", self.traces, delimiter=",")
-            np.savetxt(path + "/loss_values.csv", self.loss_values, delimiter=",")
+            np.savetxt(path + "/thetass" + text + ".csv", self.thetass, delimiter=",")
+            np.savetxt(path + "/fidelities"+ text + ".csv", self.fidelities, delimiter=",")
+            np.savetxt(path + "/traces" + text + ".csv", self.traces, delimiter=",")
+            np.savetxt(path + "/loss_values" + text + ".csv", self.loss_values, delimiter=",")
         else:
             if metric == 'thetas':
-                np.savetxt(path + "/thetass.csv", self.thetass, delimiter=",")
+                np.savetxt(path + "/thetass" + text + ".csv", self.thetass, delimiter=",")
             elif metric == 'fidelity':
-                np.savetxt(path + "/fidelities.csv", self.fidelities, delimiter=",")
+                np.savetxt(path + "/fidelities" + text + ".csv", self.fidelities, delimiter=",")
             elif metric == 'trace':
-                np.savetxt(path + "/traces.csv", self.traces, delimiter=",")
+                np.savetxt(path + "/traces" + text + ".csv", self.traces, delimiter=",")
             elif metric == 'loss_value':
-                np.savetxt(path + "/loss_values.csv", self.loss_values, delimiter=",")
+                np.savetxt(path + "/loss_values" + text + ".csv", self.loss_values, delimiter=",")
             else:
                 raise ValueError('The metric must be thetas, fidelity, trace or loss_value')
             print("Saved " + metric + " at " + path)
