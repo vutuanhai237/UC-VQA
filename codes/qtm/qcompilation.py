@@ -76,9 +76,9 @@ class QuantumCompilation():
         if callable(_loss_func):
             self.loss_func = _loss_func
         elif isinstance(_loss_func, str):
-            if _loss_func == 'loss_basic':
+            if _loss_func == 'loss-basic':
                 self.loss_func = qtm.loss.loss_basis
-            elif _loss_func == 'loss_fubini_study':
+            elif _loss_func == 'loss-fubini-study':
                 self.loss_func = qtm.loss.loss_fubini_study
         else:
             raise ValueError('The loss function must be a function f: measurement value -> loss value or string in ["loss_basic", "loss_fubini_study"]')

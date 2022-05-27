@@ -15,7 +15,7 @@ def run_wchain(num_layers, num_qubits):
         u = u,
         vdagger = qtm.ansatz.create_Wchain_layered_ansatz,
         optimizer = 'qng-fubini-study',
-        loss_func = 'loss-basic',
+        loss_func = 'loss-fubini-study',
         thetas = thetas,
         num_layers = num_layers
     )
@@ -24,7 +24,7 @@ def run_wchain(num_layers, num_qubits):
     print('Writting ... ' + str(num_layers) + ' layers,' + str(num_qubits) +
           ' qubits')
 
-    compiler.save(text=str(qtm.constant.noise_prob), save_all = True)
+    compiler.save(text=str(qtm.constant.noise_prob) + "mitigating", save_all = True)
 
 run_wchain(2, 5)
 print("Done!")
