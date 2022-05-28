@@ -3,7 +3,7 @@ import numpy as np
 
 # Training hyperparameter
 num_shots = 10000
-learning_rate = 0.04
+learning_rate = 0.02
 noise_prob = 0.01
 backend = qiskit.Aer.get_backend('qasm_simulator')
 

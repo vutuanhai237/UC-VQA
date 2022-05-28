@@ -15,7 +15,7 @@ def run_wchain(num_layers, num_qubits):
         u = u,
         vdagger = qtm.ansatz.create_Wchain_layered_ansatz,
         optimizer = 'qng-fubini-study',
-        loss_func = 'loss-basic',
+        loss_func = 'loss-fubini-study',
         thetas = thetas,
         num_layers = num_layers
     )
