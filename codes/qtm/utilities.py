@@ -1,8 +1,11 @@
+
 import qiskit
 import scipy
 import qtm.constant
 import numpy as np
 import types
+
+
 def extract_state(qc: qiskit.QuantumCircuit):
     """Get infomation about quantum circuit
 
@@ -61,7 +64,7 @@ def get_metrics(psi, psi_hat):
     rho = qiskit.quantum_info.DensityMatrix(psi)
     sigma = qiskit.quantum_info.DensityMatrix(psi_hat)
     return qtm.utilities.trace_distance(rho,
-                                   sigma), qtm.utilities.trace_fidelity(rho, sigma)
+                                        sigma), qtm.utilities.trace_fidelity(rho, sigma)
 
 
 def calculate_state_preparation_metrics(create_u_func: types.FunctionType, vdagger: qiskit.QuantumCircuit, thetass, **kwargs):
@@ -87,7 +90,7 @@ def calculate_state_preparation_metrics(create_u_func: types.FunctionType, vdagg
 def calculate_state_tomography_metrics(u: qiskit.QuantumCircuit, create_vdagger_func: types.FunctionType, thetass, **kwargs):
     traces = []
     fidelities = []
-    n = u.num_qubits   
+    n = u.num_qubits
     for thetas in thetass:
         psi = qiskit.quantum_info.Statevector.from_instruction(u)
         rho_psi = qiskit.quantum_info.DensityMatrix(psi)
@@ -100,3 +103,40 @@ def calculate_state_tomography_metrics(u: qiskit.QuantumCircuit, create_vdagger_
         fidelities.append(fidelity)
 
     return traces, fidelities
+
+
+def haar_measure(n):
+    """A Random matrix distributed with Haar measure
+
+    Args:
+        n (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    z = (scipy.randn(n, n) + 1j*scipy.randn(n, n))/scipy.sqrt(2.0)
+    q, r = scipy.linalg.qr(z)
+    d = scipy.diagonal(r)
+    ph = d/scipy.absolute(d)
+    q = scipy.multiply(q, ph, q)
+    return q
+
+
+def normalize_matrix(matrix):
+    """Follow the formula from Bin Ho
+
+    Args:
+        matrix (numpy.ndarray): input matrix
+
+    Returns:
+        numpy.ndarray: normalized matrix
+    """
+    return np.conjugate(np.transpose(matrix)) @ matrix / np.trace(np.conjugate(np.transpose(matrix)) @ matrix)
+
+
+def is_pos_def(matrix, error=1e-8):
+    return np.all(np.linalg.eigvalsh(matrix) > -error)
+
+
+def is_normalized(matrix):
+    return np.isclose(np.trace(matrix), 1)
