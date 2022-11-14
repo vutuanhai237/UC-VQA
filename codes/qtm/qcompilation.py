@@ -76,9 +76,9 @@ class QuantumCompilation():
         if callable(_loss_func):
             self.loss_func = _loss_func
         elif isinstance(_loss_func, str):
-            if _loss_func == 'loss-basic':
+            if _loss_func == 'loss_basic':
                 self.loss_func = qtm.loss.loss_basis
-            elif _loss_func == 'loss-fubini-study':
+            elif _loss_func == 'loss_fubini_study':
                 self.loss_func = qtm.loss.loss_fubini_study
         else:
             raise ValueError('The loss function must be a function f: measurement value -> loss value or string in ["loss_basic", "loss_fubini_study"]')
@@ -100,11 +100,11 @@ class QuantumCompilation():
                 self.optimizer = qtm.optimizer.sgd
             elif _optimizer == 'adam':
                 self.optimizer = qtm.optimizer.adam
-            elif _optimizer == 'qng-fubini-study':
+            elif _optimizer == 'qng_fubini_study':
                 self.optimizer = qtm.optimizer.qng_fubini_study
-            elif _optimizer == 'qng-qfim':
+            elif _optimizer == 'qng_qfim':
                 self.optimizer = qtm.optimizer.qng_qfim
-            elif _optimizer == 'qng-adam':
+            elif _optimizer == 'qng_adam':
                 self.optimizer = qtm.optimizer.qng_adam
         else:
             raise ValueError('The optimizer must be a function f: thetas -> thetas or string in ["sgd", "adam", "qng_qfim", "qng_fubini_study", "qng_adam"]')
