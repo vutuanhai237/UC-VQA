@@ -139,4 +139,5 @@ def is_pos_def(matrix, error=1e-8):
 
 
 def is_normalized(matrix):
+    print(np.trace(matrix))
     return np.isclose(np.trace(matrix), 1)
