@@ -1,6 +1,6 @@
-# Source code for the paper title "Universal compilation for quantum state tomography"
+# Source code for the paper entitled "Universal compilation for quantum state tomography"
 
-Author: Vu Tuan Hai and Le Bin Ho
+Author: Vu Tuan Hai (haivt@uit.edu.vn) and Le Bin Ho (binho@fris.tohoku.ac.jp)
 
 Access: https://doi.org/10.1038/s41598-023-30983-4
 
@@ -8,8 +8,7 @@ Bibitem:
 
 ```
 @Article{Hai2023,
-      author={Hai, Vu Tuan
-      and Ho, Le Bin},
+      author={Hai, Vu Tuan and Ho, Le Bin},
       title={Universal compilation for quantum state tomography},
       journal={Scientific Reports},
       year={2023},
