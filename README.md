@@ -1,19 +1,26 @@
-# Source code for the paper title "Universal compilation for quantum state preparation and tomography"
+# Source code for the paper title "Universal compilation for quantum state tomography"
 
 Author: Vu Tuan Hai and Le Bin Ho
 
-Access: https://arxiv.org/abs/2204.11635
+Access: https://doi.org/10.1038/s41598-023-30983-4
 
 Bibitem:
 
 ```
-@misc{hai2022universal,
-      title={Universal compilation for quantum state preparation and tomography}, 
-      author={Vu Tuan Hai and Le Bin Ho},
-      year={2022},
-      eprint={2204.11635},
-      archivePrefix={arXiv},
-      primaryClass={quant-ph}
+@Article{Hai2023,
+      author={Hai, Vu Tuan
+      and Ho, Le Bin},
+      title={Universal compilation for quantum state tomography},
+      journal={Scientific Reports},
+      year={2023},
+      month={Mar},
+      day={06},
+      volume={13},
+      number={1},
+      pages={3750},
+      issn={2045-2322},
+      doi={10.1038/s41598-023-30983-4},
+      url={https://doi.org/10.1038/s41598-023-30983-4}
 }
 ```
 
