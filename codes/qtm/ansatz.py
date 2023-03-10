@@ -1130,3 +1130,26 @@ def create_WalltoallCNOT_layered_ansatz(qc: qiskit.QuantumCircuit,
         qc = create_rx_nqubit(qc, phis[n: n * 2])
         qc = create_rz_nqubit(qc, phis[n * 2: n * 3])
     return qc
+
+
+def create_AMEchecker_polygongraph(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
+                                 num_layers: int):
+    """Create circuit includes linear and W
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): parameters
+        - num_layers (int)
+        - theta (float): param for general W
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+
+    # |psi_gen> = U_gen|000...>
+    qc = create_polygongraph_ansatz(qc, thetas, num_layers)
+    # U_target^t|psi_gen> with U_target is AME state
+    qc = qtm.state.create_AME_state_inverse(qc)
+    return qc

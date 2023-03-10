@@ -25,7 +25,7 @@ def create_observers(qc: qiskit.QuantumCircuit, k: int = 0):
         if gate_name in ['barrier', 'swap']:
             continue
         # 2-qubit param gates
-        if gate[0].name in ['crx', 'cry', 'crz', 'cx']:
+        if gate[0].name in ['crx', 'cry', 'crz', 'cx','cz']:
             # Take controlled wire as index
             wire = qc.num_qubits - 1 - gate[1][1].index
             # Take control wire as index
@@ -64,7 +64,7 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: typing.Dict[str, int]):
         if observer_wire == 0:
             K = observer
         else:
-            if observer_name in ['crx', 'cry', 'crz']:
+            if observer_name in ['crx', 'cry', 'crz','cz']:
                 K = qtm.constant.generator['11']
             else:
                 K = qtm.constant.generator['i']
@@ -72,7 +72,7 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: typing.Dict[str, int]):
             if i == observer_wire:
                 K = np.kron(K, observer)
             else:
-                if observer_name in ['crx', 'cry', 'crz']:
+                if observer_name in ['crx', 'cry', 'crz','cz']:
                     K = np.kron(K, qtm.constant.generator['11'])
                 else:
                     K = np.kron(K, qtm.constant.generator['i'])
