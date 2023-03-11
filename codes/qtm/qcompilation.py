@@ -159,7 +159,7 @@ class QuantumCompilation():
             self.traces, self.fidelities = qtm.utilities.calculate_state_preparation_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
         else:
             self.traces, self.fidelities = qtm.utilities.calculate_state_tomography_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
-        return
+        return 
 
     def save(self, metric: str = "", text = "", path = './', save_all: bool = False):
         """_summary_

@@ -1140,7 +1140,7 @@ def create_AMEchecker_polygongraph(qc: qiskit.QuantumCircuit, thetas: np.ndarray
         - qc (qiskit.QuantumCircuit): init circuit
         - thetas (np.ndarray): parameters
         - num_layers (int)
-        - theta (float): param for general W
+        - theta (float): param for general AME
 
     Returns:
         - qiskit.QuantumCircuit
@@ -1151,5 +1151,27 @@ def create_AMEchecker_polygongraph(qc: qiskit.QuantumCircuit, thetas: np.ndarray
     # |psi_gen> = U_gen|000...>
     qc = create_polygongraph_ansatz(qc, thetas, num_layers)
     # U_target^t|psi_gen> with U_target is AME state
+    qc = qtm.state.create_AME_state_inverse(qc)
+    return qc
+
+def create_AMEchecker_star2graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray,
+                               num_layers: int):
+    """Create circuit includes linear and AME
+
+    Args:
+        - qc (qiskit.QuantumCircuit): init circuit
+        - thetas (np.ndarray): parameters
+        - num_layers (int)
+        - theta (float): param for general W
+
+    Returns:
+        - qiskit.QuantumCircuit
+    """
+    if isinstance(num_layers, int) != True:
+        num_layers = num_layers['num_layers']
+
+    # |psi_gen> = U_gen|000...>
+    qc = create_stargraph_ansatz(qc, thetas, num_layers)
+    # U_target^t|psi_gen> with U_target is AME ßstate
     qc = qtm.state.create_AME_state_inverse(qc)
     return qc

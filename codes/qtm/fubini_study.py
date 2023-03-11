@@ -156,7 +156,7 @@ def split_into_layers(qc: qiskit.QuantumCircuit):
             layer = []
             wires = []
         # Update sub-layer status
-        if len(param) == 0:
+        if len(param) == 0 or name == 'state_preparation_dg':
             is_param_layer = False
         else:
             is_param_layer = True
@@ -220,6 +220,7 @@ def qng(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: type
     qc_new = create_circuit_func(qc_new, thetas, **kwargs)
     # Splitting circuit into list of V and W sub-layer (non-parameter and parameter)
     layers = split_into_layers(qc_new)
+    
     for is_param_layer, layer in layers:
         if is_param_layer:
             observers = qtm.fubini_study.create_observers(
