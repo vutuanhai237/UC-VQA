@@ -51,7 +51,7 @@ def trace_fidelity(rho, sigma):
             (scipy.linalg.sqrtm(rho)) @ (rho)) @ (scipy.linalg.sqrtm(sigma)))
 
 
-def get_metrics(psi, psi_hat):
+def get_metrics(rho, sigma):
     """Get different metrics between the origin state and the reconstructed state
 
     Args:
@@ -61,8 +61,6 @@ def get_metrics(psi, psi_hat):
     Returns:
         - Tuple: trace and fidelity
     """
-    rho = qiskit.quantum_info.DensityMatrix(psi)
-    sigma = qiskit.quantum_info.DensityMatrix(psi_hat)
     return qtm.utilities.trace_distance(rho,
                                         sigma), qtm.utilities.trace_fidelity(rho, sigma)
 
@@ -73,15 +71,13 @@ def calculate_state_preparation_metrics(create_u_func: types.FunctionType, vdagg
     n = vdagger.num_qubits
     for thetas in thetass:
         # Target state
-        psi = qiskit.quantum_info.Statevector.from_instruction(vdagger)
-        rho_psi = qiskit.quantum_info.DensityMatrix(psi)
+        rho = qiskit.quantum_info.DensityMatrix.from_instruction(vdagger.inverse())
         # Preparation state
         u = qiskit.QuantumCircuit(n, n)
         u = create_u_func(u, thetas, **kwargs)
-        psi_hat = qiskit.quantum_info.Statevector.from_instruction(u)
-        rho_psi_hat = qiskit.quantum_info.DensityMatrix(psi_hat)
+        sigma = qiskit.quantum_info.DensityMatrix.from_instruction(u)
         # Calculate the metrics
-        trace, fidelity = qtm.utilities.get_metrics(psi, psi_hat)
+        trace, fidelity = qtm.utilities.get_metrics(rho, sigma)
         traces.append(trace)
         fidelities.append(fidelity)
     return traces, fidelities
@@ -92,13 +88,12 @@ def calculate_state_tomography_metrics(u: qiskit.QuantumCircuit, create_vdagger_
     fidelities = []
     n = u.num_qubits
     for thetas in thetass:
-        psi = qiskit.quantum_info.Statevector.from_instruction(u)
-        rho_psi = qiskit.quantum_info.DensityMatrix(psi)
+        rho = qiskit.quantum_info.DensityMatrix.from_instruction(u)
         v = qiskit.QuantumCircuit(n, n)
         v = create_vdagger_func(v, thetas, **kwargs).inverse()
-        psi_hat = qiskit.quantum_info.Statevector.from_instruction(v)
+        sigma = qiskit.quantum_info.DensityMatrix.from_instruction(v)
         # Calculate the metrics
-        trace, fidelity = qtm.utilities.get_metrics(psi, psi_hat)
+        trace, fidelity = qtm.utilities.get_metrics(rho, sigma)
         traces.append(trace)
         fidelities.append(fidelity)
 
