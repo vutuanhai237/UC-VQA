@@ -4,7 +4,58 @@ import scipy
 import qtm.constant
 import numpy as np
 import types
+from qiskit.quantum_info import Statevector
 
+def parallized_swap_test(u: qiskit.QuantumCircuit):
+    # circuit = qtm.state.create_w_state(5)
+    n_qubit = u.num_qubits
+    qubits_list_first = list(range(n_qubit, 2*n_qubit))
+    qubits_list_second = list(range(2*n_qubit, 3*n_qubit))
+
+    # Create swap test circuit
+    swap_test_circuit = qiskit.QuantumCircuit(3*n_qubit, n_qubit)
+
+    # Add initial circuit the first time
+
+    swap_test_circuit = swap_test_circuit.compose(u, qubits=qubits_list_first)
+    # Add initial circuit the second time
+    swap_test_circuit = swap_test_circuit.compose(u, qubits=qubits_list_second)
+    swap_test_circuit.barrier()
+
+    # Add hadamard gate
+    swap_test_circuit.h(list(range(0, n_qubit)))
+    swap_test_circuit.barrier()
+        
+    for i in range(n_qubit):
+        # Add control-swap gate
+        swap_test_circuit.cswap(i, i+n_qubit, i+2*n_qubit)
+    swap_test_circuit.barrier()
+
+    # Add hadamard gate
+    swap_test_circuit.h(list(range(0, n_qubit)))
+    swap_test_circuit.barrier()
+    return swap_test_circuit 
+
+def concentratable_entanglement(u: qiskit.QuantumCircuit,exact=False):
+    qubit = list(range(u.num_qubits))
+    n = len(qubit)
+    cbits = qubit.copy()
+    swap_test_circuit = parallized_swap_test(u)
+    
+    if exact:
+        statevec = Statevector(swap_test_circuit)
+        statevec.seed(value=42)
+        probs = statevec.evolve(swap_test_circuit).probabilities_dict(qargs=qubit)
+        return 1- probs["0"*len(qubit)]
+    else:
+        for i in range(0,n):
+            swap_test_circuit.measure(qubit[i],cbits[i])
+
+        counts = qiskit.execute(
+            swap_test_circuit,backend=qtm.constant.backend,shots=qtm.constant.num_shots
+        ).result().get_counts()
+
+        return 1-counts.get("0"*len(qubit),0)/qtm.constant.num_shots
 
 def extract_state(qc: qiskit.QuantumCircuit):
     """Get infomation about quantum circuit
@@ -80,7 +131,11 @@ def calculate_state_preparation_metrics(create_u_func: types.FunctionType, vdagg
         trace, fidelity = qtm.utilities.get_metrics(rho, sigma)
         traces.append(trace)
         fidelities.append(fidelity)
-    return traces, fidelities
+
+    u = qiskit.QuantumCircuit(n, n)
+    u = create_u_func(u, thetass[-1], **kwargs)
+    ce = concentratable_entanglement(u)
+    return traces, fidelities, ce
 
 
 def calculate_state_tomography_metrics(u: qiskit.QuantumCircuit, create_vdagger_func: types.FunctionType, thetass, **kwargs):

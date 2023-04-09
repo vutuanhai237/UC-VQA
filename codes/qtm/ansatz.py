@@ -948,6 +948,7 @@ def create_Wchain_layered_ansatz(qc: qiskit.QuantumCircuit,
     n = qc.num_qubits
     if isinstance(num_layers, int) != True:
         num_layers = (num_layers['num_layers'])
+
     if len(thetas) != num_layers * (n * 4):
         raise Exception(
             'Number of parameters must be equal n_layers * num_qubits * 4')
@@ -1085,10 +1086,10 @@ def create_Walltoall_layered_ansatz(qc: qiskit.QuantumCircuit,
     if isinstance(num_layers, int) != True:
         num_layers = (num_layers['num_layers'])
 
-    # if len(thetas) != num_layers * (3 * n) + num_layers * n_walltoall:
-    #     raise Exception(
-    #         'Number of parameters must be equal num_layers*(3*n) + num_layers*n_walltoall'
-    #     )
+    if len(thetas) != num_layers * (3 * n) + num_layers * n_walltoall:
+        raise Exception(
+            'Number of parameters must be equal num_layers*(3*n) + num_layers*n_walltoall'
+        )
     for i in range(0, num_layers):
         phis = thetas[i * (3 * n) + i * n_walltoall:(i + 1) * (3 * n) +
                       (i + 1) * n_walltoall]

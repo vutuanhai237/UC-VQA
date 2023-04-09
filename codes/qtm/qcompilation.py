@@ -20,10 +20,9 @@ class QuantumCompilation():
         self.fidelities = []
         self.traces = []
         self.kwargs = None
-        self.is_evolutional = False;
         return
 
-    def __init__(self, u: typing.Union[types.FunctionType, qiskit.QuantumCircuit], vdagger: typing.Union[types.FunctionType, qiskit.QuantumCircuit], optimizer: typing.Union[types.FunctionType, str], loss_func: typing.Union[types.FunctionType, str], thetas: np.ndarray = np.array([]), is_evolutional = False, **kwargs):
+    def __init__(self, u: typing.Union[types.FunctionType, qiskit.QuantumCircuit], vdagger: typing.Union[types.FunctionType, qiskit.QuantumCircuit], optimizer: typing.Union[types.FunctionType, str], loss_func: typing.Union[types.FunctionType, str], thetas: np.ndarray = np.array([]), **kwargs):
         """_summary_
 
         Args:
@@ -39,7 +38,6 @@ class QuantumCompilation():
         self.set_loss_func(loss_func)
         self.set_kwargs(**kwargs)
         self.set_thetas(thetas)
-        self.is_evolutional(is_evolutional)
         return
 
     def set_u(self, _u: typing.Union[types.FunctionType, qiskit.QuantumCircuit]):
@@ -154,21 +152,16 @@ class QuantumCompilation():
             - verbose (int, optional): 0, 1, or 2. Verbosity mode. 0 = silent, 1 = progress bar, 2 = one line per 10 steps. Verbose 1 is good for timing training time, verbose 2 if you want to log loss values to a file. Please install package tdqm if you want to use verbose 1. 
         
         """
-        if self.is_evolutional:
-            self.traces, self.fidelities = qtm.base.fit_evo(
-                self.u, self.vdagger, self.thetas, num_steps, self.loss_func, self.optimizer, verbose, is_return_all_thetas=True, **self.kwargs)
-        else:
-            self.thetass, self.loss_values = qtm.base.fit(
-                self.u, self.vdagger, self.thetas, num_steps, self.loss_func, self.optimizer, verbose, is_return_all_thetas=True, **self.kwargs)
+        self.thetass, self.loss_values = qtm.base.fit(
+            self.u, self.vdagger, self.thetas, num_steps, self.loss_func, self.optimizer, verbose, is_return_all_thetas=True, **self.kwargs)
         self.is_trained = True
-        
         if callable(self.u):
-            self.traces, self.fidelities = qtm.utilities.calculate_state_preparation_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
+            self.traces, self.fidelities, self.ce = qtm.utilities.calculate_state_preparation_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
         else:
             self.traces, self.fidelities = qtm.utilities.calculate_state_tomography_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
         return 
 
-    def save(self, metric: str = "", text = "", path = './', save_all: bool = False):
+    def save(self, metric: str = "", text = "", path = './', save_all: bool = False,run_trial=0):
         """_summary_
 
         Args:
@@ -184,6 +177,7 @@ class QuantumCompilation():
             np.savetxt(path + "/thetass" + text + ".csv", self.thetass, delimiter=",")
             np.savetxt(path + "/fidelities"+ text + ".csv", self.fidelities, delimiter=",")
             np.savetxt(path + "/traces" + text + ".csv", self.traces, delimiter=",")
+            np.savetxt(path + "/ce_values" + text + f"_{run_trial}" + ".csv", [self.ce], delimiter=",")
             np.savetxt(path + "/loss_values" + text + ".csv", self.loss_values, delimiter=",")
         else:
             if metric == 'thetas':
