@@ -7,8 +7,18 @@ import qtm.optimizer
 import qtm.fubini_study
 import numpy as np
 import types, typing
+from DQASsearch import DQAS_search
+from utils import set_op_pool
+from vag import GHZ_vag 
+from pennylane import numpy as np
+import tensorflow as tf 
+import qtm.constant
 
 
+def evo_condition(loss_values: np.ndaraay):
+    if abs(loss_values[-10] - loss_values[-1]) < 0.01:
+        return True
+    return True
 def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[]):
     """Measuring the quantu circuit which fully measurement gates
 
@@ -430,13 +440,19 @@ def fit_state_preparation_evo(create_u_func: types.FunctionType,
     """
     if verbose == 1:
         bar = qtm.progress_bar.ProgressBar(max_value=num_steps, disable=False)
+    traces = []
+    fidelities = []
     thetass = []
     loss_values = []
+    is_evo = False
+    def create_circuit_func(vdagger: qiskit.QuantumCircuit, _thetas: np.ndarray, **kwargs):
+        # nonlocal is_evo
+        # if is_evo:
+            
+        #     return create_u_func(qiskit.QuantumCircuit(vdagger.num_qubits, vdagger.num_qubits), thetas, **kwargs).combine(vdagger)
+        return create_u_func(qiskit.QuantumCircuit(vdagger.num_qubits, vdagger.num_qubits), _thetas, **kwargs).combine(vdagger)
+        
 
-    def create_circuit_func(vdagger: qiskit.QuantumCircuit, thetas: np.ndarray, **kwargs):
-        #return create_u_func(qiskit.QuantumCircuit(vdagger.num_qubits, vdagger.num_qubits), thetas, **kwargs).combine(vdagger)
-        # extend or truncate thetas if needed
-        return #your circuit
     for i in range(0, num_steps):
         grad_loss = qtm.base.grad_loss(vdagger, create_circuit_func, thetas, **kwargs)
         optimizer_name = optimizer.__name__
@@ -482,7 +498,30 @@ def fit_state_preparation_evo(create_u_func: types.FunctionType,
         loss = loss_func(
             qtm.base.measure(v_copy, list(range(v_copy.num_qubits))))
         loss_values.append(loss)
+        
+        if evo_condition(loss_values):
+            set_op_pool(qtm.constant.ghz_pool)
+            c = len(qtm.constant.ghz_pool)
+            p = 5
+            cand_weight, qcircuit = DQAS_search(
+                GHZ_vag,
+                nq=3,
+                p=p,
+                batch=10,
+                epochs=3,
+                verbose=False,
+                nnp_initial_value=np.zeros([p, c]),
+                structure_opt=tf.keras.optimizers.Adam(learning_rate=0.15),
+            )
+            
+            is_evo = False
+            thetas = cand_weight
+            create_u_func = qcircuit
+       
+        trace, fidelity = qtm.utilities.calculate_state_preparation_metrics_tiny(create_u_func, vdagger, thetas, **kwargs)
         thetass.append(thetas.copy())
+        traces.append(trace)
+        fidelities.append(fidelity)
         if verbose == 1:
             bar.update(1)
         if verbose == 2 and i % 10 == 0:
@@ -492,11 +531,12 @@ def fit_state_preparation_evo(create_u_func: types.FunctionType,
         bar.close()
 
     if is_return_all_thetas:
-        return thetass, loss_values
+        return thetass, loss_values, traces, fidelities
     else:
-        return thetas, loss_values
+        return thetas, loss_values, traces, fidelities
+            
     
-def fit(u: typing.Union[qiskit.QuantumCircuit, types.FunctionType], v: typing.Union[qiskit.QuantumCircuit, types.FunctionType],
+def fit_evo(u: typing.Union[qiskit.QuantumCircuit, types.FunctionType], v: typing.Union[qiskit.QuantumCircuit, types.FunctionType],
         thetas: np.ndarray,
         num_steps: int,
         loss_func: types.FunctionType,

@@ -20,6 +20,19 @@ four_term_psr = {
     'd_minus': (np.sqrt(2) - 1) / (4*np.sqrt(2))
 }
 
+ghz_pool = [
+    ("RY", 0),
+    ("RY", 1),
+    ("RY", 2),
+    ("CNOT", 0, 1),
+    ("CNOT", 1, 0),
+    ("CNOT", 0, 2),
+    ("CNOT", 2, 0),
+    ("Hadamard", 0),
+    ("Hadamard", 1),
+    ("Hadamard", 2)
+]
+
 # For QNG
 generator = {
     'cu': -1 / 2 * np.array([[0, -1j], [1j, 0]], dtype=np.complex128),
