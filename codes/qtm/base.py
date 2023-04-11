@@ -15,10 +15,11 @@ import tensorflow as tf
 import qtm.constant
 
 
-def evo_condition(loss_values: np.ndaraay):
-    if abs(loss_values[-10] - loss_values[-1]) < 0.01:
-        return True
-    return True
+def evo_condition(loss_values):
+    if len(loss_values) > 10:
+        if abs(loss_values[-10] - loss_values[-1]) < 0.01:
+            return True
+    return False
 def measure(qc: qiskit.QuantumCircuit, qubits, cbits=[]):
     """Measuring the quantu circuit which fully measurement gates
 

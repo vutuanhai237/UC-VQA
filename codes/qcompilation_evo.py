@@ -14,4 +14,4 @@ compiler = qtm.qcompilation.QuantumCompilation(
     num_layers = num_layers,
     is_evolutional=True
 )
-compiler.fit(num_steps = 5, verbose = 1)
+compiler.fit(num_steps = 30, verbose = 1)
