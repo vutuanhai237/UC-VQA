@@ -206,7 +206,7 @@ def DQAS_search(kernel_func: Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor
         # print(drawer(cand_weight,cand_preset,cset))
         # print(qcircuit(cand_weight,cand_preset,cset).draw())
         # print(cand_weight)
-        def _qcircuit(qc: qiskit.QuantumCircuit, thetas, num_layers: int):
+        def _qcircuit(qc: qiskit.QuantumCircuit, thetas):
             return qcircuit(qc, thetas,cand_preset,cset)
 
     # return stp, nnp, history, circuit, cand_weight, _qcircuit

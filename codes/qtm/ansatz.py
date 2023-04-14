@@ -3,8 +3,7 @@ import math
 import qtm.base
 import qtm.state
 import numpy as np
-
-
+import random
 def u_onequbit_ansatz(qc: qiskit.QuantumCircuit, thetas: np.ndarray, wire: int = 0):
     """Return a simple series of 1 qubit gate
 
@@ -136,8 +135,59 @@ def create_polygongraph_ansatz(qc: qiskit.QuantumCircuit, thetas: np.ndarray, nu
         qc.cz(0, n - 1)
         qc.barrier()
     return qc
+def create_hadamard_hypergraph_ansatz(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int):
+    n = qc.num_qubits
+    if len(thetas) != num_layers*(3*n):
+        raise ValueError(
+            'The number of parameter must be num_layers*(3*n)')
+    j = 0
+    for i in range(0, n):
+        qc.h(i)
+    for _ in range(0, num_layers, 1):
+        for i in range(0, n):
+            qc.ry(thetas[j], i)
+            j += 1
+        qc.cz(0, 1)
+        for i in range(0, n - 1):
+            qc.ry(thetas[j], i)
+            j += 1
+        qc.cz(0, n - 1)
+        qc.ry(thetas[j], 0)
+        j += 1
+        qc.ry(thetas[j], n - 1)
+        j += 1
+        qc.cz(n - 2, n - 1)
+        for i in range(1, n):
+            qc.ry(thetas[j], i)
+            j += 1
+        qc.ccz(0,1,2)
+    return qc
 
-
+def create_hypergraph_ansatz(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int):
+    n = qc.num_qubits
+    if len(thetas) != num_layers*(3*n):
+        raise ValueError(
+            'The number of parameter must be num_layers*(3*n)')
+    j = 0
+    for _ in range(0, num_layers, 1):
+        for i in range(0, n):
+            qc.ry(thetas[j], i)
+            j += 1
+        qc.cz(0, 1)
+        for i in range(0, n - 1):
+            qc.ry(thetas[j], i)
+            j += 1
+        qc.cz(0, n - 1)
+        qc.ry(thetas[j], 0)
+        j += 1
+        qc.ry(thetas[j], n - 1)
+        j += 1
+        qc.cz(n - 2, n - 1)
+        for i in range(1, n):
+            qc.ry(thetas[j], i)
+            j += 1
+        qc.ccz(0,1,2)
+    return qc
 # def create_GHZchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, theta: float):
 #     """Create circuit includes linear and GHZ
 
@@ -1174,3 +1224,26 @@ def create_WalltoallCNOT_layered_ansatz(qc: qiskit.QuantumCircuit,
 #     # U_target^t|psi_gen> with U_target is AME ßstate
 #     qc = qtm.state.create_AME_state_inverse(qc)
 #     return qc
+
+
+def random_ccz_circuit(num_qubits, num_gates):
+    """Adds a random number of CZ or CCZ gates (up to `max_gates`) to the given circuit."""
+    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
+    sure = True if num_gates < 3 else False
+    for _ in range(num_gates):
+        if np.random.randint(2, size=1) == 0 or sure:
+            wires = random.sample(range(0, num_qubits), 2)
+            qc.cz(wires[0], wires[1])
+        else:
+            wires = random.sample(range(0, num_qubits), 3)
+            wires.sort()
+            qc.ccz(wires[0], wires[1], wires[2])
+    return qc
+
+def ry_layer(num_qubits, num_layers, thetas):
+    """Adds a random number of CZ or CCZ gates (up to `max_gates`) to the given circuit."""
+    qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
+    for i in range(0, num_qubits):
+        for _ in range(num_layers):
+            qc.ry(thetas[i], i)
+    return qc

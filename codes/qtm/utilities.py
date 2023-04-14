@@ -64,6 +64,18 @@ def get_metrics(rho, sigma):
     return qtm.utilities.trace_distance(rho,
                                         sigma), qtm.utilities.trace_fidelity(rho, sigma)
 
+def calculate_state_preparation_metrics_tiny2(create_u_func: types.FunctionType, additional_u, vdagger: qiskit.QuantumCircuit, thetas, **kwargs):
+    n = vdagger.num_qubits
+    # Target state
+    rho = qiskit.quantum_info.DensityMatrix.from_instruction(vdagger.inverse())
+    # Preparation state
+    u = qiskit.QuantumCircuit(n, n)
+    u = create_u_func(u, thetas, **kwargs).combine(additional_u)
+    sigma = qiskit.quantum_info.DensityMatrix.from_instruction(u)
+    # Calculate the metrics
+    trace, fidelity = qtm.utilities.get_metrics(rho, sigma)
+    return trace, fidelity
+
 def calculate_state_preparation_metrics_tiny(create_u_func: types.FunctionType, vdagger: qiskit.QuantumCircuit, thetas, **kwargs):
     n = vdagger.num_qubits
     # Target state

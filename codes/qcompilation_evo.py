@@ -3,15 +3,16 @@ import numpy as np
 import types
 num_qubits = 3
 num_layers = 1
-thetas = np.ones(num_qubits*num_layers*5)
+thetas = np.ones(3*num_qubits*num_layers)
+
 
 compiler = qtm.qcompilation.QuantumCompilation(
-    u = qtm.ansatz.create_linear_ansatz,
-    vdagger = qtm.state.create_ghz_state(num_qubits).inverse(),
+    u = qtm.ansatz.create_hypergraph_ansatz,
+    vdagger = qtm.state.create_AME_state(num_qubits).inverse(),
     optimizer = 'adam',
     loss_func = 'loss_basic',
     thetas = thetas,
-    num_layers = num_layers,
-    is_evolutional=True
+    is_evolutional=True,
+    num_layers = num_layers
 )
-compiler.fit(num_steps = 30, verbose = 1)
+compiler.fit(num_steps = 60, verbose = 1)
