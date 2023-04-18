@@ -23,7 +23,7 @@ class QuantumCompilation():
         self.is_evolutional = False
         return
 
-    def __init__(self, u: typing.Union[types.FunctionType, qiskit.QuantumCircuit], vdagger: typing.Union[types.FunctionType, qiskit.QuantumCircuit], optimizer: typing.Union[types.FunctionType, str], loss_func: typing.Union[types.FunctionType, str], thetas: np.ndarray = np.array([]), is_evolutional = False, **kwargs):
+    def __init__(self, u: typing.Union[types.FunctionType, qiskit.QuantumCircuit], vdagger: typing.Union[types.FunctionType, qiskit.QuantumCircuit], optimizer: typing.Union[types.FunctionType, str], loss_func: typing.Union[types.FunctionType, str], thetas: np.ndarray = np.array([]), **kwargs):
         """_summary_
 
         Args:
@@ -169,7 +169,7 @@ class QuantumCompilation():
                 self.traces, self.fidelities = qtm.utilities.calculate_state_tomography_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
             return 
 
-    def save(self, metric: str = "", text = "", path = './', save_all: bool = False):
+    def save(self, metric: str = "", text = "", path = './', save_all: bool = False,run_trial=0):
         """_summary_
 
         Args:
@@ -185,6 +185,7 @@ class QuantumCompilation():
             np.savetxt(path + "/thetass" + text + ".csv", self.thetass, delimiter=",")
             np.savetxt(path + "/fidelities"+ text + ".csv", self.fidelities, delimiter=",")
             np.savetxt(path + "/traces" + text + ".csv", self.traces, delimiter=",")
+            np.savetxt(path + "/ce_values" + text + f"_{run_trial}" + ".csv", [self.ce], delimiter=",")
             np.savetxt(path + "/loss_values" + text + ".csv", self.loss_values, delimiter=",")
         else:
             if metric == 'thetas':
