@@ -4,7 +4,8 @@ import numpy as np
 # Training hyperparameter
 num_shots = 10000
 learning_rate = 0.1
-noise_prob = 0.01
+noise_prob = 0
+delta = 0.01 # minimum change value of loss value
 backend = qiskit.Aer.get_backend('qasm_simulator')
 
 # For parameter-shift rule
@@ -19,6 +20,19 @@ four_term_psr = {
     'd_plus' : (np.sqrt(2) + 1) / (4*np.sqrt(2)),
     'd_minus': (np.sqrt(2) - 1) / (4*np.sqrt(2))
 }
+
+ghz_pool = [
+    ("RY", 0),
+    ("RY", 1),
+    ("RY", 2),
+    ("CNOT", 0, 1),
+    ("CNOT", 1, 0),
+    ("CNOT", 0, 2),
+    ("CNOT", 2, 0),
+    ("Hadamard", 0),
+    ("Hadamard", 1),
+    ("Hadamard", 2)
+]
 
 # For QNG
 generator = {
