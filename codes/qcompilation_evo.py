@@ -10,9 +10,9 @@ compiler = qtm.qcompilation.QuantumCompilation(
     u = qtm.ansatz.create_hypergraph_ansatz,
     vdagger = qtm.state.create_AME_state(num_qubits).inverse(),
     optimizer = 'adam',
-    loss_func = 'loss_basic',
+    loss_func = 'loss_fubini_study',
     thetas = thetas,
     is_evolutional=True,
     num_layers = num_layers
 )
-compiler.fit(num_steps = 60, verbose = 1)
+compiler.fit(num_steps = 100, verbose = 1)

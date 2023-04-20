@@ -6,6 +6,7 @@ import numpy as np
 import typing, types
 import qiskit
 import matplotlib.pyplot as plt
+import os
 
 class QuantumCompilation():
     def __init__(self) -> None:
@@ -19,11 +20,12 @@ class QuantumCompilation():
         self.loss_values = []
         self.fidelities = []
         self.traces = []
+        self.ce = None
         self.kwargs = None
         self.is_evolutional = False
         return
 
-    def __init__(self, u: typing.Union[types.FunctionType, qiskit.QuantumCircuit], vdagger: typing.Union[types.FunctionType, qiskit.QuantumCircuit], optimizer: typing.Union[types.FunctionType, str], loss_func: typing.Union[types.FunctionType, str], thetas: np.ndarray = np.array([]), **kwargs):
+    def __init__(self, u: typing.Union[types.FunctionType, qiskit.QuantumCircuit], vdagger: typing.Union[types.FunctionType, qiskit.QuantumCircuit], optimizer: typing.Union[types.FunctionType, str], loss_func: typing.Union[types.FunctionType, str], thetas: np.ndarray = np.array([]), is_evolutional = False, **kwargs):
         """_summary_
 
         Args:
@@ -156,7 +158,7 @@ class QuantumCompilation():
         """
         self.is_trained = True
         if self.is_evolutional:
-            self.thetass, self.loss_values, self.traces, self.fidelities = qtm.base.fit_evo(
+            self.thetass, self.loss_values, self.traces, self.fidelities, self.ce = qtm.base.fit_evo(
                 self.u, self.vdagger, self.thetas, num_steps, self.loss_func, self.optimizer, verbose, is_return_all_thetas=True, **self.kwargs)
             return        
         else:
@@ -164,9 +166,9 @@ class QuantumCompilation():
                 self.u, self.vdagger, self.thetas, num_steps, self.loss_func, self.optimizer, verbose, is_return_all_thetas=True, **self.kwargs)
         
             if callable(self.u):
-                self.traces, self.fidelities = qtm.utilities.calculate_state_preparation_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
+                self.traces, self.fidelities, self.ce = qtm.utilities.calculate_state_preparation_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
             else:
-                self.traces, self.fidelities = qtm.utilities.calculate_state_tomography_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
+                self.traces, self.fidelities, self.ce = qtm.utilities.calculate_state_tomography_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
             return 
 
     def save(self, metric: str = "", text = "", path = './', save_all: bool = False,run_trial=0):
@@ -181,8 +183,11 @@ class QuantumCompilation():
         Raises:
             ValueError: if save_all = False and metric is not right.
         """
+        if not os.path.exists(path):
+            os.makedirs(path)
         if save_all:
-            np.savetxt(path + "/thetass" + text + ".csv", self.thetass, delimiter=",")
+            #np.savetxt(path + "/thetass" + text + ".csv", self.thetass, delimiter=",")
+            np.savetxt(path + "/thetass" + text + ".csv", self.thetass, fmt='%s')
             np.savetxt(path + "/fidelities"+ text + ".csv", self.fidelities, delimiter=",")
             np.savetxt(path + "/traces" + text + ".csv", self.traces, delimiter=",")
             np.savetxt(path + "/ce_values" + text + f"_{run_trial}" + ".csv", [self.ce], delimiter=",")

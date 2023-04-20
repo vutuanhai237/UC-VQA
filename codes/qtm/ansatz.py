@@ -1244,7 +1244,7 @@ def random_ccz_circuit(num_qubits, num_gates):
 def ry_layer(num_qubits, num_layers, thetas):
     """Adds a random number of CZ or CCZ gates (up to `max_gates`) to the given circuit."""
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    for i in range(0, num_qubits):
-        for _ in range(num_layers):
-            qc.ry(thetas[i], i)
+    for j in range(0, num_layers):
+        for i in range(num_qubits):
+            qc.ry(thetas[i+j*num_qubits], i)
     return qc

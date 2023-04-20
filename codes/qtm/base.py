@@ -457,8 +457,7 @@ def fit_state_preparation_evo(create_u_func: types.FunctionType,
         grad_loss = qtm.base.grad_loss(
             vdagger, create_circuit_func, thetas, **kwargs)
         optimizer_name = optimizer.__name__
-        if i == num_steps - 1:
-            print(create_circuit_func(vdagger, thetas, **kwargs).draw())
+        
         if optimizer_name == 'sgd':
             thetas = qtm.optimizer.sgd(thetas, grad_loss)
 
@@ -574,6 +573,7 @@ def fit_state_preparation_evo2(create_u_func: types.FunctionType,
     additional_circuit = None
     origin_len = thetas.shape[0]
     num_cry_layer = 0
+    ces = []
     n = vdagger.num_qubits
     def create_circuit_func(vdagger: qiskit.QuantumCircuit, _thetas: np.ndarray, **kwargs):
         # nonlocal is_evo
@@ -592,14 +592,11 @@ def fit_state_preparation_evo2(create_u_func: types.FunctionType,
             v_copy = create_circuit_func(vdagger.copy(), thetas, **kwargs)
             # print(v_copy.draw())
             early_stopper.mode = "inactive"
-            print(i)
-                
                 
         grad_loss = qtm.base.grad_loss(
             vdagger, create_circuit_func, thetas, **kwargs)
         optimizer_name = optimizer.__name__
-        if i == num_steps - 1:
-            print(create_circuit_func(vdagger, thetas, **kwargs).draw())
+
         if optimizer_name == 'sgd':
             thetas = qtm.optimizer.sgd(thetas, grad_loss)
 
@@ -647,12 +644,16 @@ def fit_state_preparation_evo2(create_u_func: types.FunctionType,
         if additional_circuit == None:
             trace, fidelity = qtm.utilities.calculate_state_preparation_metrics_tiny(
                 create_u_func, vdagger, thetas, **kwargs)
+            
         else:
             trace, fidelity = qtm.utilities.calculate_state_preparation_metrics_tiny2(
                 create_u_func, additional_circuit(n, num_cry_layer, thetas[-num_cry_layer*n:]), vdagger, thetas[:-num_cry_layer*n], **kwargs)
+        
         thetass.append(thetas.copy())
         traces.append(trace)
         fidelities.append(fidelity)
+        u = create_circuit_func(qiskit.QuantumCircuit(n, n), thetass[-1], **kwargs)
+        ces.append(qtm.utilities.concentratable_entanglement(u))
         if i > 10:
             early_stopper.track(loss_values[-2], loss_values[-1])
         if verbose == 1:
@@ -664,9 +665,9 @@ def fit_state_preparation_evo2(create_u_func: types.FunctionType,
         bar.close()
 
     if is_return_all_thetas:
-        return thetass, loss_values, traces, fidelities
+        return thetass, loss_values, traces, fidelities, ces
     else:
-        return thetas, loss_values, traces, fidelities
+        return thetas, loss_values, traces, fidelities, ces
     
 def fit_evo(u: typing.Union[qiskit.QuantumCircuit, types.FunctionType], v: typing.Union[qiskit.QuantumCircuit, types.FunctionType],
             thetas: np.ndarray,

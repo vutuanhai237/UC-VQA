@@ -141,6 +141,20 @@ def create_AME_state(num_qubits: int):
     qc.prepare_state(amplitude_state, [0,1,2])
     return qc
 
+def create_AME_state_fake(num_qubits: int):
+    amplitude_state = np.array([
+            0.27,
+            0.363,
+            0.326,
+            0,
+            0.377,
+            0,
+            0,
+            np.sqrt(1-0.27**2-0.363**2-0.326**2-0.377**2)])
+    qc = qiskit.QuantumCircuit(num_qubits,num_qubits)
+    qc.prepare_state(amplitude_state, [0,1,2])
+    return qc
+
 def create_AME_state_inverse(qc: qiskit.QuantumCircuit):
     """Create n-qubit W state based on the its number of qubits
 
