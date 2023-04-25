@@ -40,6 +40,7 @@ def adam(thetas: np.ndarray, m: np.ndarray, v: np.ndarray, iteration: int,
     return thetas
 
 
+
 def qng_fubini_study(thetas: np.ndarray, G: np.ndarray, grad_loss: np.ndarray):
     """_summary_
 
@@ -55,6 +56,20 @@ def qng_fubini_study(thetas: np.ndarray, G: np.ndarray, grad_loss: np.ndarray):
                      (np.linalg.inv(G) @ grad_loss))
     return thetas
 
+def qng_fubini_study_scheduler(thetas: np.ndarray, G: np.ndarray, grad_loss: np.ndarray, iter: int):
+    """_summary_
+
+    Args:
+        - thetas (np.ndarray): parameters
+        - G (np.ndarray): Fubini-study matrix
+        - grad_loss (np.ndarray): gradient of loss function, is a N x 1 matrix
+
+    Returns:
+        - np.ndarray: parameters after update
+    """
+    lr = qtm.constant.learning_rate * qtm.constant.gamma ** round(iter / 30)
+    thetas = np.real(thetas - lr * ((np.linalg.inv(G) @ grad_loss)))
+    return thetas
 
 def qng_qfim(thetas: np.ndarray, psi: np.ndarray, grad_psi: np.ndarray,
              grad_loss: np.ndarray):

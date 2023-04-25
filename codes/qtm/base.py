@@ -276,7 +276,7 @@ def fit_state_tomography(u: qiskit.QuantumCircuit,
                     np.zeros(thetas.shape[0]))
             thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)
 
-        elif optimizer_name in ['qng_fubini_study', 'qng_qfim', 'qng_adam']:
+        elif 'qng' in optimizer_name:
             grad_psi1 = grad_psi(u,
                                  create_vdagger_func,
                                  thetas,
@@ -290,6 +290,10 @@ def fit_state_tomography(u: qiskit.QuantumCircuit,
                 G = qtm.fubini_study.qng(
                     u.copy(), thetas, create_vdagger_func, **kwargs)
                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
+            if optimizer_name == 'qng_fubini_study_scheduler':
+                G = qtm.fubini_study.qng(
+                    u.copy(), thetas, create_vdagger_func, **kwargs)
+                thetas = qtm.optimizer.qng_fubini_study_scheduler(thetas, G, grad_loss, i)
             if optimizer_name == 'qng_qfim':
                 thetas = qtm.optimizer.qng_qfim(
                     thetas, psi, grad_psi1, grad_loss)
@@ -365,7 +369,7 @@ def fit_state_preparation(create_u_func: types.FunctionType,
                     np.zeros(thetas.shape[0]))
             thetas = qtm.optimizer.adam(thetas, m, v1, i, grad_loss)
 
-        elif optimizer_name in ['qng_fubini_study', 'qng_qfim', 'qng_adam']:
+        elif 'qng' in optimizer_name:
             grad_psi1 = grad_psi(vdagger,
                                  create_circuit_func,
                                  thetas,
@@ -380,6 +384,10 @@ def fit_state_preparation(create_u_func: types.FunctionType,
                 G = qtm.fubini_study.qng(
                     vdagger.copy(), thetas, create_circuit_func, **kwargs)
                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
+            if optimizer_name == 'qng_fubini_study_scheduler':
+                G = qtm.fubini_study.qng(
+                    vdagger.copy(), thetas, create_circuit_func, **kwargs)
+                thetas = qtm.optimizer.qng_fubini_study_scheduler(thetas, G, grad_loss, i)
             if optimizer_name == 'qng_qfim':
 
                 thetas = qtm.optimizer.qng_qfim(
@@ -467,7 +475,7 @@ def fit_state_preparation_evo(create_u_func: types.FunctionType,
                     np.zeros(thetas.shape[0]))
             thetas = qtm.optimizer.adam(thetas, m, v1, i, grad_loss)
 
-        elif optimizer_name in ['qng_fubini_study', 'qng_qfim', 'qng_adam']:
+        elif 'qng' in optimizer_name:
             grad_psi1 = grad_psi(vdagger,
                                  create_circuit_func,
                                  thetas,
@@ -482,6 +490,10 @@ def fit_state_preparation_evo(create_u_func: types.FunctionType,
                 G = qtm.fubini_study.qng(
                     vdagger.copy(), thetas, create_circuit_func, **kwargs)
                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
+            if optimizer_name == 'qng_fubini_study_scheduler':
+                G = qtm.fubini_study.qng(
+                    vdagger.copy(), thetas, create_circuit_func, **kwargs)
+                thetas = qtm.optimizer.qng_fubini_study_scheduler(thetas, G, grad_loss, i)
             if optimizer_name == 'qng_qfim':
 
                 thetas = qtm.optimizer.qng_qfim(
@@ -609,7 +621,7 @@ def fit_state_preparation_evo2(create_u_func: types.FunctionType,
                 v1 += [0]*(thetas.shape[0]-len(v1))
             thetas = qtm.optimizer.adam(thetas, m, v1, i, grad_loss)
 
-        elif optimizer_name in ['qng_fubini_study', 'qng_qfim', 'qng_adam']:
+        elif 'qng' in optimizer_name:
             grad_psi1 = grad_psi(vdagger,
                                  create_circuit_func,
                                  thetas,
@@ -625,10 +637,8 @@ def fit_state_preparation_evo2(create_u_func: types.FunctionType,
                     vdagger.copy(), thetas, create_circuit_func, **kwargs)
                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
             if optimizer_name == 'qng_qfim':
-
                 thetas = qtm.optimizer.qng_qfim(
                     thetas, psi, grad_psi1, grad_loss)
-
             if optimizer_name == 'qng_adam':
                 if i == 0:
                     m, v1 = list(np.zeros(thetas.shape[0])), list(

@@ -106,6 +106,8 @@ class QuantumCompilation():
                 self.optimizer = qtm.optimizer.adam
             elif _optimizer == 'qng_fubini_study':
                 self.optimizer = qtm.optimizer.qng_fubini_study
+            elif _optimizer == 'qng_fubini_study_scheduler':
+                self.optimizer = qtm.optimizer.qng_fubini_study_scheduler
             elif _optimizer == 'qng_qfim':
                 self.optimizer = qtm.optimizer.qng_qfim
             elif _optimizer == 'qng_adam':
