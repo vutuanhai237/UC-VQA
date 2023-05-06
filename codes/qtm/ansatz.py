@@ -188,6 +188,39 @@ def create_hypergraph_ansatz(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_
             j += 1
         qc.ccz(0,1,2)
     return qc
+
+def create_hypergraph_layered_ansatz(qc: qiskit.QuantumCircuit, thetas: np.ndarray, num_layers: int):
+    n = qc.num_qubits
+    if len(thetas) != num_layers*(6*n):
+        raise ValueError(
+            'The number of parameter must be num_layers*(3*n)')
+    j = 0
+    for _ in range(0, num_layers, 1):
+        for i in range(0, n):
+            qc.ry(thetas[j], i)
+            j += 1
+        qc.cz(0, 1)
+        for i in range(0, n - 1):
+            qc.ry(thetas[j], i)
+            j += 1
+        qc.cz(0, n - 1)
+        qc.ry(thetas[j], 0)
+        j += 1
+        qc.ry(thetas[j], n - 1)
+        j += 1
+        qc.cz(n - 2, n - 1)
+        for i in range(1, n):
+            qc.ry(thetas[j], i)
+            j += 1
+        qc.ccz(0,1,2)
+        
+        qc = create_rz_nqubit(qc, thetas[j:j + n])
+        j += n
+        qc = create_rx_nqubit(qc, thetas[j:j + n])
+        j += n
+        qc = create_rz_nqubit(qc, thetas[j:j + n])
+        j += n
+    return qc
 # def create_GHZchecker_graph(qc: qiskit.QuantumCircuit, thetas: np.ndarray, theta: float):
 #     """Create circuit includes linear and GHZ
 
