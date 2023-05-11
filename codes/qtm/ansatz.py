@@ -212,8 +212,9 @@ def create_hypergraph_layered_ansatz(qc: qiskit.QuantumCircuit, thetas: np.ndarr
         for i in range(1, n):
             qc.ry(thetas[j], i)
             j += 1
-        qc.ccz(0,1,2)
-        
+        #qc.ccz(0,1,2)
+        cnz = qiskit.circuit.library.MCMT('cz',n-1,1)
+        qc.compose(cnz,qubits=list(range(0,n)),inplace=True)
         qc = create_rz_nqubit(qc, thetas[j:j + n])
         j += n
         qc = create_rx_nqubit(qc, thetas[j:j + n])

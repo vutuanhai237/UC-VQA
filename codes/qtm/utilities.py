@@ -4,7 +4,11 @@ import scipy
 import qtm.constant
 import numpy as np
 import types
-from qiskit.quantum_info import Statevector
+import pennylane as qml
+
+
+
+
 
 def parallized_swap_test(u: qiskit.QuantumCircuit):
     # circuit = qtm.state.create_w_state(5)
@@ -25,7 +29,7 @@ def parallized_swap_test(u: qiskit.QuantumCircuit):
     # Add hadamard gate
     swap_test_circuit.h(list(range(0, n_qubit)))
     swap_test_circuit.barrier()
-        
+
     for i in range(n_qubit):
         # Add control-swap gate
         swap_test_circuit.cswap(i, i+n_qubit, i+2*n_qubit)
@@ -34,28 +38,31 @@ def parallized_swap_test(u: qiskit.QuantumCircuit):
     # Add hadamard gate
     swap_test_circuit.h(list(range(0, n_qubit)))
     swap_test_circuit.barrier()
-    return swap_test_circuit 
+    return swap_test_circuit
 
-def concentratable_entanglement(u: qiskit.QuantumCircuit,exact=False):
+
+def concentratable_entanglement(u: qiskit.QuantumCircuit, exact=False):
     qubit = list(range(u.num_qubits))
     n = len(qubit)
     cbits = qubit.copy()
     swap_test_circuit = parallized_swap_test(u)
-    
+
     if exact:
-        statevec = Statevector(swap_test_circuit)
+        statevec = qiskit.quantum_info.Statevector(swap_test_circuit)
         statevec.seed(value=42)
-        probs = statevec.evolve(swap_test_circuit).probabilities_dict(qargs=qubit)
-        return 1- probs["0"*len(qubit)]
+        probs = statevec.evolve(
+            swap_test_circuit).probabilities_dict(qargs=qubit)
+        return 1 - probs["0"*len(qubit)]
     else:
-        for i in range(0,n):
-            swap_test_circuit.measure(qubit[i],cbits[i])
+        for i in range(0, n):
+            swap_test_circuit.measure(qubit[i], cbits[i])
 
         counts = qiskit.execute(
-            swap_test_circuit,backend=qtm.constant.backend,shots=qtm.constant.num_shots
+            swap_test_circuit, backend=qtm.constant.backend, shots=qtm.constant.num_shots
         ).result().get_counts()
 
-        return 1-counts.get("0"*len(qubit),0)/qtm.constant.num_shots
+        return 1-counts.get("0"*len(qubit), 0)/qtm.constant.num_shots
+
 
 def extract_state(qc: qiskit.QuantumCircuit):
     """Get infomation about quantum circuit
@@ -115,6 +122,7 @@ def get_metrics(rho, sigma):
     return qtm.utilities.trace_distance(rho,
                                         sigma), qtm.utilities.trace_fidelity(rho, sigma)
 
+
 def calculate_state_preparation_metrics_tiny2(create_u_func: types.FunctionType, additional_u, vdagger: qiskit.QuantumCircuit, thetas, **kwargs):
     n = vdagger.num_qubits
     # Target state
@@ -126,6 +134,7 @@ def calculate_state_preparation_metrics_tiny2(create_u_func: types.FunctionType,
     # Calculate the metrics
     trace, fidelity = qtm.utilities.get_metrics(rho, sigma)
     return trace, fidelity
+
 
 def calculate_state_preparation_metrics_tiny(create_u_func: types.FunctionType, vdagger: qiskit.QuantumCircuit, thetas, **kwargs):
     n = vdagger.num_qubits
@@ -146,7 +155,8 @@ def calculate_state_preparation_metrics(create_u_func: types.FunctionType, vdagg
     n = vdagger.num_qubits
     for thetas in thetass:
         # Target state
-        rho = qiskit.quantum_info.DensityMatrix.from_instruction(vdagger.inverse())
+        rho = qiskit.quantum_info.DensityMatrix.from_instruction(
+            vdagger.inverse())
         # Preparation state
         u = qiskit.QuantumCircuit(n, n)
         u = create_u_func(u, thetas, **kwargs)

@@ -4,9 +4,10 @@ import numpy as np
 # Training hyperparameter
 num_shots = 10000
 learning_rate = 0.1
-noise_prob = 0
+noise_prob = 0 # [0, 1]
 gamma = 0.7 # learning rate decay rate
 delta = 0.01 # minimum change value of loss value
+discounting_factor = 0.3 # [0, 1]
 backend = qiskit.Aer.get_backend('qasm_simulator')
 
 # For parameter-shift rule
