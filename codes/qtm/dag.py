@@ -15,35 +15,7 @@ torch.cuda.manual_seed(1000)
 np.random.seed(1000)
 random.seed(1000)
 
-look_up_operator = {
-    "Identity": 'I',
-    "Hadamard": 'H',
-    "PauliX": 'X',
-    'PauliY': 'Y',
-    'PauliZ': 'Z',
-    'S': 'S',
-    'T': 'T',
-    'SX': 'SX',
-    'CNOT': 'CX',
-    'CZ': 'CZ',
-    'CY': 'CY',
-    'SWAP': 'SWAP',
-    'ISWAP': 'ISWAP',
-    'CSWAP': 'CSWAP',
-    'Toffoli': 'CCX',
-    'RX': 'RX',
-    'RY': 'RY',
-    'RZ': 'RZ',
-    'CRX': 'CRX',
-    'CRY': 'CRY',
-    'CRZ': 'CRZ',
-    'U1': 'U1',
-    'U2': 'U2',
-    'U3': 'U3',
-    'IsingXX': 'RXX',
-    'IsingYY': 'RYY',
-    'IsingZZ': 'RZZ',
-}
+
 
 def convert_string_to_int(string):
     return sum([ord(char) - 65 for char in string])
@@ -92,7 +64,7 @@ def dag_to_node_features(dag):
     node_features = []
     for i in range(dag.size):
         node = dag.get_node(i)
-        operation = qtm.dag.look_up_operator[node.op.base_name]
+        operation = qtm.constant.look_up_operator[node.op.base_name]
         params = node.op.parameters
         if len(params) == 0:
             params = [0]

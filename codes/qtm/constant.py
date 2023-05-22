@@ -23,18 +23,27 @@ four_term_psr = {
     'd_minus': (np.sqrt(2) - 1) / (4*np.sqrt(2))
 }
 
-ghz_pool = [
-    ("RY", 0),
-    ("RY", 1),
-    ("RY", 2),
-    ("CNOT", 0, 1),
-    ("CNOT", 1, 0),
-    ("CNOT", 0, 2),
-    ("CNOT", 2, 0),
-    ("Hadamard", 0),
-    ("Hadamard", 1),
-    ("Hadamard", 2)
-]
+one_qubit_gates = ["Hadamard", "PauliX", 'PauliY', 'PauliZ', 'RX', 'RY', 'RZ']
+two_qubits_gates = ['CNOT', 'CY', 'CZ', 'CRX', 'CRY', 'CRZ']
+
+def create_gate_pool(num_qubits, one_qubit_gates = one_qubit_gates, two_qubits_gates = two_qubits_gates):
+    gate_pool = []
+
+    # Single-qubit gates
+    single_qubit_gates = one_qubit_gates
+    for qubit in range(num_qubits):
+        for gate in single_qubit_gates:
+            gate_pool.append((gate, qubit))
+
+    # Two-qubit gates
+    two_qubit_gates = two_qubits_gates
+    for qubit1 in range(num_qubits):
+        for qubit2 in range(num_qubits):
+            if qubit1 != qubit2:
+                for gate in two_qubit_gates:
+                    gate_pool.append((gate, qubit1, qubit2))
+
+    return gate_pool
 
 # For QNG
 generator = {
@@ -69,4 +78,34 @@ edges_graph_state = {
     8: ["0-7", "1-6", "2-4", "3-5", "2-3", "4-6", "5-7"],
     9: ["0-8", "2-3", "4-6", "5-7", "1-7", "2-4", "3-5", "6-8"],
     10: ["0-9", "1-8", "2-3", "4-6", "5-7", "2-4", "3-5", "6-9", "7-8"]
+}
+
+look_up_operator = {
+    "Identity": 'I',
+    "Hadamard": 'H',
+    "PauliX": 'X',
+    'PauliY': 'Y',
+    'PauliZ': 'Z',
+    'S': 'S',
+    'T': 'T',
+    'SX': 'SX',
+    'CNOT': 'CX',
+    'CZ': 'CZ',
+    'CY': 'CY',
+    'SWAP': 'SWAP',
+    'ISWAP': 'ISWAP',
+    'CSWAP': 'CSWAP',
+    'Toffoli': 'CCX',
+    'RX': 'RX',
+    'RY': 'RY',
+    'RZ': 'RZ',
+    'CRX': 'CRX',
+    'CRY': 'CRY',
+    'CRZ': 'CRZ',
+    'U1': 'U1',
+    'U2': 'U2',
+    'U3': 'U3',
+    'IsingXX': 'RXX',
+    'IsingYY': 'RYY',
+    'IsingZZ': 'RZZ',
 }
