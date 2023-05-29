@@ -2,6 +2,7 @@ import qiskit
 import numpy as np
 import qtm.constant
 import qtm.ansatz
+import qtm.utilities
 import typing, types
 import scipy
 
@@ -199,6 +200,27 @@ def add_layer_into_circuit(qc: qiskit.QuantumCircuit, layer: typing.List):
             qc.cz(wire[0], wire[1])
     return qc
 
+def qng_hessian(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: types.FunctionType, **kwargs):
+    alpha = 0.001
+    n = qc.num_qubits
+    length = thetas.shape[0]
+    thetas_origin = thetas
+    def f(thetas):
+        qc_init = qiskit.QuantumCircuit(n, n)
+        qc = create_circuit_func(qc_init, thetas, **kwargs)
+        thetas_dot = thetas_origin
+        qc_reverse = create_circuit_func(qc_init, thetas_dot, **kwargs).inverse()
+        qc = qc.compose(qc_reverse)
+        return qtm.base.measure(qc, list(range(qc.num_qubits)))
+    G = [[0 for x in range(length)] for y in range(length)] 
+    for i in range(0, length):
+        for j in range(0, length):
+            k1 = f(thetas + alpha*(qtm.utilities.unit_vector(i, length) + qtm.utilities.unit_vector(j, length)))
+            k2 = -f(thetas + alpha * (qtm.utilities.unit_vector(i, length) - qtm.utilities.unit_vector(j, length)))
+            k3 = -f(thetas - alpha * (qtm.utilities.unit_vector(i, length) - qtm.utilities.unit_vector(j, length)))
+            k4 = f(thetas - alpha*(qtm.utilities.unit_vector(i, length) + qtm.utilities.unit_vector(j, length)))
+            G[i][j] = (1/(4*(np.sin(alpha))**2))*(k1 + k2 + k3 + k4)
+    return -1/2*np.asarray(G)
 
 def qng(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: types.FunctionType, **kwargs):
     """Calculate G matrix in qng

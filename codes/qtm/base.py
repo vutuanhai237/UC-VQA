@@ -5,6 +5,7 @@ import qtm.qfim
 import qtm.noise
 import qtm.optimizer
 import qtm.fubini_study
+import qtm.psr
 import numpy as np
 import types
 import typing
@@ -177,33 +178,12 @@ def grad_loss(qc: qiskit.QuantumCircuit, create_circuit_func: types.FunctionType
     for i in range(0, len(thetas)):
         if index_list[i] == 0:
             # In equation (13)
-            thetas1, thetas2 = thetas.copy(), thetas.copy()
-            thetas1[i] += qtm.constant.two_term_psr['s']
-            thetas2[i] -= qtm.constant.two_term_psr['s']
-
-            qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
-            qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
-
-            grad_loss[i] = -qtm.constant.two_term_psr['r'] * (
-                qtm.base.measure(qc1, list(range(qc1.num_qubits))) -
-                qtm.base.measure(qc2, list(range(qc2.num_qubits))))
+            grad_loss[i] = qtm.psr.single_2term_psr(qc, create_circuit_func, thetas,
+                               i, **kwargs)
         if index_list[i] == 1:
             # In equation (14)
-            thetas1, thetas2 = thetas.copy(), thetas.copy()
-            thetas3, thetas4 = thetas.copy(), thetas.copy()
-            thetas1[i] += qtm.constant.four_term_psr['alpha']
-            thetas2[i] -= qtm.constant.four_term_psr['alpha']
-            thetas3[i] += qtm.constant.four_term_psr['beta']
-            thetas4[i] -= qtm.constant.four_term_psr['beta']
-            qc1 = create_circuit_func(qc.copy(), thetas1, **kwargs)
-            qc2 = create_circuit_func(qc.copy(), thetas2, **kwargs)
-            qc3 = create_circuit_func(qc.copy(), thetas3, **kwargs)
-            qc4 = create_circuit_func(qc.copy(), thetas4, **kwargs)
-            grad_loss[i] = - (qtm.constant.four_term_psr['d_plus'] * (
-                qtm.base.measure(qc1, list(range(qc1.num_qubits))) -
-                qtm.base.measure(qc2, list(range(qc2.num_qubits)))) - qtm.constant.four_term_psr['d_minus'] * (
-                qtm.base.measure(qc3, list(range(qc3.num_qubits))) -
-                qtm.base.measure(qc4, list(range(qc4.num_qubits)))))
+            grad_loss[i] = qtm.psr.single_4term_psr(qc, create_circuit_func, thetas,
+                               i, **kwargs)
     return grad_loss
 
 
@@ -277,7 +257,7 @@ def fit_state_tomography(u: qiskit.QuantumCircuit,
             thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)
 
         elif 'qng' in optimizer_name:
-            grad_psi1 = grad_psi(u,
+            grad_psi1 = qtm.base.grad_psi(u,
                                  create_vdagger_func,
                                  thetas,
                                  r=qtm.constant.two_term_psr['s'],
@@ -288,6 +268,10 @@ def fit_state_tomography(u: qiskit.QuantumCircuit,
             psi = np.expand_dims(psi, 1)
             if optimizer_name == 'qng_fubini_study':
                 G = qtm.fubini_study.qng(
+                    u.copy(), thetas, create_vdagger_func, **kwargs)
+                thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
+            if optimizer_name == 'qng_fubini_hessian':
+                G = qtm.fubini_study.qng_hessian(
                     u.copy(), thetas, create_vdagger_func, **kwargs)
                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
             if optimizer_name == 'qng_fubini_study_scheduler':
@@ -370,7 +354,7 @@ def fit_state_preparation(create_u_func: types.FunctionType,
             thetas = qtm.optimizer.adam(thetas, m, v1, i, grad_loss)
 
         elif 'qng' in optimizer_name:
-            grad_psi1 = grad_psi(vdagger,
+            grad_psi1 = qtm.base.grad_psi(vdagger,
                                  create_circuit_func,
                                  thetas,
                                  r=1 / 2,
@@ -382,6 +366,10 @@ def fit_state_preparation(create_u_func: types.FunctionType,
             psi = np.expand_dims(psi, 1)
             if optimizer_name == 'qng_fubini_study':
                 G = qtm.fubini_study.qng(
+                    vdagger.copy(), thetas, create_circuit_func, **kwargs)
+                thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
+            if optimizer_name == 'qng_fubini_hessian':
+                G = qtm.fubini_study.qng_hessian(
                     vdagger.copy(), thetas, create_circuit_func, **kwargs)
                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
             if optimizer_name == 'qng_fubini_study_scheduler':

@@ -39,7 +39,20 @@ def adam(thetas: np.ndarray, m: np.ndarray, v: np.ndarray, iteration: int,
                                                           epsilon)
     return thetas
 
+def qng_fubini_study_hessian(thetas: np.ndarray, G: np.ndarray, grad_loss: np.ndarray):
+    """_summary_
 
+    Args:
+        - thetas (np.ndarray): parameters
+        - G (np.ndarray): Fubini-study matrix
+        - grad_loss (np.ndarray): gradient of loss function, is a N x 1 matrix
+
+    Returns:
+        - np.ndarray: parameters after update
+    """
+    thetas = np.real(thetas - qtm.constant.learning_rate *
+                     (np.linalg.inv(G) @ grad_loss))
+    return thetas
 
 def qng_fubini_study(thetas: np.ndarray, G: np.ndarray, grad_loss: np.ndarray):
     """_summary_

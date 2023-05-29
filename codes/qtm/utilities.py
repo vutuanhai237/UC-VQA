@@ -6,7 +6,10 @@ import numpy as np
 import types
 import pennylane as qml
 
-
+def unit_vector(i, length):
+    unit_vector = np.zeros((length))
+    unit_vector[i] = 1.0
+    return unit_vector
 
 
 

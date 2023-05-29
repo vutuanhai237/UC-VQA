@@ -12,11 +12,11 @@ from typing import (
 )
 Tensor = Any 
 from pennylane import numpy as np
-from utils import get_op_pool,set_op_pool
+from qdas.utils import get_op_pool,set_op_pool
 import pennylane as qml 
 import tensorflow as tf
 from backends import get_backend
-import qiskit
+
 npdtype = np.complex64
 backend = get_backend("tensorflow")
 
@@ -37,31 +37,8 @@ def GHZ_vag(gdata: Tensor,nnp: Tensor, preset: Sequence[int]
     pnnp = [nnp[i,j] for i,j in enumerate(preset)]
     pnnp = array_to_tensor(np.array(pnnp))
     dev = qml.device("default.qubit", wires=n)
-    def qiskit_circuit(qc: qiskit.QuantumCircuit, pnnp, preset, cset):
-        for i,j in enumerate(preset):
-            gate = cset[j]
-            if gate[0].startswith('R'):
-                qc.ry(np.real(pnnp[i]),gate[1])
-            elif gate[0] == 'Hadamard':
-                
-                qc.h(gate[1])
-            elif gate[0] == "CNOT":
-                qc.cnot(gate[1],gate[2])
-            elif gate[0] == "Identity":
-                continue
-        return qc
     @qml.qnode(dev, interface="tf", diff_method="backprop")
-    def circuit(pnnp,preset,cset):
-        """
-        Args:
-            pnnp (_type_): preset neural nttwork parameter
-            preset (_type_): index của bộ cổng
-            cset (_type_): pool
-        Returns:
-            _type_: _description_
-        """
-        
-        
+    def circuit(pnnp,preset,cset,n):
         for i,j in enumerate(preset):
             gate = cset[j]
             if gate[0].startswith('R'):
@@ -70,14 +47,13 @@ def GHZ_vag(gdata: Tensor,nnp: Tensor, preset: Sequence[int]
                 getattr(qml,gate[0])(gate[1])
             elif gate[0] == "CNOT":
                 qml.CNOT(wires=(gate[1], gate[2]))
-                
             elif gate[0] == "Identity":
                 continue
         return qml.state()
     cset = get_op_pool()
     with tf.GradientTape() as t:
         t.watch(pnnp)
-        s = circuit(pnnp,preset,cset)
+        s = circuit(pnnp,preset,cset,n)
         # print("predict state:",s)
         s = tf.cast(s,dtype=tf.complex64)
         loss = tf.math.reduce_sum(tf.math.abs(s - reference_state))
@@ -90,10 +66,10 @@ def GHZ_vag(gdata: Tensor,nnp: Tensor, preset: Sequence[int]
     for i, j in enumerate(preset):
         gmatrix[i, j] = gr[i]
     gmatrix = tf.constant(gmatrix)
-    return loss, gmatrix,circuit, qiskit_circuit
+    return loss, gmatrix,circuit
     
 if __name__ == '__main__':
-    p=3
+    p=4
     ghz_pool = [
     ("RY", 0),
     ("RY", 1),

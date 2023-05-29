@@ -23,7 +23,7 @@ four_term_psr = {
     'd_minus': (np.sqrt(2) - 1) / (4*np.sqrt(2))
 }
 
-one_qubit_gates = ["Hadamard", "PauliX", 'PauliY', 'PauliZ', 'RX', 'RY', 'RZ']
+one_qubit_gates = ["Hadamard", 'RX', 'RY', 'RZ']
 two_qubits_gates = ['CNOT', 'CY', 'CZ', 'CRX', 'CRY', 'CRZ']
 
 def create_gate_pool(num_qubits, one_qubit_gates = one_qubit_gates, two_qubits_gates = two_qubits_gates):
