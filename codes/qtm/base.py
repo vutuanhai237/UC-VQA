@@ -9,9 +9,6 @@ import qtm.psr
 import numpy as np
 import types
 import typing
-from DQASsearch import DQAS_search
-from utils import set_op_pool
-from vag import GHZ_vag
 import tensorflow as tf
 import qtm.constant
 import qtm.early_stopping
@@ -366,7 +363,7 @@ def fit_state_preparation(create_u_func: types.FunctionType,
             psi = np.expand_dims(psi, 1)
             if optimizer_name == 'qng_fubini_study':
                 G = qtm.fubini_study.qng(
-                    vdagger.copy(), thetas, create_circuit_func, **kwargs)
+                    create_circuit_func, thetas, vdagger.copy(), **kwargs)
                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
             if optimizer_name == 'qng_fubini_hessian':
                 G = qtm.fubini_study.qng_hessian(

@@ -1282,3 +1282,19 @@ def ry_layer(num_qubits, num_layers, thetas):
         for i in range(num_qubits):
             qc.ry(thetas[i+j*num_qubits], i)
     return qc
+
+def g2(qc: qiskit.QuantumCircuit, thetas: np.ndarray):
+    num_qubits = qc.num_qubits
+    j = 0
+    for i in range(num_qubits):
+        qc.ry(thetas[j], i)
+        j += 1
+    for i in range(0, num_qubits - 1, 2):
+        qc.cz(i, i + 1)
+    for i in range(num_qubits):
+        qc.ry(thetas[j], i)
+        j += 1
+    for i in range(1, num_qubits - 1, 2):
+        qc.cz(i, i + 1)
+    qc.cz(0, num_qubits - 1)
+    return qc

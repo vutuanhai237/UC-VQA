@@ -3,7 +3,8 @@ import numpy as np
 import qtm.constant
 import qtm.ansatz
 import qtm.utilities
-import typing, types
+import typing
+import types
 import scipy
 
 
@@ -26,7 +27,7 @@ def create_observers(qc: qiskit.QuantumCircuit, k: int = 0):
         if gate_name in ['barrier', 'swap']:
             continue
         # 2-qubit param gates
-        if gate[0].name in ['crx', 'cry', 'crz', 'cx','cz']:
+        if gate[0].name in ['crx', 'cry', 'crz', 'cx', 'cz']:
             # Take controlled wire as index
             wire = qc.num_qubits - 1 - gate[1][1].index
             # Take control wire as index
@@ -65,7 +66,7 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: typing.Dict[str, int]):
         if observer_wire == 0:
             K = observer
         else:
-            if observer_name in ['crx', 'cry', 'crz','cz']:
+            if observer_name in ['crx', 'cry', 'crz', 'cz']:
                 K = qtm.constant.generator['11']
             else:
                 K = qtm.constant.generator['i']
@@ -73,7 +74,7 @@ def calculate_g(qc: qiskit.QuantumCircuit, observers: typing.Dict[str, int]):
             if i == observer_wire:
                 K = np.kron(K, observer)
             else:
-                if observer_name in ['crx', 'cry', 'crz','cz']:
+                if observer_name in ['crx', 'cry', 'crz', 'cz']:
                     K = np.kron(K, qtm.constant.generator['11'])
                 else:
                     K = np.kron(K, qtm.constant.generator['i'])
@@ -200,27 +201,36 @@ def add_layer_into_circuit(qc: qiskit.QuantumCircuit, layer: typing.List):
             qc.cz(wire[0], wire[1])
     return qc
 
-def qng_hessian(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: types.FunctionType, **kwargs):
-    alpha = 0.001
-    n = qc.num_qubits
+
+def qng_hessian(u: types.FunctionType, thetas: np.ndarray, vdagger: qiskit.QuantumCircuit, **kwargs):
+    alpha = 0.01
+    n = vdagger.num_qubits
     length = thetas.shape[0]
     thetas_origin = thetas
+
     def f(thetas):
-        qc_init = qiskit.QuantumCircuit(n, n)
-        qc = create_circuit_func(qc_init, thetas, **kwargs)
-        thetas_dot = thetas_origin
-        qc_reverse = create_circuit_func(qc_init, thetas_dot, **kwargs).inverse()
+        qc = u(qiskit.QuantumCircuit(n, n), thetas, **kwargs)
+        qc = qc.compose(vdagger.copy())
+
+        qc_reverse = u(qiskit.QuantumCircuit(n, n), thetas_origin, **kwargs)
+        qc_reverse = qc_reverse.compose(vdagger.copy()).inverse()
+
         qc = qc.compose(qc_reverse)
         return qtm.base.measure(qc, list(range(qc.num_qubits)))
-    G = [[0 for x in range(length)] for y in range(length)] 
+    G = [[0 for _ in range(length)] for _ in range(length)]
     for i in range(0, length):
         for j in range(0, length):
-            k1 = f(thetas + alpha*(qtm.utilities.unit_vector(i, length) + qtm.utilities.unit_vector(j, length)))
-            k2 = -f(thetas + alpha * (qtm.utilities.unit_vector(i, length) - qtm.utilities.unit_vector(j, length)))
-            k3 = -f(thetas - alpha * (qtm.utilities.unit_vector(i, length) - qtm.utilities.unit_vector(j, length)))
-            k4 = f(thetas - alpha*(qtm.utilities.unit_vector(i, length) + qtm.utilities.unit_vector(j, length)))
+            k1 = f(thetas + alpha*(qtm.utilities.unit_vector(i,
+                   length) + qtm.utilities.unit_vector(j, length)))
+            k2 = -f(thetas + alpha * (qtm.utilities.unit_vector(i,
+                    length) - qtm.utilities.unit_vector(j, length)))
+            k3 = -f(thetas - alpha * (qtm.utilities.unit_vector(i,
+                    length) - qtm.utilities.unit_vector(j, length)))
+            k4 = f(thetas - alpha*(qtm.utilities.unit_vector(i,
+                   length) + qtm.utilities.unit_vector(j, length)))
             G[i][j] = (1/(4*(np.sin(alpha))**2))*(k1 + k2 + k3 + k4)
     return -1/2*np.asarray(G)
+
 
 def qng(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: types.FunctionType, **kwargs):
     """Calculate G matrix in qng
@@ -242,7 +252,7 @@ def qng(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: type
     qc_new = create_circuit_func(qc_new, thetas, **kwargs)
     # Splitting circuit into list of V and W sub-layer (non-parameter and parameter)
     layers = split_into_layers(qc_new)
-    
+
     for is_param_layer, layer in layers:
         if is_param_layer:
             observers = qtm.fubini_study.create_observers(
