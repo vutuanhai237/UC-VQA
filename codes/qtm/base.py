@@ -363,7 +363,7 @@ def fit_state_preparation(create_u_func: types.FunctionType,
             psi = np.expand_dims(psi, 1)
             if optimizer_name == 'qng_fubini_study':
                 G = qtm.fubini_study.qng(
-                    create_circuit_func, thetas, vdagger.copy(), **kwargs)
+                    vdagger.copy(), thetas, create_circuit_func, **kwargs)
                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
             if optimizer_name == 'qng_fubini_hessian':
                 G = qtm.fubini_study.qng_hessian(
