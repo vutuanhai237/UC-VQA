@@ -7,7 +7,7 @@ print(qtm.constant.noise_prob)
 
 time = 3
 
-for i in range(0, time):
+for i in range(7,8):
     num_qubits = 5
     num_layers = 2
     thetas = np.ones(num_layers*num_qubits*2)
@@ -21,5 +21,5 @@ for i in range(0, time):
         num_layers = num_layers
     )
     compiler.fit(num_steps=4, verbose = 1)
-    compiler.save(path = f'./noise_qng_polygon/{i}', text=f'{qtm.constant.noise_prob}', save_all = True)
-    print(f"Done {time}!")
+    compiler.save(path = f'./noise_qng_polygon/{i}', text=f'{qtm.constant.noise_prob}_mitigating', save_all = True)
+    print(f"Done {i}!")
