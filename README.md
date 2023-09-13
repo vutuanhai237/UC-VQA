@@ -1,5 +1,7 @@
 # Source code for the paper entitled "Universal compilation for quantum state tomography"
 
+<img src="./logo.png" width =  200px>
+
 Author: Vu Tuan Hai (haivt@uit.edu.vn) and Le Bin Ho (binho@fris.tohoku.ac.jp)
 
 Access: https://doi.org/10.1038/s41598-023-30983-4
