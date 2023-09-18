@@ -1,4 +1,4 @@
-qiskit==0.24.0
+qiskit
 matplotlib
 tdqm
 pytest
