@@ -202,19 +202,15 @@ def add_layer_into_circuit(qc: qiskit.QuantumCircuit, layer: typing.List):
     return qc
 
 
-def qng_hessian(u: types.FunctionType, thetas: np.ndarray, vdagger: qiskit.QuantumCircuit, **kwargs):
+def qng_hessian(uvdagger: qiskit.QuantumCircuit, thetas: np.ndarray):
     alpha = 0.01
-    n = vdagger.num_qubits
+    n = uvdagger.num_qubits
     length = thetas.shape[0]
     thetas_origin = thetas
 
     def f(thetas):
-        qc = u(qiskit.QuantumCircuit(n, n), thetas, **kwargs)
-        qc = qc.compose(vdagger.copy())
-
-        qc_reverse = u(qiskit.QuantumCircuit(n, n), thetas_origin, **kwargs)
-        qc_reverse = qc_reverse.compose(vdagger.copy()).inverse()
-
+        qc = uvdagger.bind_parameters(thetas)
+        qc_reverse = uvdagger.bind_parameters(thetas_origin).inverse()
         qc = qc.compose(qc_reverse)
         return qtm.base.measure(qc, list(range(qc.num_qubits)))
     G = [[0 for _ in range(length)] for _ in range(length)]
@@ -232,7 +228,7 @@ def qng_hessian(u: types.FunctionType, thetas: np.ndarray, vdagger: qiskit.Quant
     return -1/2*np.asarray(G)
 
 
-def qng(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: types.FunctionType, **kwargs):
+def qng(uvaddger: qiskit.QuantumCircuit):
     """Calculate G matrix in qng
 
     Args:
@@ -244,15 +240,12 @@ def qng(qc: qiskit.QuantumCircuit, thetas: np.ndarray, create_circuit_func: type
     Returns:
         - np.ndarray: G matrix
     """
-    n = qc.num_qubits
+    n = uvaddger.num_qubits
     # List of g matrices
     gs = []
-    # Temporary circuit
-    qc_new = qiskit.QuantumCircuit(n, n)
-    qc_new = create_circuit_func(qc_new, thetas, **kwargs)
     # Splitting circuit into list of V and W sub-layer (non-parameter and parameter)
-    layers = split_into_layers(qc_new)
-
+    layers = split_into_layers(uvaddger)
+    qc = qiskit.QuantumCircuit(n, n)
     for is_param_layer, layer in layers:
         if is_param_layer:
             observers = qtm.fubini_study.create_observers(

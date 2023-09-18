@@ -25,12 +25,12 @@ class QuantumCompilation():
         self.is_evolutional = False
         return
 
-    def __init__(self, u: typing.Union[types.FunctionType, qiskit.QuantumCircuit], vdagger: typing.Union[types.FunctionType, qiskit.QuantumCircuit], optimizer: typing.Union[types.FunctionType, str], loss_func: typing.Union[types.FunctionType, str], thetas: np.ndarray = np.array([]), is_evolutional = False, **kwargs):
+    def __init__(self, u: qiskit.QuantumCircuit, vdagger: qiskit.QuantumCircuit, optimizer: typing.Union[types.FunctionType, str], loss_func: typing.Union[types.FunctionType, str], thetas: np.ndarray = np.array([]), **kwargs):
         """_summary_
 
         Args:
-            - u (typing.Union[types.FunctionType, qiskit.QuantumCircuit]): In quantum state preparation problem, this is the ansatz. In tomography, this is the circuit that generate random Haar state.
-            - vdagger (typing.Union[types.FunctionType, qiskit.QuantumCircuit]): In quantum tomography problem, this is the ansatz. In state preparation, this is the circuit that generate random Haar state.
+            - u (qiskit.QuantumCircuit]): In quantum state preparation problem, this is the ansatz. In tomography, this is the circuit that generate random Haar state.
+            - vdagger (qiskit.QuantumCircuit]): In quantum tomography problem, this is the ansatz. In state preparation, this is the circuit that generate random Haar state.
             - optimizer (typing.Union[types.FunctionType, str]): You can put either string or function here. If type string, qcompilation produces some famous optimizers such as: 'sgd', 'adam', 'qng-fubini-study', 'qng-qfim', 'qng-adam'.
             - loss_func (typing.Union[types.FunctionType, str]): You can put either string or function here. If type string, qcompilation produces some famous optimizers such as: 'loss_basic'  (1 - p0) and 'loss_fubini_study' (\sqrt{(1 - p0)}).
             - thetas (np.ndarray, optional): initial parameters. Note that it must fit with your ansatz. Defaults to np.array([]).
@@ -41,31 +41,30 @@ class QuantumCompilation():
         self.set_loss_func(loss_func)
         self.set_kwargs(**kwargs)
         self.set_thetas(thetas)
-        self.is_evolutional = is_evolutional
         return
 
-    def set_u(self, _u: typing.Union[types.FunctionType, qiskit.QuantumCircuit]):
+    def set_u(self, _u: qiskit.QuantumCircuit):
         """In quantum state preparation problem, this is the ansatz. In tomography, this is the circuit that generate random Haar state.
 
         Args:
             - _u (typing.Union[types.FunctionType, qiskit.QuantumCircuit]): init circuit
         """
-        if callable(_u) or isinstance(_u, qiskit.QuantumCircuit):
+        if isinstance(_u, qiskit.QuantumCircuit):
             self.u = _u
         else:
-            raise ValueError('The U part must be a function f: thetas -> qiskit.QuantumCircuit or a determined quantum circuit')
+            raise ValueError('The U part must be a determined quantum circuit')
         return
 
     def set_vdagger(self, _vdagger):
         """In quantum state tomography problem, this is the ansatz. In state preparation, this is the circuit that generate random Haar state.
 
         Args:
-            - _vdagger (typing.Union[types.FunctionType, qiskit.QuantumCircuit]): init circuit
+            - _vdagger (qiskit.QuantumCircuit): init circuit
         """
-        if callable(_vdagger) or isinstance(_vdagger, qiskit.QuantumCircuit):
+        if isinstance(_vdagger, qiskit.QuantumCircuit):
             self.vdagger = _vdagger
         else:
-            raise ValueError('The V dagger part must be a function f: thetas -> qiskit.QuantumCircuit or a determined quantum circuit')
+            raise ValueError('The V dagger part must be a determined quantum circuit')
         return
 
     def set_loss_func(self, _loss_func: typing.Union[types.FunctionType, str]):
@@ -160,20 +159,12 @@ class QuantumCompilation():
             - verbose (int, optional): 0, 1, or 2. Verbosity mode. 0 = silent, 1 = progress bar, 2 = one line per 10 steps. Verbose 1 is good for timing training time, verbose 2 if you want to log loss values to a file. Please install package tdqm if you want to use verbose 1. 
         
         """
+        if len(self.thetas) == 0:
+            self.thetas = np.ones(len(self.u.parameters))
         self.is_trained = True
-        if self.is_evolutional:
-            self.thetass, self.loss_values, self.traces, self.fidelities, self.ce = qtm.base.fit_evo(
-                self.u, self.vdagger, self.thetas, num_steps, self.loss_func, self.optimizer, verbose, is_return_all_thetas=True, **self.kwargs)
-            return        
-        else:
-            self.thetass, self.loss_values = qtm.base.fit(
-                self.u, self.vdagger, self.thetas, num_steps, self.loss_func, self.optimizer, verbose, is_return_all_thetas=True, **self.kwargs)
-        
-            if callable(self.u):
-                self.traces, self.fidelities, self.ce = qtm.utilities.calculate_state_preparation_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
-            else:
-                self.traces, self.fidelities, self.ce = qtm.utilities.calculate_state_tomography_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
-            return 
+        self.thetass, self.loss_values = qtm.base.fit(self.u, self.vdagger, self.thetas, num_steps, self.loss_func, self.optimizer, verbose, is_return_all_thetas=True, **self.kwargs)
+        self.traces, self.fidelities, self.ce = qtm.utilities.calculate_state_preparation_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
+        return
 
     def save(self, metric: str = "", text = "", path = './', save_all: bool = False,run_trial=0):
         """_summary_
