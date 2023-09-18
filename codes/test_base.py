@@ -1,11 +1,8 @@
 import pytest
-import person
-
 import qiskit
 import numpy as np
-import codes.qtm as qtm
-
-def onequbit_tomography():
+import qtm.qcompilation, qtm.ansatz
+def test_onequbit_tomography():
     theta = np.random.uniform(0, np.pi)
     phi = np.random.uniform(0, 2*np.pi)
     lambdaz = 0
@@ -21,8 +18,6 @@ def onequbit_tomography():
     compiler.fit(num_steps = 100, verbose = 1)
     assert (np.min(compiler.loss_values) < 0.0001)
     
-def testa():
-    assert 5 == person.sum(1, 4)
 
 def test_less():
     num = 100
