@@ -155,7 +155,6 @@ def calculate_state_preparation_metrics_tiny(create_u_func: types.FunctionType, 
 def calculate_state_preparation_metrics(u: qiskit.QuantumCircuit, vdagger: qiskit.QuantumCircuit, thetass, **kwargs):
     traces = []
     fidelities = []
-    n = vdagger.num_qubits
     for thetas in thetass:
         # Target state
         # psi = qiskit.quantum_info.Statevector.from_instruction(vdagger).conjugate()
@@ -174,21 +173,20 @@ def calculate_state_preparation_metrics(u: qiskit.QuantumCircuit, vdagger: qiski
     return traces, fidelities, ce
 
 
-def calculate_state_tomography_metrics(u: qiskit.QuantumCircuit, create_vdagger_func: types.FunctionType, thetass, **kwargs):
+def calculate_state_tomography_metrics(u: qiskit.QuantumCircuit, vdagger: qiskit.QuantumCircuit, thetass, **kwargs):
     traces = []
     fidelities = []
-    n = u.num_qubits
     for thetas in thetass:
         rho = qiskit.quantum_info.DensityMatrix.from_instruction(u)
-        v = qiskit.QuantumCircuit(n, n)
-        v = create_vdagger_func(v, thetas, **kwargs).inverse()
-        sigma = qiskit.quantum_info.DensityMatrix.from_instruction(v)
+        qc = vdagger.bind_parameters(thetas)
+        sigma = qiskit.quantum_info.DensityMatrix.from_instruction(qc)
         # Calculate the metrics
         trace, fidelity = qtm.utilities.get_metrics(rho, sigma)
         traces.append(trace)
         fidelities.append(fidelity)
 
-    return traces, fidelities
+    ce = concentratable_entanglement(qc)
+    return traces, fidelities, ce
 
 
 def haar_measure(n):

@@ -9,7 +9,6 @@ import qtm.psr
 import numpy as np
 import types
 import typing
-import tensorflow as tf
 import qtm.constant
 import qtm.early_stopping
 global thetas_1
@@ -220,18 +219,17 @@ def fit_state_preparation(u: types.FunctionType,
     """Return the new thetas that fit with the circuit from create_u_func function
 
     Args:
-        - create_u_func (types.FunctionType): added circuit function
-        - vdagger (QuantumCircuit): fitting circuit
-        - thetas (np.ndarray): parameters
-        - num_steps (Int): number of iterations
-        - loss_func (types.FunctionType): loss function
-        - optimizer (types.FunctionType): otimizer function
-        - verbose (Int): the seeing level of the fitting process (0: nothing, 1: progress bar, 2: one line per step)
-        - **kwargs: additional parameters for create_circuit_func()
+        u (types.FunctionType): _description_
+        vdagger (qiskit.QuantumCircuit): _description_
+        thetas (np.ndarray): _description_
+        num_steps (int): _description_
+        loss_func (types.FunctionType): _description_
+        optimizer (types.FunctionType): _description_
+        verbose (int, optional): _description_. Defaults to 0.
+        is_return_all_thetas (bool, optional): _description_. Defaults to False.
 
     Returns:
-        - thetas (np.ndarray): the optimized parameters
-        - loss_values (np.ndarray): the list of loss_value
+        _type_: _description_
     """
     if verbose == 1:
         bar = qtm.progress_bar.ProgressBar(max_value=num_steps, disable=False)
@@ -301,6 +299,101 @@ def fit_state_preparation(u: types.FunctionType,
     else:
         return thetas, loss_values
 
+# def fit_state_tomography(u: types.FunctionType,
+#                           vdagger: qiskit.QuantumCircuit,
+#                           thetas: np.ndarray,
+#                           num_steps: int,
+#                           loss_func: types.FunctionType,
+#                           optimizer: types.FunctionType,
+#                           verbose: int = 0,
+#                           is_return_all_thetas: bool = False,
+#                           **kwargs):
+#     """Return the new thetas that fit with the circuit from create_vdagger_func function
+
+#     Args:
+#         - u (QuantumCircuit): fitting circuit
+#         - create_vdagger_func (types.FunctionType): added circuit function
+#         - thetas (np.ndarray): parameters
+#         - num_steps (Int): number of iterations
+#         - loss_func (types.FunctionType): loss function
+#         - optimizer (types.FunctionType): otimizer function
+#         - verbose (Int): the seeing level of the fitting process (0: nothing, 1: progress bar, 2: one line per step)
+#         - **kwargs: additional parameters for create_circuit_func()
+
+#     Returns:
+#         - thetas (np.ndarray): the optimized parameters
+#         - loss_values (np.ndarray): the list of loss_value
+#     """
+#     if verbose == 1:
+#         bar = qtm.progress_bar.ProgressBar(max_value=num_steps, disable=False)
+#     thetass = []
+#     loss_values = []
+#     n = vdagger.num_qubits
+#     uvaddager = u.compose(vdagger)
+#     for i in range(0, num_steps):
+#         grad_loss = qtm.base.grad_loss(
+#             u, create_vdagger_func, thetas, **kwargs)
+#         optimizer_name = optimizer.__name__
+
+#         if optimizer_name == 'sgd':
+#             thetas = qtm.optimizer.sgd(thetas, grad_loss)
+
+#         elif optimizer_name == 'adam':
+#             if i == 0:
+#                 m, v = list(np.zeros(thetas.shape[0])), list(
+#                     np.zeros(thetas.shape[0]))
+#             thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)
+
+#         elif 'qng' in optimizer_name:
+#             grad_psi1 = qtm.base.grad_psi(u,
+#                                  create_vdagger_func,
+#                                  thetas,
+#                                  r=qtm.constant.two_term_psr['s'],
+#                                  s=np.pi,
+#                                  **kwargs)
+#             u_copy = create_vdagger_func(u.copy(), thetas, **kwargs)
+#             psi = qiskit.quantum_info.Statevector.from_instruction(u_copy).data
+#             psi = np.expand_dims(psi, 1)
+#             if optimizer_name == 'qng_fubini_study':
+#                 G = qtm.fubini_study.qng(
+#                     u.copy(), thetas, create_vdagger_func, **kwargs)
+#                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
+#             if optimizer_name == 'qng_fubini_hessian':
+#                 G = qtm.fubini_study.qng_hessian(
+#                     u.copy(), thetas, create_vdagger_func, **kwargs)
+#                 thetas = qtm.optimizer.qng_fubini_study(thetas, G, grad_loss)
+#             if optimizer_name == 'qng_fubini_study_scheduler':
+#                 G = qtm.fubini_study.qng(
+#                     u.copy(), thetas, create_vdagger_func, **kwargs)
+#                 thetas = qtm.optimizer.qng_fubini_study_scheduler(thetas, G, grad_loss, i)
+#             if optimizer_name == 'qng_qfim':
+#                 thetas = qtm.optimizer.qng_qfim(
+#                     thetas, psi, grad_psi1, grad_loss)
+#             if optimizer_name == 'qng_adam':
+#                 if i == 0:
+#                     m, v = list(np.zeros(thetas.shape[0])), list(
+#                         np.zeros(thetas.shape[0]))
+#                 thetas = qtm.optimizer.qng_adam(
+#                     thetas, m, v, i, psi, grad_psi1, grad_loss)
+#         else:
+#             thetas = optimizer(thetas, grad_loss)
+#         u_copy = create_vdagger_func(u.copy(), thetas, **kwargs)
+#         loss = loss_func(
+#             qtm.base.measure(u_copy, list(range(u_copy.num_qubits))))
+#         loss_values.append(loss)
+#         thetass.append(thetas.copy())
+#         if verbose == 1:
+#             bar.update(1)
+#         if verbose == 2 and i % 10 == 0:
+#             print("Step " + str(i) + ": " + str(loss))
+#     if verbose == 1:
+#         bar.close()
+
+#     if is_return_all_thetas:
+#         return thetass, loss_values
+#     else:
+#         return thetas, loss_values
+    
 
 def fit(u: typing.Union[qiskit.QuantumCircuit, types.FunctionType], v: typing.Union[qiskit.QuantumCircuit, types.FunctionType],
         thetas: np.ndarray,
@@ -310,12 +403,23 @@ def fit(u: typing.Union[qiskit.QuantumCircuit, types.FunctionType], v: typing.Un
         verbose: int = 0,
         is_return_all_thetas: bool = False,
         **kwargs):
+    # if len(u.parameters) > 0:
     return fit_state_preparation(u=u,
-                                 vdagger=v,
-                                 thetas=thetas,
-                                 num_steps=num_steps,
-                                 loss_func=loss_func,
-                                 optimizer=optimizer,
-                                 verbose=verbose,
-                                 is_return_all_thetas=is_return_all_thetas,
-                                 **kwargs)
+                                    vdagger=v,
+                                    thetas=thetas,
+                                    num_steps=num_steps,
+                                    loss_func=loss_func,
+                                    optimizer=optimizer,
+                                    verbose=verbose,
+                                    is_return_all_thetas=is_return_all_thetas,
+                                    **kwargs)
+    # else:
+    #     return fit_state_tomography(u=u,
+    #                                 vdagger=v,
+    #                                 thetas=thetas,
+    #                                 num_steps=num_steps,
+    #                                 loss_func=loss_func,
+    #                                 optimizer=optimizer,
+    #                                 verbose=verbose,
+    #                                 is_return_all_thetas=is_return_all_thetas,
+    #                                 **kwargs)

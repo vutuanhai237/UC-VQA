@@ -200,11 +200,11 @@ def alternating_ZXZlayer_ansatz(num_qubits: int = 3,
                               swap_layer(num_qubits),
                               ry_layer(num_qubits),
                               swap_layer(num_qubits, shift=1),
-                              ry_layer(num_qubits, shift=1),
+                              ry_layer(num_qubits),
                               swap_layer(num_qubits),
                               ry_layer(num_qubits),
                               swap_layer(num_qubits, shift=1),
-                              ry_layer(num_qubits, shift=1)])
+                              ry_layer(num_qubits)])
     return qc
 
 

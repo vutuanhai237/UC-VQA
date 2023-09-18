@@ -160,12 +160,25 @@ class QuantumCompilation():
         
         """
         if len(self.thetas) == 0:
-            self.thetas = np.ones(len(self.u.parameters))
+            if (len(self.u.parameters)) > 0:
+                self.thetas = np.ones(len(self.u.parameters))
+            else:
+                self.thetas = np.ones(len(self.vdagger.parameters))
         self.is_trained = True
         self.thetass, self.loss_values = qtm.base.fit(self.u, self.vdagger, self.thetas, num_steps, self.loss_func, self.optimizer, verbose, is_return_all_thetas=True, **self.kwargs)
-        self.traces, self.fidelities, self.ce = qtm.utilities.calculate_state_preparation_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
+        if (len(self.u.parameters)) > 0:
+            self.traces, self.fidelities, self.ce = qtm.utilities.calculate_state_preparation_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
+        else:
+            self.traces, self.fidelities, self.ce = qtm.utilities.calculate_state_tomography_metrics(self.u, self.vdagger, self.thetass, **self.kwargs)
+        
         return
 
+    def plot(self):
+        plt.plot(self.loss_values)
+        plt.ylabel("Loss values")
+        plt.xlabel('Num. iteration')
+        return 
+    
     def save(self, metric: str = "", text = "", path = './', save_all: bool = False,run_trial=0):
         """_summary_
 
