@@ -7,12 +7,6 @@ import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.encoding
 
 import multiprocessing
 
-importlib.reload(qtm.base)
-importlib.reload(qtm.constant)
-
-importlib.reload(qtm.ansatz)
-importlib.reload(qtm.fubini_study)
-
 
 def run_walltoall(num_layers, num_qubits):
     n_walltoall = qtm.ansatz.calculate_n_walltoall(num_qubits)
