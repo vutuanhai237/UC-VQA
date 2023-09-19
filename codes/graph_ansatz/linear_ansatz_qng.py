@@ -1,12 +1,10 @@
 import qiskit
 import numpy as np
-import matplotlib.pyplot as plt
-import importlib
 import sys
 sys.path.insert(1, '../')
 import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.progress_bar
-importlib.reload(qtm.base)
-importlib.reload(qtm.constant)
+loss_values = []
+thetass = []
 num_qubits = 3
 num_layers = 2
 thetas = np.ones(num_qubits*num_layers*5)

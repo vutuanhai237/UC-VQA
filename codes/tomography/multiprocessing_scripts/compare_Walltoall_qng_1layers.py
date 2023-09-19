@@ -4,7 +4,7 @@ import sys
 
 sys.path.insert(1, '../')
 import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.encoding
-import importlib
+
 import multiprocessing
 
 importlib.reload(qtm.base)
