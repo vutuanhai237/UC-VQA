@@ -1,18 +1,15 @@
-import qtm.qcompilation
-import numpy as np
-import types
+import qtm
+
 num_qubits = 3
 num_layers = 1
-thetas = np.ones(3*num_qubits*num_layers)
-
-
 compiler = qtm.qcompilation.QuantumCompilation(
-    u = qtm.ansatz.create_hypergraph_ansatz,
-    vdagger = qtm.state.create_AME_state(num_qubits).inverse(),
-    optimizer = 'adam',
-    loss_func = 'loss_fubini_study',
-    thetas = thetas,
-    is_evolutional=True,
-    num_layers = num_layers
+    u=qtm.state.create_ghz_state(num_qubits),
+    vdagger=qtm.ansatz.Wchain_ZXZlayer_ansatz(
+        num_qubits, num_layers),
+    optimizer='adam',
+    loss_func='loss_fubini_study'
 )
-compiler.fit(num_steps = 100, verbose = 1)
+
+compiler.fit(num_steps=100, verbose=1)
+
+
