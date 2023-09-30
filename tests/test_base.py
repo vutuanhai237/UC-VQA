@@ -1,12 +1,12 @@
-import qtm.ansatz
-import qtm.qcompilation
+
 import qiskit
 import numpy as np
 import sys
 sys.path.insert(0, '..')
+import qtm.ansatz
+import qtm.qcompilation
 
-
-def test_onequbit_tomography():
+def test_onequbit_qst():
     theta = np.random.uniform(0, np.pi)
     phi = np.random.uniform(0, 2*np.pi)
     lambdaz = 0
@@ -22,8 +22,19 @@ def test_onequbit_tomography():
     compiler.fit(num_steps=100, verbose=1)
     assert (np.min(compiler.loss_values) < 0.0001)
 
-
-def test_nqubit_tomography():
+def test_nqubit_qsp():
+    num_qubits = 3
+    num_layers = 2
+    optimizer = 'adam'
+    compiler = qtm.qcompilation.QuantumCompilation(
+        u = qtm.ansatz.g2gn(num_qubits, num_layers),
+        vdagger = qtm.state.create_ghz_state(num_qubits).inverse(),
+        optimizer = optimizer,
+        loss_func = 'loss_fubini_study'
+    )
+    compiler.fit(num_steps = 100, verbose = 1)
+    assert (np.min(compiler.loss_values) < 0.0001)
+def test_nqubit_qst():
     num_qubits = 3
     num_layers = 1
     compiler = qtm.qcompilation.QuantumCompilation(
