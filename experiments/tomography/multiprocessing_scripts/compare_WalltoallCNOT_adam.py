@@ -6,7 +6,7 @@ import numpy as np
 import sys
 sys.path.insert(1, '../../')
 import qtm.encoding
-import qtm.fubini_study
+import qtm.gradient
 import qtm.ansatz
 import qtm.constant
 import qtm.base

@@ -3,7 +3,7 @@
 # import matplotlib.pyplot as plt
 # import sys
 # sys.path.insert(1, '../../')
-# import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.progress_bar
+# import qtm.base, qtm.constant, qtm.ansatz, qtm.gradient, qtm.progress_bar
 # import types
 # import pickle 
 
@@ -11,7 +11,6 @@
 # num_layers = 2
 # # v = qtm.state.create_AME_state(3)
 # # prob = qtm.utilities.concentratable_entanglement(v,exact=True)
-# # print(prob)
 # # dsd
 
 # # #######################################################

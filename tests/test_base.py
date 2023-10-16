@@ -2,9 +2,11 @@
 import qiskit
 import numpy as np
 import sys
+import os
 sys.path.insert(0, '..')
 import qtm.ansatz
 import qtm.qcompilation
+import qtm.qsp
 
 def test_onequbit_qst():
     theta = np.random.uniform(0, np.pi)
@@ -45,3 +47,20 @@ def test_nqubit_qst():
     )
     compiler.fit(num_steps=100, verbose=1)
     assert (np.min(compiler.loss_values) < 0.0001)
+
+def test_save_load_qsp():
+    num_qubits = 3
+    num_layers = 1
+    optimizer = 'adam'
+    compiler = qtm.qcompilation.QuantumCompilation(
+        u = qtm.ansatz.g2gn(num_qubits, num_layers),
+        vdagger = qtm.state.create_ghz_state(num_qubits).inverse(),
+        optimizer = optimizer,
+        loss_func = 'loss_fubini_study'
+    )
+    compiler.fit(num_steps = 100, verbose = 1)
+    compiler.save(qtm.ansatz.g2gn, 'haar', './')
+    qspobj2 = qtm.qsp.QuantumStatePreparation('./haar_g2gn_3_1.qspobj')
+    fidelity = qspobj2.fidelity
+    os.remove('haar_g2gn_3_1.qspobj')
+    assert fidelity > 0.99

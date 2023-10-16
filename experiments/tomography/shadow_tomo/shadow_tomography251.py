@@ -9,7 +9,7 @@ import tqix
 sys.path.insert(1, '../../')
 import qtm.base
 import qtm.ansatz
-import qtm.fubini_study
+import qtm.gradient
 
 def self_tensor(matrix, n):
     product = matrix

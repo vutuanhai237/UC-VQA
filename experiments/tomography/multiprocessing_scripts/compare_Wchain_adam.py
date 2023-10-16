@@ -2,7 +2,7 @@ import qiskit
 import numpy as np
 import sys
 sys.path.insert(1, '../../')
-import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.encoding
+import qtm.base, qtm.constant, qtm.ansatz, qtm.gradient, qtm.encoding
 
 import multiprocessing
 def run_wchain(num_layers, num_qubits):

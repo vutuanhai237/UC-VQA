@@ -3,7 +3,7 @@ import numpy as np
 import sys
 
 sys.path.insert(1, '../../')
-import qtm.base, qtm.constant, qtm.ansatz, qtm.fubini_study, qtm.encoding
+import qtm.base, qtm.constant, qtm.ansatz, qtm.gradient, qtm.encoding
 import multiprocessing
 
 
@@ -22,7 +22,7 @@ def run_walltoall(num_layers, num_qubits):
         if i % 20 == 0:
             print('W_alltoall: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
         
-        G = qtm.fubini_study.qng(qc.copy(), thetas, qtm.ansatz.create_Walltoall_layerd_state, num_layers)
+        G = qtm.gradient.qng(qc.copy(), thetas, qtm.ansatz.create_Walltoall_layerd_state, num_layers)
         grad_loss = qtm.base.grad_loss(
             qc, 
             qtm.ansatz.create_Walltoall_layerd_state,
