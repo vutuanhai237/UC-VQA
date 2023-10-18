@@ -37,8 +37,6 @@ def get_thetas(num_qubits, num_layers, state_name, ansatz):
 
     return thetas
 
-print(get_thetas(3,2,'AME','g2'))
-
 # Test satisfy ansatz
 def find_satisfying_ansatz_test(num_qubit, max_depth, num_param ,state_name, error_rate):
     best_fidelity = 0
