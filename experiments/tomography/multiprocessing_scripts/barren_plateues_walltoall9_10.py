@@ -2,7 +2,7 @@ import qiskit
 import numpy as np
 import sys
 sys.path.insert(1, '../../')
-import qtm.base, qtm.constant, qtm.gradient
+import qtm.measure, qtm.constant, qtm.gradient
 layers = range(9, 11)
 ts = []
 for num_layers in layers:
@@ -22,7 +22,7 @@ for num_layers in layers:
         if i % 20 == 0:
             print('W_alltoall: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
         G = qtm.gradient.qng(qc.copy(), thetas, qtm.ansatz.create_Walltoall_layered_ansatz, num_layers = num_layers)
-        grad_loss = qtm.base.grad_loss(
+        grad_loss = qtm.measure.grad_loss(
             qc, 
             qtm.ansatz.create_Walltoall_layered_ansatz,
             thetas, num_layers = num_layers)

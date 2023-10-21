@@ -5,11 +5,11 @@ import qiskit
 import numpy as np
 import sys
 sys.path.insert(1, '../../')
-import qtm.encoding
+import qtm.state
 import qtm.gradient
 import qtm.ansatz
 import qtm.constant
-import qtm.base
+import qtm.measure
 
 
 def run_walltoall(num_layers, num_qubits):
@@ -28,7 +28,7 @@ def run_walltoall(num_layers, num_qubits):
             print('W_alltoall: (' + str(num_layers) +
                   ',' + str(num_qubits) + '): ' + str(i))
 
-        grad_loss = qtm.base.grad_loss(
+        grad_loss = qtm.measure.grad_loss(
             qc,
             qtm.ansatz.create_WalternatingCNOT_layerd_state,
             thetas, r=1/2, s=np.pi/2, num_layers=num_layers)
@@ -39,7 +39,7 @@ def run_walltoall(num_layers, num_qubits):
         thetass.append(thetas.copy())
         qc_copy = qtm.ansatz.create_WalternatingCNOT_layerd_state(
             qc.copy(), thetas, num_layers)
-        loss = qtm.loss.loss_basis(qtm.base.measure(
+        loss = qtm.loss.loss_basis(qtm.measure.measure(
             qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
@@ -53,7 +53,7 @@ def run_walltoall(num_layers, num_qubits):
             qc, thetas, num_layers=num_layers).inverse()
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc)
         # Calculate the metrics
-        trace, fidelity = qtm.base.get_metrics(psi, psi_hat)
+        trace, fidelity = qtm.measure.get_metrics(psi, psi_hat)
         traces.append(trace)
         fidelities.append(fidelity)
     print('Writting ... ' + str(num_layers) +

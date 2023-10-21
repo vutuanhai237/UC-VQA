@@ -3,7 +3,7 @@
 # import matplotlib.pyplot as plt
 # import sys
 # sys.path.insert(1, '../../')
-# import qtm.base, qtm.constant, qtm.ansatz, qtm.gradient, qtm.progress_bar
+# import , qtm.constant, qtm.ansatz, qtm.gradient
 # import types
 # import pickle 
 

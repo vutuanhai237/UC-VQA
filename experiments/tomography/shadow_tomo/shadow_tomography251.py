@@ -7,7 +7,7 @@ import tqix
 
 
 sys.path.insert(1, '../../')
-import qtm.base
+import qtm.measure
 import qtm.ansatz
 import qtm.gradient
 
@@ -34,7 +34,7 @@ qc.initialize(psi, range(0, num_qubits))
 
 
 for i in range(0, 400):
-    grad_loss = qtm.base.grad_loss(
+    grad_loss = qtm.measure.grad_loss(
         qc,
         qtm.ansatz.create_Wchain_layerd_state,
         thetas, r=1/2, s=np.pi/2, num_layers=num_layers)
@@ -45,7 +45,7 @@ for i in range(0, 400):
     thetass.append(thetas.copy())
     qc_copy = qtm.ansatz.create_Wchain_layerd_state(
         qc.copy(), thetas, num_layers)
-    loss = qtm.loss.loss_basis(qtm.base.measure(
+    loss = qtm.loss.loss_basis(qtm.measure.measure(
         qc_copy, list(range(qc_copy.num_qubits))))
     loss_values.append(loss)
 variances = []

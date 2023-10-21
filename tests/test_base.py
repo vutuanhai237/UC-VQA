@@ -7,7 +7,7 @@ sys.path.insert(0, '..')
 import qtm.ansatz
 import qtm.qcompilation
 import qtm.qsp
-
+import qtm.state
 def test_onequbit_qst():
     theta = np.random.uniform(0, np.pi)
     phi = np.random.uniform(0, 2*np.pi)
