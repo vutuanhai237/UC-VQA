@@ -129,12 +129,6 @@ dmypy.json
 
 ### VisualStudioCode ###
 .vscode/*
-qtm/
-qtm/base.py
-qtm/evolution/crossover.py
-qtm/evolution/ecircuit.py
-qtm/evolution/environment.py
-qtm/evolution/mutate.py
-qtm/evolution/selection.py
-qtm/utilities.py
+qsee/
+
 

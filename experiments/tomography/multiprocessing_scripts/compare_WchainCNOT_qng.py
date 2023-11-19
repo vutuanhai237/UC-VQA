@@ -2,7 +2,7 @@ import qiskit
 import numpy as np
 import sys
 sys.path.insert(1, '../../')
-import qtm.measure, qtm.constant, qtm.ansatz, qtm.gradient, qtm.state
+import qsee.measure, qsee.backend.constant, qsee.ansatz, qsee.gradient, qsee.state
 
 import multiprocessing
 
@@ -18,24 +18,24 @@ def run_wchain(num_layers, num_qubits):
     for i in range(0, 400):
         if i % 20 == 0:
             print('W_chain: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
-        G = qtm.gradient.qng(qc.copy(), thetas, qtm.ansatz.create_WchainCNOT_layerd_state, num_layers)
-        grad_loss = qtm.measure.grad_loss(
+        G = qsee.gradient.qng(qc.copy(), thetas, qsee.ansatz.create_WchainCNOT_layerd_state, num_layers)
+        grad_loss = qsee.measure.grad_loss(
             qc, 
-            qtm.ansatz.create_WchainCNOT_layerd_state,
+            qsee.ansatz.create_WchainCNOT_layerd_state,
             thetas, num_layers = num_layers)
-        thetas = np.real(thetas - qtm.constant.learning_rate*(np.linalg.inv(G) @ grad_loss))
+        thetas = np.real(thetas - qsee.constant.learning_rate*(np.linalg.inv(G) @ grad_loss))
         thetass.append(thetas.copy())
-        qc_copy = qtm.ansatz.create_WchainCNOT_layerd_state(qc.copy(), thetas, num_layers)  
-        loss = qtm.loss.loss_basis(qtm.measure.measure(qc_copy, list(range(qc_copy.num_qubits))))
+        qc_copy = qsee.ansatz.create_WchainCNOT_layerd_state(qc.copy(), thetas, num_layers)  
+        loss = qsee.loss.loss_basis(qsee.measure.measure(qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
     traces = []
     fidelities = []
     for thetas in thetass:
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.ansatz.create_WchainCNOT_layerd_state(qc, thetas, num_layers = num_layers).inverse()
+        qc = qsee.ansatz.create_WchainCNOT_layerd_state(qc, thetas, num_layers = num_layers).inverse()
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc)
-        trace, fidelity = qtm.measure.get_metrics(psi, psi_hat)
+        trace, fidelity = qsee.measure.get_metrics(psi, psi_hat)
         traces.append(trace)
         fidelities.append(fidelity)
 

@@ -1,4 +1,4 @@
-## UC-VQA: experiment repository for qtm library which is used in tomography
+## UC-VQA: experiment repository for qsee library which is used in tomography
 
 
 ### Resources

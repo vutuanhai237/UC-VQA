@@ -5,11 +5,11 @@ import qiskit
 import numpy as np
 import sys
 sys.path.insert(1, '../../')
-import qtm.state
-import qtm.gradient
-import qtm.ansatz
-import qtm.constant
-import qtm.measure
+import qsee.state
+import qsee.gradient
+import qsee.ansatz
+import qsee.backend.constant
+import qsee.measure
 
 
 def run_walltoall(num_layers, num_qubits):
@@ -28,18 +28,18 @@ def run_walltoall(num_layers, num_qubits):
             print('W_alltoall: (' + str(num_layers) +
                   ',' + str(num_qubits) + '): ' + str(i))
 
-        grad_loss = qtm.measure.grad_loss(
+        grad_loss = qsee.measure.grad_loss(
             qc,
-            qtm.ansatz.create_WalternatingCNOT_layerd_state,
+            qsee.ansatz.create_WalternatingCNOT_layerd_state,
             thetas, r=1/2, s=np.pi/2, num_layers=num_layers)
         if i == 0:
             m, v = list(np.zeros(thetas.shape[0])), list(
                 np.zeros(thetas.shape[0]))
-        thetas = qtm.optimizer.adam(thetas, m, v, i, grad_loss)
+        thetas = qsee.optimizer.adam(thetas, m, v, i, grad_loss)
         thetass.append(thetas.copy())
-        qc_copy = qtm.ansatz.create_WalternatingCNOT_layerd_state(
+        qc_copy = qsee.ansatz.create_WalternatingCNOT_layerd_state(
             qc.copy(), thetas, num_layers)
-        loss = qtm.loss.loss_basis(qtm.measure.measure(
+        loss = qsee.loss.loss_basis(qsee.measure.measure(
             qc_copy, list(range(qc_copy.num_qubits))))
         loss_values.append(loss)
 
@@ -49,11 +49,11 @@ def run_walltoall(num_layers, num_qubits):
     for thetas in thetass:
         # Get |psi~> = U_target|000...>
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-        qc = qtm.ansatz.create_WalternatingCNOT_layerd_state(
+        qc = qsee.ansatz.create_WalternatingCNOT_layerd_state(
             qc, thetas, num_layers=num_layers).inverse()
         psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc)
         # Calculate the metrics
-        trace, fidelity = qtm.measure.get_metrics(psi, psi_hat)
+        trace, fidelity = qsee.measure.get_metrics(psi, psi_hat)
         traces.append(trace)
         fidelities.append(fidelity)
     print('Writting ... ' + str(num_layers) +

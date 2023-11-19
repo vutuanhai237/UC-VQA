@@ -1,7 +1,7 @@
 import qiskit, sys
 import numpy as np
 sys.path.insert(1, '../../')
-import qtm.qcompilation, qtm.ansatz
+import qsee.compilation.qcompilation, qsee.ansatz
 
 
 def run_wchain(num_layers, num_qubits):
@@ -11,9 +11,9 @@ def run_wchain(num_layers, num_qubits):
     u = qiskit.QuantumCircuit(num_qubits, num_qubits)
     u.initialize(psi, range(0, num_qubits))
 
-    compiler = qtm.qcompilation.QuantumCompilation(
+    compiler = qsee.compilation.qcompilation.QuantumCompilation(
         u = u,
-        vdagger = qtm.ansatz.create_Wchain_layered_ansatz,
+        vdagger = qsee.ansatz.create_Wchain_layered_ansatz,
         optimizer = 'adam',
         loss_func = 'loss-fubini-study',
         thetas = thetas,
@@ -24,7 +24,7 @@ def run_wchain(num_layers, num_qubits):
     print('Writting ... ' + str(num_layers) + ' layers,' + str(num_qubits) +
           ' qubits')
 
-    compiler.save(text=str(qtm.constant.noise_prob) + "mitigating", save_all = True)
+    compiler.save(text=str(qsee.constant.noise_prob) + "mitigating", save_all = True)
 
 run_wchain(2, 5)
 print("Done!")

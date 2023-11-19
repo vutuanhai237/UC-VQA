@@ -2,14 +2,14 @@ import qiskit
 import numpy as np
 import sys
 sys.path.insert(1, '../../')
-import qtm.measure, qtm.constant, qtm.gradient
+import qsee.measure, qsee.backend.constant, qsee.gradient
 layers = range(6, 9)
 ts = []
 for num_layers in layers:
     variances = []
     grads = []
     num_qubits = 4
-    n_walltoall = qtm.ansatz.calculate_n_walltoall(num_qubits)
+    n_walltoall = qsee.ansatz.calculate_n_walltoall(num_qubits)
     thetas = np.ones(num_layers* 3 * num_qubits + num_layers*n_walltoall)
 
     psi = 2*np.random.rand(2**num_qubits)-1
@@ -21,10 +21,10 @@ for num_layers in layers:
     for i in range(0, 200):
         if i % 20 == 0:
             print('W_alltoall: (' + str(num_layers) + ',' + str(num_qubits) + '): ' + str(i))
-        G = qtm.gradient.qng(qc.copy(), thetas, qtm.ansatz.create_Walltoall_layered_ansatz, num_layers = num_layers)
-        grad_loss = qtm.measure.grad_loss(
+        G = qsee.gradient.qng(qc.copy(), thetas, qsee.ansatz.create_Walltoall_layered_ansatz, num_layers = num_layers)
+        grad_loss = qsee.measure.grad_loss(
             qc, 
-            qtm.ansatz.create_Walltoall_layered_ansatz,
+            qsee.ansatz.create_Walltoall_layered_ansatz,
             thetas, num_layers = num_layers)
 
         grad = np.linalg.inv(G) @ grad_loss
