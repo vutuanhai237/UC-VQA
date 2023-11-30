@@ -11,8 +11,7 @@ def f(num_qubits, num_layers):
         vdagger = qsee.state.ame(num_qubits).inverse(),
         optimizer = optimizer,
         loss_func = 'loss_fubini_study'
-    )
-    compiler.fit(num_steps = 100, verbose = 1)
+    ).fit()
     qspobj = qsee.qsp.QuantumStatePreparation.load_from_compiler(
     compiler = compiler, ansatz = qsee.ansatz.g2gn)
     qspobj.save(state = 'ame', file_name='../experiments/qsp/')

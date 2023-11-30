@@ -11,7 +11,7 @@ psi = [0.26424641, 0.23103536, 0.11177099, 0.17962657, 0.18777508, 0.07123707,
        0.10579994, 0.26516434, 0.21545716, 0.11265348, 0.20488736, 0.10268576,
        0.27819402, 0.0785904, 0.09997989, 0.17438181, 0.16625928, 0.23213874,
        0.01231226, 0.18198155]
-rho = qiskit.quantum_info.DensityMatrix(psi).data
+rho = qi.DensityMatrix(psi).data
 def self_tensor(matrix, n):
     product = matrix
     for i in range(1, n):

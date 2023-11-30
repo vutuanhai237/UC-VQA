@@ -39,7 +39,7 @@ def run_wchain(num_layers, num_qubits):
     for thetas in thetass:
         qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
         qc = qsee.ansatz.create_Wchain_layerd_state(qc, thetas, num_layers = num_layers).inverse()
-        psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc)
+        psi_hat = qi.Statevector.from_instruction(qc)
         # Calculate the metrics
         trace, fidelity = qsee.measure.get_metrics(psi, psi_hat)
         traces.append(trace)

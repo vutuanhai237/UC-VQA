@@ -53,7 +53,7 @@ for thetas in thetass:
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
     qc = qsee.ansatz.create_Wchain_layerd_state(
         qc, thetas, num_layers=num_layers).inverse()
-    psi_hat = qiskit.quantum_info.Statevector.from_instruction(qc).data
+    psi_hat = qi.Statevector.from_instruction(qc).data
     variances.append((np.conjugate(np.transpose(psi_hat)) @ self_tensor(tqix.sigmaz(), num_qubits) @ psi_hat)
                      ** 2 - (np.conjugate(np.transpose(psi)) @ self_tensor(tqix.sigmaz(), num_qubits) @ psi)**2)
 
