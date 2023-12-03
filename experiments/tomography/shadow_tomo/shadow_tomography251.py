@@ -45,7 +45,7 @@ for i in range(0, 400):
     thetass.append(thetas.copy())
     qc_copy = qsee.ansatz.create_Wchain_layerd_state(
         qc.copy(), thetas, num_layers)
-    loss = qsee.loss.loss_basis(qsee.measure.measure(
+    loss = qsee.loss.loss_basic(qsee.measure.measure(
         qc_copy, list(range(qc_copy.num_qubits))))
     loss_values.append(loss)
 variances = []

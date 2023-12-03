@@ -30,5 +30,5 @@ jobs:
           git clone https://github.com/vutuanhai237/qsee.git
       - name: Run testcases
         run: |
-          cd test
+          cd tests
           python -m pytest
