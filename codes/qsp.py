@@ -1,11 +1,11 @@
-from qsee.compilation.qsp import QuantumStatePreparation
-from qsee.core import ansatz, state
-from qsee.backend import constant, utilities
+from qoop.compilation.qsp import QuantumStatePreparation
+from qoop.core import ansatz, state
+from qoop.backend import constant, utilities
 import matplotlib.pyplot as plt
 import numpy as np, qiskit
 from scipy.linalg import expm
 from qiskit.quantum_info import Pauli, Statevector
-from qsee.compilation.qsp import QuantumStatePreparation
+from qoop.compilation.qsp import QuantumStatePreparation
 
 # Define Pauli matrices
 XX = Pauli("XX").to_matrix()

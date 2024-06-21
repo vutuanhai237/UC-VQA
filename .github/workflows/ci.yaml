@@ -20,14 +20,14 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Remove folder qsee
+      - name: Remove folder qoop
         uses: JesseTG/rm@v1.0.3
         with:
-          path: qsee
+          path: qoop
       - name: Install dependecies
         run: |
           pip install -r requirements.txt
-          git clone https://github.com/vutuanhai237/qsee.git
+          git clone https://github.com/vutuanhai237/qoop.git
       - name: Run testcases
         run: |
           cd tests

@@ -1,12 +1,10 @@
-## UC-VQA: experiment repository for qsee library which is used in tomography
+## UC-VQA: experiment repository for qoop library which is used in tomography
 
 
 ### Resources
 
-* Homepage: []
-  * Courses: []
-* Docs: []
-* Issue tracking: <https://github.com/vutuanhai23/UC-VQA/issues>
+This is the data repository for UC-VQA paper
+We have provided guidelines for people who want to use the code relevant to this repo. They can refer to [this repo](https://github.com/vutuanhai237/qoop).
 
 ### Contributing
 

@@ -7,9 +7,9 @@ import tqix
 
 
 sys.path.insert(1, '../../')
-import qsee.measure
-import qsee.ansatz
-import qsee.gradient
+import qoop.measure
+import qoop.ansatz
+import qoop.gradient
 
 def self_tensor(matrix, n):
     product = matrix
@@ -34,24 +34,24 @@ qc.initialize(psi, range(0, num_qubits))
 
 
 for i in range(0, 400):
-    grad_loss = qsee.measure.grad_loss(
+    grad_loss = qoop.measure.grad_loss(
         qc,
-        qsee.ansatz.create_Wchain_layerd_state,
+        qoop.ansatz.create_Wchain_layerd_state,
         thetas, r=1/2, s=np.pi/2, num_layers=num_layers)
     if i == 0:
         m, v = list(np.zeros(thetas.shape[0])), list(
             np.zeros(thetas.shape[0]))
-    thetas = qsee.optimizer.adam(thetas, m, v, i, grad_loss)
+    thetas = qoop.optimizer.adam(thetas, m, v, i, grad_loss)
     thetass.append(thetas.copy())
-    qc_copy = qsee.ansatz.create_Wchain_layerd_state(
+    qc_copy = qoop.ansatz.create_Wchain_layerd_state(
         qc.copy(), thetas, num_layers)
-    loss = qsee.loss.loss_basic(qsee.measure.measure(
+    loss = qoop.loss.loss_basic(qoop.measure.measure(
         qc_copy, list(range(qc_copy.num_qubits))))
     loss_values.append(loss)
 variances = []
 for thetas in thetass:
     qc = qiskit.QuantumCircuit(num_qubits, num_qubits)
-    qc = qsee.ansatz.create_Wchain_layerd_state(
+    qc = qoop.ansatz.create_Wchain_layerd_state(
         qc, thetas, num_layers=num_layers).inverse()
     psi_hat = qi.Statevector.from_instruction(qc).data
     variances.append((np.conjugate(np.transpose(psi_hat)) @ self_tensor(tqix.sigmaz(), num_qubits) @ psi_hat)

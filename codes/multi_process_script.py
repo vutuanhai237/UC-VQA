@@ -1,19 +1,19 @@
 import sys
 import multiprocessing
 sys.path.insert(1, '../')
-import qsee.compilation.qcompilation
+import qoop.compilation.qcompilation
 
 
 def f(num_qubits, num_layers):
     optimizer = 'adam'
-    compiler = qsee.compilation.qcompilation.QuantumCompilation(
-        u = qsee.ansatz.g2gn(num_qubits, num_layers),
-        vdagger = qsee.state.ame(num_qubits).inverse(),
+    compiler = qoop.compilation.qcompilation.QuantumCompilation(
+        u = qoop.ansatz.g2gn(num_qubits, num_layers),
+        vdagger = qoop.state.ame(num_qubits).inverse(),
         optimizer = optimizer,
         loss_func = 'loss_fubini_study'
     ).fit()
-    qspobj = qsee.qsp.QuantumStatePreparation.load_from_compiler(
-    compiler = compiler, ansatz = qsee.ansatz.g2gn)
+    qspobj = qoop.qsp.QuantumStatePreparation.load_from_compiler(
+    compiler = compiler, ansatz = qoop.ansatz.g2gn)
     qspobj.save(state = 'ame', file_name='../experiments/qsp/')
     return 
 if __name__ == "__main__":
